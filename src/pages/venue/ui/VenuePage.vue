@@ -31,6 +31,14 @@ type TabId = (typeof tabs)[number]["id"];
 const tab = ref<TabId>(tabs.find((t) => t.id === route.query.tab)?.id ?? "schedule");
 watch(tab, (t) => navigateTo({ query: { ...route.query, tab: t } }, { replace: true }));
 
+// «Забронировать»: открыть вкладку и доскроллить до условий (отступ сверху - scroll-mt под липкие шапку и вкладки)
+const bookingBlock = ref<HTMLElement>();
+const openBooking = async () => {
+  tab.value = "booking";
+  await nextTick();
+  bookingBlock.value?.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
 const venueEvents = events.filter((e) => e.venue === v.slug && isUpcoming(e));
 const todayIdx = weekdayIndex();
 </script>
@@ -75,7 +83,7 @@ const todayIdx = weekdayIndex();
           </a>
         </div>
         <div class="card flex items-center gap-2 p-3">
-          <button class="btn-primary flex-1 py-3.5" @click="tab = 'booking'"><UiIcon name="calendar" :size="18" /> Забронировать</button>
+          <button class="btn-primary flex-1 py-3.5" @click="openBooking"><UiIcon name="calendar" :size="18" /> Забронировать</button>
           <FavoriteButton kind="venues" :id="v.slug" class="size-12" />
           <ShareButton :title="v.name" />
         </div>
@@ -110,7 +118,7 @@ const todayIdx = weekdayIndex();
       <VenueGallery v-else-if="tab === 'gallery'" :photos="v.gallery" />
 
       <!-- Бронирование: условия в стиле меню + контакты для брони -->
-      <div v-else-if="tab === 'booking'" class="card p-6 sm:p-10">
+      <div v-else-if="tab === 'booking'" ref="bookingBlock" class="card scroll-mt-40 p-6 sm:scroll-mt-44 sm:p-10">
         <h2 class="h-display mb-6 text-4xl sm:text-5xl">Условия бронирования</h2>
         <ul>
           <li class="flex items-baseline justify-between gap-6 border-b border-line py-3.5">
