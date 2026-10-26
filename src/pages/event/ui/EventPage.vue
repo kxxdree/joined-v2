@@ -3,10 +3,9 @@ import { getArtist } from '@entities/artist'
 import { cityName } from '@entities/city'
 import { getEvent } from '@entities/event'
 import { getVenue } from '@entities/venue'
-import { TicketPurchase } from '@features/buy-ticket'
 import { genreName } from '@shared/config'
 import { formatDay, formatWeekdayLong } from '@shared/lib'
-import { UiCarousel, UiIcon, UiModal, UiPhoto } from '@shared/ui'
+import { UiIcon, UiModal, UiPhoto } from '@shared/ui'
 
 const route = useRoute()
 const found = getEvent(String(route.params.id))
@@ -15,6 +14,9 @@ const ev = found
 const venue = getVenue(ev.venue)!
 const lineup = ev.artists.map(getArtist).filter(a => !!a)
 const posters = ev.posters ?? []
+
+// Афиши вместо обложки-фото: текущая афиша листается стрелками прямо в обложке
+const slide = ref(0)
 
 // Просмотр афиши крупно, с листанием - как в галерее заведения
 const current = ref<number | null>(null)
@@ -30,11 +32,25 @@ useHead({ title: `${ev.title} - Joined`, meta: [{ name: 'description', content: 
   <section class="container-x pt-6">
     <NuxtLink to="/events" class="btn-ghost mb-5 pl-3"><UiIcon name="chevron-left" :size="16" /> Афиша</NuxtLink>
 
-    <div class="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
+    <!-- одна колонка по центру: блок покупки билетов убран -->
+    <div class="mx-auto grid max-w-4xl gap-4">
       <div class="grid gap-4">
-        <!-- Обложка: постер с названием по центру, как у заведения; описание - под фото -->
+        <!-- Обложка: есть афиши лайнапа - показываем их целиком (текст уже на них) на размытой подложке из той же афиши;
+             нет - постер-фото с названием по центру, как у заведения. Описание - под обложкой -->
         <article class="rim relative overflow-hidden rounded-4xl bg-black">
-          <div class="relative aspect-4/5 sm:aspect-video">
+          <div v-if="posters.length" class="relative grid place-items-center overflow-hidden p-4 sm:p-8">
+            <img :src="posters[slide]" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-2xl">
+            <div class="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black" />
+            <button type="button" class="relative" :aria-label="`Открыть афишу ${slide + 1}`" @click="current = slide">
+              <img :src="posters[slide]" :alt="`Афиша ${slide + 1}: ${ev.title}`" class="max-h-[75vh] w-auto rounded-3xl object-contain shadow-[0_24px_60px_-20px_rgb(0_0_0/0.9)]">
+            </button>
+            <template v-if="posters.length > 1">
+              <span class="glass-chip absolute top-4 right-4 rounded-lg px-2 py-1 text-xs font-semibold tracking-wider tabular-nums sm:top-6 sm:right-6">{{ slide + 1 }} / {{ posters.length }}</span>
+              <button type="button" class="btn-icon absolute top-1/2 left-4 size-10 -translate-y-1/2 bg-black/50 sm:left-6" :disabled="!slide" aria-label="Предыдущая афиша" @click="slide--"><UiIcon name="chevron-left" :size="20" /></button>
+              <button type="button" class="btn-icon absolute top-1/2 right-4 size-10 -translate-y-1/2 bg-black/50 sm:right-6" :disabled="slide === posters.length - 1" aria-label="Следующая афиша" @click="slide++"><UiIcon name="chevron-right" :size="20" /></button>
+            </template>
+          </div>
+          <div v-else class="relative aspect-4/5 sm:aspect-video">
             <UiPhoto :src="ev.photo" :alt="ev.title" class="absolute inset-0 h-full w-full" />
             <div class="pointer-events-none absolute inset-0 bg-black/30" />
             <div class="pointer-events-none absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black" />
@@ -46,6 +62,7 @@ useHead({ title: `${ev.title} - Joined`, meta: [{ name: 'description', content: 
 
           <!-- Описание под фото, на чёрном - чтобы не сливалось с изображением -->
           <div class="p-6 sm:px-10 sm:pb-10">
+            <h1 v-if="posters.length" class="h-display mb-4 text-3xl font-bold text-balance lowercase sm:text-5xl">{{ ev.title }}</h1>
             <p class="max-w-2xl text-white/85 sm:text-lg">{{ ev.description }}</p>
             <p class="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold tracking-wider uppercase">
               <span class="text-accent-text">{{ formatDay(ev.date) }} · {{ ev.time }}</span>
@@ -78,32 +95,37 @@ useHead({ title: `${ev.title} - Joined`, meta: [{ name: 'description', content: 
           </NuxtLink>
         </div>
 
-        <!-- Лайнап списком, как события на странице «Афиша»; ниже - афиши события галереей -->
-        <div v-if="lineup.length || posters.length" class="card p-6 sm:p-8">
-          <h2 class="mb-5 text-2xl font-medium">Лайнап</h2>
-          <NuxtLink v-for="a in lineup" :key="a!.slug" :to="`/artists/${a!.slug}`" class="group flex items-center gap-4 border-t border-line py-4 last:pb-0">
-            <UiPhoto :src="a!.photo" :alt="a!.name" class="size-14 shrink-0 rounded-lg" />
-            <div class="min-w-0 flex-1">
-              <p class="font-medium uppercase transition-colors group-hover:text-sand">{{ a!.name }}</p>
-              <p class="mt-0.5 text-xs tracking-wider text-muted uppercase">{{ cityName(a!.city) }} · {{ a!.genres.map(genreName).join(', ') }}</p>
-            </div>
-          </NuxtLink>
-
-          <!-- Афиши: вертикальные картинки, как истории; не влезают - листаются стрелками -->
-          <div v-if="posters.length" :class="lineup.length ? 'mt-6 border-t border-line pt-6' : ''">
-            <p class="mb-4 text-xs tracking-widest text-muted uppercase">Афиши</p>
-            <UiCarousel>
-              <button
-                v-for="(src, i) in posters"
-                :key="`${i}-${src}`"
-                type="button"
-                class="group w-[calc((100%-1rem)/3)] shrink-0 snap-start overflow-hidden rounded-2xl sm:w-44"
-                :aria-label="`Открыть афишу ${i + 1}`"
-                @click="current = i"
-              >
-                <UiPhoto :src="src" :alt="`Афиша ${i + 1}: ${ev.title}`" class="aspect-9/16 transition-transform duration-700 ease-liquid group-hover:scale-[1.03]" />
-              </button>
-            </UiCarousel>
+        <!-- Лайнап полосами, как недельный календарь на клубных афишах: слева акцентная плашка с именем,
+             справа тонированное фото артиста с жанрами. Афиши события - в обложке выше -->
+        <div v-if="lineup.length" class="card p-6 sm:p-8">
+          <h2 class="h-display mb-6 text-4xl uppercase sm:text-5xl">Лайнап</h2>
+          <div class="grid gap-3">
+            <NuxtLink
+              v-for="(a, i) in lineup"
+              :key="a!.slug"
+              :to="`/artists/${a!.slug}`"
+              class="group grid min-h-32 grid-cols-[minmax(0,2fr)_minmax(0,3fr)] overflow-hidden bg-black sm:min-h-40"
+            >
+              <div class="flex flex-col justify-between gap-4 bg-accent p-4 transition-colors group-hover:bg-accent-hover sm:p-5">
+                <p class="text-xs leading-tight font-semibold tracking-wider uppercase">
+                  Сет {{ String(i + 1).padStart(2, '0') }}<br>
+                  <span class="text-white/75">{{ cityName(a!.city) }}</span>
+                </p>
+                <div class="min-w-0">
+                  <p class="text-[10px] font-semibold tracking-widest text-white/75 uppercase">feat.</p>
+                  <p class="font-display text-lg leading-[0.95] font-bold wrap-break-word uppercase sm:text-2xl">{{ a!.name }}</p>
+                </div>
+              </div>
+              <!-- фото в тёплом сепийном тоне, справа затемнение под текст -->
+              <div class="relative">
+                <UiPhoto :src="a!.photo" :alt="a!.name" class="absolute inset-0 h-full w-full grayscale transition-transform duration-700 ease-liquid group-hover:scale-[1.03]" />
+                <div class="pointer-events-none absolute inset-0 bg-[#c98a5a] mix-blend-multiply" />
+                <div class="pointer-events-none absolute inset-0 bg-linear-to-r from-transparent via-transparent to-black/65" />
+                <p class="absolute inset-y-0 right-0 flex w-3/5 items-center justify-end p-4 text-right font-display text-base leading-[0.95] font-bold text-[#fff1e0] uppercase sm:p-5 sm:text-2xl">
+                  {{ a!.genres.map(genreName).join(' · ') }}
+                </p>
+              </div>
+            </NuxtLink>
           </div>
         </div>
 
@@ -116,10 +138,6 @@ useHead({ title: `${ev.title} - Joined`, meta: [{ name: 'description', content: 
           </div>
         </UiModal>
       </div>
-
-      <aside class="lg:sticky lg:top-28 lg:h-fit">
-        <TicketPurchase :event="ev" :venue-name="venue.name" />
-      </aside>
     </div>
   </section>
 </template>
