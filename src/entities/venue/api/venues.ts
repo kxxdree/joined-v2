@@ -380,6 +380,27 @@ export const venues: Venue[] = [
     booking: baseBooking(1500),
     rules: [...baseRules, 'Дресс-код: smart casual'],
   },
+  {
+    slug: 'lipetsk-salut',
+    name: 'Салют',
+    city: 'lipetsk',
+    format: 'club',
+    genres: ['hiphop', 'electronic'],
+    drinks: ['cocktails', 'craft', 'snacks'],
+    address: 'ул. Интернациональная, 8',
+    directions: 'Вход с улицы под оранжевой неоновой вывеской, спуск в подвальный зал.',
+    lat: 52.6090, lng: 39.5950,
+    popularity: 176,
+    short: 'Клуб с хип-хоп и электронными вечеринками',
+    description: 'Тёмный зал, мощный звук и резиденты локальной сцены: хип-хоп лайнапы, электроника и вечеринки до утра.',
+    phone: '+7 (910) 257-00-31', instagram: '@salut.lipetsk', telegram: '@salutlipetsk',
+    hours: weekHours('18:00 - 02:00', '20:00 - 06:00'),
+    photo: ph('nightclub', 26),
+    gallery: gallery(250),
+    menu: menuPhotos(75),
+    booking: baseBooking(1000),
+    rules: [...baseRules, 'Вход до 22:00 свободный, после 22:00 - 500 ₽'],
+  },
 ]
 
 export const getVenue = (slug: string) => venues.find(v => v.slug === slug)

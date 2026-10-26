@@ -95,7 +95,7 @@ useHead({ title: `${ev.title} - Joined`, meta: [{ name: 'description', content: 
             <UiCarousel>
               <button
                 v-for="(src, i) in posters"
-                :key="src"
+                :key="`${i}-${src}`"
                 type="button"
                 class="group w-[calc((100%-1rem)/3)] shrink-0 snap-start overflow-hidden rounded-2xl sm:w-44"
                 :aria-label="`Открыть афишу ${i + 1}`"

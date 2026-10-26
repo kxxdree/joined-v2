@@ -35,7 +35,7 @@ const artistNames = (e: EventItem) =>
     <div v-if="grouped.length" class="card p-5 sm:p-10">
       <div class="mb-6 flex items-start justify-between gap-4 text-xs tracking-widest uppercase sm:mb-8">
         <span class="text-soft">Афиша<br />{{ title }}</span>
-        <span class="text-sm tracking-normal normal-case">Joined™</span>
+        <!-- <span class="text-sm tracking-normal normal-case">Joined™</span> -->
       </div>
 
       <div v-for="[date, items] in grouped" :key="date" class="grid gap-4 border-t border-line py-5 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-8">
