@@ -20,5 +20,7 @@ export interface EventItem {
   time: string
   description: string
   photo: string
+  /** Афиши-картинки события (для соцсетей и историй, обычно 9:16) - показываются как есть, галереей в лайнапе */
+  posters?: string[]
   tickets: TicketType[]
 }
