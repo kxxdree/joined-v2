@@ -9,7 +9,7 @@ const route = useRoute()
 const { login } = useSession()
 
 const roles: { id: PublicRole; name: string; desc: string; icon: string }[] = [
-  { id: 'user', name: 'Слушатель', desc: 'Билеты, брони, избранное', icon: 'user' },
+  { id: 'user', name: 'Слушатель', desc: 'Брони и избранное', icon: 'user' },
   { id: 'venue', name: 'Заведение', desc: 'Афиша, меню, брони', icon: 'glass' },
   { id: 'artist', name: 'Музыкант', desc: 'Профиль группы, концерты', icon: 'music' },
 ]

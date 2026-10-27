@@ -7,6 +7,7 @@ import { CitySelect } from "@features/select-city";
 import { type GenreId, genres } from "@shared/config";
 import { addDays, dayNumber, formatPrice, formatWeekdayLong, isWeekend, monthShort, plural, todayISO } from "@shared/lib";
 import { UiEmpty, UiIcon, UiPills } from "@shared/ui";
+import { EventStories } from "@widgets/event-stories";
 
 useHead({ title: "Афиша - Joined" });
 
@@ -60,6 +61,17 @@ const grouped = computed(() => {
   return [...map.entries()];
 });
 
+// Истории: клик по событию открывает его афиши (листаются только внутри этого события).
+// Открытое событие - в ?event=: по такой ссылке (в т.ч. старые /events/:id) истории открываются сразу
+const storyId = ref<string | null>(typeof route.query.event === "string" ? route.query.event : null);
+watch(storyId, (id) => navigateTo({ query: { ...route.query, event: id ?? undefined } }, { replace: true }));
+// с модификаторами (новая вкладка и т.п.) ссылка работает как обычно
+const openStory = (e: MouseEvent, id: string) => {
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+  e.preventDefault();
+  storyId.value = id;
+};
+
 // Длинная афиша: дни подгружаются порциями, а длинный день свёрнут до первых событий
 const DAYS_STEP = 7;
 const PER_DAY = 5;
@@ -110,13 +122,14 @@ watch([genre, period, cityId, q], () => {
 
           <div class="space-y-4 md:pt-2">
             <p class="text-xs tracking-widest uppercase" :class="isWeekend(date) ? 'text-accent-text' : 'text-muted'">{{ formatWeekdayLong(date) }}</p>
-            <NuxtLink v-for="e in expanded.has(date) ? items : items.slice(0, PER_DAY)" :key="e.id" :to="`/events/${e.id}`" class="group flex items-baseline justify-between gap-4">
+            <!-- клик - афиша в историях; ссылка с ?event= - для новой вкладки -->
+            <a v-for="e in expanded.has(date) ? items : items.slice(0, PER_DAY)" :key="e.id" :href="`/events?event=${e.id}`" class="group flex items-baseline justify-between gap-4" @click="openStory($event, e.id)">
               <div class="min-w-0">
                 <p class="font-medium uppercase transition-colors group-hover:text-sand">{{ e.title }}</p>
                 <p class="mt-0.5 text-xs tracking-wider text-muted uppercase">{{ getVenue(e.venue)?.name }} · {{ e.time }}</p>
               </div>
               <span class="shrink-0 text-sm tabular-nums">от {{ formatPrice(minPrice(e)) }}</span>
-            </NuxtLink>
+            </a>
             <button v-if="!expanded.has(date) && items.length > PER_DAY" class="text-xs tracking-widest text-accent-text uppercase transition-colors hover:text-sand" @click="expand(date)">
               Ещё {{ items.length - PER_DAY }} {{ plural(items.length - PER_DAY, ["событие", "события", "событий"]) }}
             </button>
@@ -140,5 +153,8 @@ watch([genre, period, cityId, q], () => {
         </button>
       </UiEmpty>
     </section>
+
+    <!-- все события, а не только выборка: по ссылке может прийти событие другого города или даты -->
+    <EventStories v-model="storyId" :events="events" />
   </div>
 </template>

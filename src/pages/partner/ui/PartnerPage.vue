@@ -200,7 +200,7 @@ const setStatus = (id: string, status: Exclude<BookingStatus, 'new'>) => {
                       <p class="mt-0.5 text-xs tracking-wider text-muted uppercase">{{ getVenue(e.venue)?.name ?? '-' }} · {{ e.time }}</p>
                     </div>
                     <div class="flex shrink-0 gap-2">
-                      <NuxtLink v-if="!e.id.startsWith('new')" :to="`/events/${e.id}`" class="btn-icon size-9" aria-label="Открыть"><UiIcon name="eye" :size="16" /></NuxtLink>
+                      <NuxtLink v-if="!e.id.startsWith('new')" :to="`/events?event=${e.id}`" class="btn-icon size-9" aria-label="Открыть афишу"><UiIcon name="eye" :size="16" /></NuxtLink>
                       <button class="btn-icon size-9" aria-label="Снять с публикации" @click="removeEvent(e.id)"><UiIcon name="trash" :size="16" /></button>
                     </div>
                   </div>

@@ -8,6 +8,7 @@ import { genreName } from "@shared/config";
 import { weekdayIndex } from "@shared/lib";
 import { UiIcon, UiPhoto } from "@shared/ui";
 import { EventCalendar } from "@widgets/event-calendar";
+import { EventStories } from "@widgets/event-stories";
 import VenueAbout from "./VenueAbout.vue";
 import VenueGallery from "./VenueGallery.vue";
 import VenueMenu from "./VenueMenu.vue";
@@ -40,6 +41,7 @@ const openBooking = async () => {
 };
 
 const venueEvents = events.filter((e) => e.venue === v.slug && isUpcoming(e));
+const storyId = ref<string | null>(null); // выступление из календаря, открытое в историях
 const todayIdx = weekdayIndex();
 </script>
 
@@ -110,7 +112,7 @@ const todayIdx = weekdayIndex();
     <section class="container-x pt-10">
       <div v-if="tab === 'schedule'">
         <h2 class="h-display mb-8 text-4xl sm:text-5xl">Музыкальный календарь</h2>
-        <EventCalendar :events="venueEvents" :title="v.name" />
+        <EventCalendar :events="venueEvents" :title="v.name" @open="storyId = $event" />
       </div>
 
       <VenueAbout v-else-if="tab === 'about'" :venue="v" />
@@ -144,5 +146,7 @@ const todayIdx = weekdayIndex();
         </ul>
       </div>
     </section>
+
+    <EventStories v-model="storyId" :events="venueEvents" />
   </div>
 </template>
