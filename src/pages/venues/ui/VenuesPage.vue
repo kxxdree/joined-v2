@@ -88,7 +88,7 @@ const reset = () => {
       </Transition>
 
       <!-- Мобайл: стеклянный лист -->
-      <UiModal v-model="sheetOpen" title="Фильтры" panel-class="max-sm:[--lg-tint:rgb(18_18_20/0.92)]">
+      <UiModal v-model="sheetOpen" title="Фильтры" panel-class="max-sm:[--lg-tint:rgb(26_21_22/0.92)]">
         <VenueFilters v-model="filters" />
         <div class="mt-8 grid grid-cols-2 gap-2">
           <button class="btn-dark py-3.5" @click="reset">Сбросить</button>

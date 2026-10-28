@@ -1,2 +1,2 @@
-export { homeForRole, roleNames, useSession } from './model/session'
+export { roleNames, useSession } from './model/session'
 export type { Role, User } from './model/session'

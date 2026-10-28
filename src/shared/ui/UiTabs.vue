@@ -21,7 +21,7 @@ const model = defineModel<T>({ required: true })
       <span
         v-if="t.badge"
         class="ml-auto grid min-w-5 place-items-center rounded-md px-1.5 text-xs"
-        :class="model === t.id ? 'bg-accent text-white' : 'bg-accent/25 text-[#ffc8a3]'"
+        :class="model === t.id ? 'bg-accent text-white' : 'bg-accent/25 text-[#ffc4a3]'"
       >{{ t.badge }}</span>
     </button>
   </nav>

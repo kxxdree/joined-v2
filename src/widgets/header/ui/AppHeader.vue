@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useSession } from '@entities/session'
-import { UiIcon, UiLogo } from '@shared/ui'
+import { UiIcon } from '@shared/ui'
 
 const { user, logout } = useSession()
 const route = useRoute()
@@ -17,7 +17,7 @@ const links = [
 const cabinet = computed(() => {
   if (!user.value) return null
   if (user.value.role === 'admin') return { to: '/admin', label: 'Админ-панель' }
-  if (user.value.role === 'venue' || user.value.role === 'artist') return { to: '/partner', label: 'Кабинет партнёра' }
+  if (user.value.role === 'venue' || user.value.role === 'artist') return { to: '/partner', label: 'Профиль партнёра' }
   return null
 })
 
@@ -38,40 +38,36 @@ watch(open, (v) => {
 
 <template>
   <header class="sticky top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-4">
-    <!-- Плавающая стеклянная капсула -->
+    <!-- Минималистичная шапка: название слева, ссылки простым текстом справа, без кнопок и капсулы.
+         Над первым экраном без фона; при прокрутке - лёгкая тёмная размытая подложка, чтобы текст читался.
+         Высота и отступы прежние (h-16 + pt-3/sm:pt-4): страницы, заезжающие под шапку, сдвинуты ровно на неё -->
     <div
-      class="glass lg-refract mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 rounded-3xl pr-3 pl-5 transition-[box-shadow,background] duration-500 [--lg-refract-blur:14px] sm:pl-6"
-      :class="scrolled ? '[--lg-tint:rgb(16_16_18/0.66)]' : '[--lg-tint:rgb(16_16_18/0.42)]'"
+      class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 rounded-2xl px-4 transition-[background-color,backdrop-filter] duration-500 sm:px-5"
+      :class="scrolled ? 'bg-ink/60 backdrop-blur-xl' : ''"
     >
-      <UiLogo class="transition-opacity duration-300 hover:opacity-70" />
+      <!-- Название без иконки, обычными буквами - как «Joined©» на главной -->
+      <NuxtLink to="/" class="text-xl font-medium tracking-[-0.04em] transition-opacity duration-300 hover:opacity-70" aria-label="Joined - на главную">Joined</NuxtLink>
 
-      <nav class="hidden items-center gap-1 md:flex" aria-label="Основная навигация">
+      <nav class="hidden items-center gap-7 text-sm md:flex" aria-label="Основная навигация">
         <NuxtLink
-          v-for="l in links"
+          v-for="l in [...links, ...(cabinet ? [cabinet] : [])]"
           :key="l.to"
           :to="l.to"
-          class="pill"
-          :class="isActive(l.to) ? 'pill-active' : 'bg-transparent text-soft hover:bg-white/10 hover:text-white'"
+          class="transition-colors"
+          :class="isActive(l.to) ? 'text-white' : 'text-white/70 hover:text-white'"
         >
           {{ l.label }}
         </NuxtLink>
+        <NuxtLink
+          :to="user ? '/account' : '/login'"
+          class="transition-colors"
+          :class="isActive(user ? '/account' : '/login') ? 'text-white' : 'text-white/70 hover:text-white'"
+        >
+          {{ user ? 'Профиль' : 'Войти' }}
+        </NuxtLink>
       </nav>
 
-      <div class="hidden items-center gap-2 md:flex">
-        <template v-if="user">
-          <NuxtLink v-if="cabinet" :to="cabinet.to" class="btn-ghost">{{ cabinet.label }}</NuxtLink>
-          <NuxtLink to="/account" class="btn-dark py-2 pl-2">
-            <span class="grid size-7 place-items-center rounded-full rim [background:var(--accent-fill)] [box-shadow:var(--accent-shadow)] text-[var(--accent-ink)] text-xs font-semibold uppercase [--lg-rim:var(--lg-rim-warm)]">{{ user.name[0] }}</span>
-            {{ user.name }}
-          </NuxtLink>
-        </template>
-        <template v-else>
-          <NuxtLink to="/login" class="btn-ghost">Войти</NuxtLink>
-          <NuxtLink to="/register" class="btn-primary">Начать</NuxtLink>
-        </template>
-      </div>
-
-      <button class="btn-icon md:hidden" :aria-expanded="open" aria-label="Меню" @click="open = !open">
+      <button class="-mr-1 grid size-10 place-items-center text-white/80 transition-colors hover:text-white md:hidden" :aria-expanded="open" aria-label="Меню" @click="open = !open">
         <UiIcon :name="open ? 'x' : 'menu'" :size="22" />
       </button>
     </div>
@@ -102,7 +98,7 @@ watch(open, (v) => {
 
           <div class="mt-6 flex flex-col gap-2 px-1 pb-1">
             <template v-if="user">
-              <NuxtLink to="/account" class="btn-primary py-4">Личный кабинет</NuxtLink>
+              <NuxtLink to="/account" class="btn-primary py-4">Профиль</NuxtLink>
               <button class="btn-dark py-4" @click="logout()">Выйти</button>
             </template>
             <template v-else>

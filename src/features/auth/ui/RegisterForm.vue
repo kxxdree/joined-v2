@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { homeForRole, type Role, useSession } from '@entities/session'
+import { type Role, useSession } from '@entities/session'
 import { isEmail } from '@shared/lib'
 import { UiIcon } from '@shared/ui'
 
@@ -8,10 +8,10 @@ type PublicRole = Exclude<Role, 'admin'>
 const route = useRoute()
 const { login } = useSession()
 
-const roles: { id: PublicRole; name: string; desc: string; icon: string }[] = [
-  { id: 'user', name: 'Слушатель', desc: 'Билеты, брони, избранное', icon: 'user' },
-  { id: 'venue', name: 'Заведение', desc: 'Афиша, меню, брони', icon: 'glass' },
-  { id: 'artist', name: 'Музыкант', desc: 'Профиль группы, концерты', icon: 'music' },
+const roles: { id: PublicRole; name: string }[] = [
+  { id: 'user', name: 'Слушатель' },
+  { id: 'venue', name: 'Заведение' },
+  { id: 'artist', name: 'Музыкант' },
 ]
 
 const form = reactive({
@@ -30,54 +30,52 @@ const submit = () => {
   if (form.password.length < 6) return (error.value = 'Пароль - минимум 6 символов')
   if (!form.agree) return (error.value = 'Нужно согласиться с условиями сервиса')
   login({ email: form.email, name: form.name.trim(), role: form.role })
-  navigateTo(homeForRole(form.role))
+  navigateTo('/') // после регистрации - на главную
 }
+
+// поле - стеклянная строка, как на странице входа
+const row = 'flex h-14 items-center gap-3 rounded-2xl bg-black/10 px-4 ring-1 ring-white/10 shadow-[inset_0_1px_0_rgb(255_255_255/0.08),inset_0_-1px_0_rgb(0_0_0/0.25)] transition-colors focus-within:bg-black/20 focus-within:ring-white/25'
 </script>
 
 <template>
   <div>
-    <div class="mb-6 grid grid-cols-3 gap-2" role="radiogroup" aria-label="Тип аккаунта">
+    <!-- Тип аккаунта: минималистичный переключатель-пилюля, как «Вход | Регистрация» в шапке карточки -->
+    <div class="mb-5 grid grid-cols-3 rounded-full bg-black/25 p-1 text-xs font-semibold" role="radiogroup" aria-label="Тип аккаунта">
       <button
         v-for="r in roles"
         :key="r.id"
         type="button"
         role="radio"
         :aria-checked="form.role === r.id"
-        class="flex flex-col items-start gap-2 rounded-xl border p-3 text-left transition-colors duration-300"
-        :class="form.role === r.id
-          ? 'border-accent bg-accent/10'
-          : 'border-transparent bg-white/10 hover:bg-white/15'"
+        class="rounded-full px-2 py-2.5 transition-colors"
+        :class="form.role === r.id ? 'bg-white text-ink' : 'text-white/70 hover:text-white'"
         @click="form.role = r.id"
       >
-        <UiIcon :name="r.icon" :class="form.role === r.id ? 'text-accent-text' : 'text-muted'" />
-        <span class="text-sm font-medium">{{ r.name }}</span>
-        <span class="hidden text-xs text-muted sm:block">{{ r.desc }}</span>
+        {{ r.name }}
       </button>
     </div>
 
-    <form class="grid gap-4" novalidate @submit.prevent="submit">
-      <label>
-        <span class="label">{{ nameLabel }}</span>
-        <input v-model="form.name" class="field" autocomplete="name">
+    <form class="grid gap-2.5" novalidate @submit.prevent="submit">
+      <label :class="row">
+        <UiIcon name="edit" :size="18" class="shrink-0 text-white/60" />
+        <input v-model="form.name" autocomplete="name" class="w-full bg-transparent text-sm placeholder:text-white/50" :placeholder="nameLabel" :aria-label="nameLabel">
       </label>
-      <label>
-        <span class="label">Email</span>
-        <input v-model="form.email" type="email" autocomplete="email" class="field" placeholder="sample@gmail.com">
+      <label :class="row">
+        <UiIcon name="user" :size="18" class="shrink-0 text-white/60" />
+        <input v-model="form.email" type="email" autocomplete="email" class="w-full bg-transparent text-sm placeholder:text-white/50" placeholder="Email" aria-label="Email">
       </label>
-      <label>
-        <span class="label">Пароль</span>
-        <input v-model="form.password" type="password" autocomplete="new-password" class="field" placeholder="Минимум 6 символов">
+      <label :class="row">
+        <UiIcon name="lock" :size="18" class="shrink-0 text-white/60" />
+        <input v-model="form.password" type="password" autocomplete="new-password" class="w-full bg-transparent text-sm placeholder:text-white/50" placeholder="Пароль, минимум 6 символов" aria-label="Пароль">
       </label>
-      <label class="flex items-start gap-3 text-sm text-soft">
-        <input v-model="form.agree" type="checkbox" class="mt-0.5 size-4 accent-accent">
+
+      <label class="mt-2 flex items-start gap-3 px-1 text-sm text-soft">
+        <input v-model="form.agree" type="checkbox" class="mt-0.5 size-4 accent-white">
         <span>Принимаю <NuxtLink to="/rules" class="text-white underline-offset-2 hover:underline">условия сервиса</NuxtLink> и политику конфиденциальности</span>
       </label>
-      <p v-if="form.role !== 'user'" class="flex items-start gap-2 text-xs text-muted">
-        <UiIcon name="clock" :size="14" class="mt-px shrink-0 text-accent-text" />
-        <span>Профиль {{ form.role === 'venue' ? 'заведения' : 'группы' }} появится в каталоге после модерации - обычно это занимает до 24 часов.</span>
-      </p>
-      <p v-if="error" class="text-sm text-accent-text">{{ error }}</p>
-      <button class="btn-primary mt-2 py-3.5" type="submit">Создать аккаунт</button>
+      <p v-if="error" class="px-1 text-sm text-accent-text">{{ error }}</p>
+      <!-- главная кнопка - белая пилюля -->
+      <button class="mt-4 h-14 rounded-full bg-linear-to-b from-white to-[#f1ece9] text-sm font-semibold text-ink shadow-[inset_0_-2px_0_rgb(0_0_0/0.08),0_12px_30px_-12px_rgb(0_0_0/0.6)] transition-[filter] hover:brightness-95" type="submit">Создать аккаунт</button>
     </form>
   </div>
 </template>

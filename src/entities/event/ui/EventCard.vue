@@ -9,7 +9,7 @@ defineProps<{ event: EventItem; venueName?: string }>()
 
 <template>
   <!-- Карточка-постер: фото с крупным заголовком + плашка с датой -->
-  <NuxtLink :to="`/events/${event.id}`" class="card group flex flex-col overflow-hidden rounded-none">
+  <NuxtLink :to="`/events?event=${event.id}`" class="card group flex flex-col overflow-hidden rounded-none">
     <UiPhoto :src="event.photo" :alt="event.title" class="aspect-5/4">
       <div class="absolute inset-0 bg-linear-to-t from-black/75 via-black/15 to-transparent" />
       <h3 class="absolute inset-x-0 bottom-0 line-clamp-3 transition-colors group-hover:text-sand p-5 font-display text-2xl leading-[0.95] font-semibold tracking-[-0.02em] wrap-break-word hyphens-auto uppercase sm:text-[1.65rem]" lang="ru">

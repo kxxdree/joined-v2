@@ -42,7 +42,7 @@ export default defineNuxtConfig({
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
         { name: 'description', content: 'Joined - поиск баров и музыкальных мероприятий по жанрам, расписание выступлений и билеты.' },
-        { name: 'theme-color', content: '#0a0300' },
+        { name: 'theme-color', content: '#161316' },
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },

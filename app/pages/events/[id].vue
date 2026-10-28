@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { EventPage } from '@pages/event'
+// Отдельной страницы события больше нет: старые ссылки (билеты, соцсети) ведут в афишу, где событие открывается в историях
+const route = useRoute()
+await navigateTo({ path: '/events', query: { event: String(route.params.id) } }, { redirectCode: 301, replace: true })
 </script>
 
 <template>
-  <EventPage />
+  <div />
 </template>

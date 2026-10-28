@@ -8,6 +8,7 @@ import { genreName } from "@shared/config";
 import { weekdayIndex } from "@shared/lib";
 import { UiIcon, UiPhoto } from "@shared/ui";
 import { EventCalendar } from "@widgets/event-calendar";
+import { EventStories } from "@widgets/event-stories";
 import VenueAbout from "./VenueAbout.vue";
 import VenueGallery from "./VenueGallery.vue";
 import VenueMenu from "./VenueMenu.vue";
@@ -31,7 +32,16 @@ type TabId = (typeof tabs)[number]["id"];
 const tab = ref<TabId>(tabs.find((t) => t.id === route.query.tab)?.id ?? "schedule");
 watch(tab, (t) => navigateTo({ query: { ...route.query, tab: t } }, { replace: true }));
 
+// «Забронировать»: открыть вкладку и доскроллить до условий (отступ сверху - scroll-mt под липкие шапку и вкладки)
+const bookingBlock = ref<HTMLElement>();
+const openBooking = async () => {
+  tab.value = "booking";
+  await nextTick();
+  bookingBlock.value?.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
 const venueEvents = events.filter((e) => e.venue === v.slug && isUpcoming(e));
+const storyId = ref<string | null>(null); // выступление из календаря, открытое в историях
 const todayIdx = weekdayIndex();
 </script>
 
@@ -41,11 +51,11 @@ const todayIdx = weekdayIndex();
       <NuxtLink to="/venues" class="btn-ghost mb-5 pl-3"><UiIcon name="chevron-left" :size="16" /> Все заведения</NuxtLink>
 
       <!-- Обложка: постер с названием по центру, как у артиста; описание - под фото -->
-      <article class="rim relative overflow-hidden rounded-4xl bg-black">
+      <article class="rim relative overflow-hidden rounded-4xl bg-ink">
         <div class="relative aspect-4/5 sm:aspect-video lg:aspect-21/9">
           <UiPhoto :src="v.photo" :alt="v.name" class="absolute inset-0 h-full w-full" />
           <div class="pointer-events-none absolute inset-0 bg-black/30" />
-          <div class="pointer-events-none absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black" />
+          <div class="pointer-events-none absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-ink" />
 
           <div class="absolute inset-0 grid place-items-center px-4">
             <h1 class="h-display text-center text-[13vw] font-bold lowercase sm:text-8xl lg:text-9xl">{{ v.name }}</h1>
@@ -75,7 +85,7 @@ const todayIdx = weekdayIndex();
           </a>
         </div>
         <div class="card flex items-center gap-2 p-3">
-          <button class="btn-primary flex-1 py-3.5" @click="tab = 'booking'"><UiIcon name="calendar" :size="18" /> Забронировать</button>
+          <button class="btn-primary flex-1 py-3.5" @click="openBooking"><UiIcon name="calendar" :size="18" /> Забронировать</button>
           <FavoriteButton kind="venues" :id="v.slug" class="size-12" />
           <ShareButton :title="v.name" />
         </div>
@@ -102,7 +112,7 @@ const todayIdx = weekdayIndex();
     <section class="container-x pt-10">
       <div v-if="tab === 'schedule'">
         <h2 class="h-display mb-8 text-4xl sm:text-5xl">Музыкальный календарь</h2>
-        <EventCalendar :events="venueEvents" :title="v.name" />
+        <EventCalendar :events="venueEvents" :title="v.name" @open="storyId = $event" />
       </div>
 
       <VenueAbout v-else-if="tab === 'about'" :venue="v" />
@@ -110,7 +120,7 @@ const todayIdx = weekdayIndex();
       <VenueGallery v-else-if="tab === 'gallery'" :photos="v.gallery" />
 
       <!-- Бронирование: условия в стиле меню + контакты для брони -->
-      <div v-else-if="tab === 'booking'" class="card p-6 sm:p-10">
+      <div v-else-if="tab === 'booking'" ref="bookingBlock" class="card scroll-mt-40 p-6 sm:scroll-mt-44 sm:p-10">
         <h2 class="h-display mb-6 text-4xl sm:text-5xl">Условия бронирования</h2>
         <ul>
           <li class="flex items-baseline justify-between gap-6 border-b border-line py-3.5">
@@ -136,5 +146,7 @@ const todayIdx = weekdayIndex();
         </ul>
       </div>
     </section>
+
+    <EventStories v-model="storyId" :events="venueEvents" />
   </div>
 </template>

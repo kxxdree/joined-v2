@@ -1,31 +1,22 @@
 <script setup lang="ts">
 import { artists } from "@entities/artist";
-import { useCurrentCity } from "@entities/city";
-import { byDateTime, EventCard, events, isUpcoming } from "@entities/event";
-import { getVenue, VenueCard, venues } from "@entities/venue";
-import { FavoriteButton } from "@features/favorites";
+import { events } from "@entities/event";
+import { venues } from "@entities/venue";
 import { CitySelect } from "@features/select-city";
 import { type GenreId, genres } from "@shared/config";
-import { UiBackdrop, UiEmpty, UiSectionHead, UiSelect } from "@shared/ui";
+import { UiBackdrop, UiIcon, UiSelect } from "@shared/ui";
 
 useHead({ title: "JOINED" });
 
-const { cityId, city } = useCurrentCity();
 const genre = ref<GenreId | "">("");
 
-const cityVenues = computed(() => venues.filter((v) => v.city === cityId.value));
-const cityVenueSlugs = computed(() => new Set(cityVenues.value.map((v) => v.slug)));
-
-const upcoming = computed(() =>
-  events
-    .filter((e) => isUpcoming(e) && cityVenueSlugs.value.has(e.venue))
-    .sort(byDateTime)
-    .slice(0, 6),
-);
-
-const popularVenues = computed(() => [...cityVenues.value].sort((a, b) => b.popularity - a.popularity).slice(0, 3));
-
 const search = () => navigateTo({ path: "/venues", query: { genre: genre.value || undefined } });
+
+// кнопки-триггеры селектов превращаются в подчёркнутые слова фразы: шрифт, размер и регистр - от фразы, без иконок и отступов;
+// overflow-visible у текста внутри - иначе обрезка (truncate) срезает подчёркивание
+// (модалки выбора телепортированы в body, на них [&_svg]:hidden не действует)
+const phraseWord =
+  "[&>button]:h-auto [&>button]:gap-0 [&>button]:p-0 [&>button]:text-[length:inherit] [&>button]:text-white [&>button]:uppercase [&_span]:overflow-visible [&>button]:underline [&>button]:decoration-white/40 [&>button]:underline-offset-[5px] [&>button:hover]:decoration-white [&_svg]:hidden";
 
 const stats = [
   { value: venues.length * 37, label: "баров и площадок" },
@@ -37,33 +28,37 @@ const stats = [
 <template>
   <div>
     <!-- HERO: на всю высоту вьюпорта, заезжает под sticky-хедер (h-16 + pt-3 / sm:pt-4) -->
-    <section class="relative isolate -mt-19 flex min-h-dvh flex-col justify-center pt-19 sm:-mt-20 sm:pt-20">
+    <section class="relative isolate -mt-19 flex min-h-dvh flex-col pt-19 sm:-mt-20 sm:pt-20">
       <UiBackdrop />
-      <div class="container-x py-14 text-center sm:py-24">
-        <h1 class="h-display text-[15vw] sm:text-8xl lg:text-[9rem]">Найди свой звук сегодня</h1>
-        <!-- <p class="mx-auto mt-7 max-w-xl text-base text-white/80 sm:text-lg">
-          Бары, концерты и джем-сейшены - по жанрам, с расписанием выступлений и билетами в пару кликов
-        </p> -->
+      <!-- Минималистичный логотип-подпись по центру фото: название + мелкая моноширинная подпись в две строки -->
+      <div class="container-x my-auto flex flex-col items-center py-14">
+        <h1 class="flex items-center gap-4 sm:gap-6">
+          <span class="text-4xl font-medium tracking-[-0.04em] sm:text-6xl">Joined</span>
+          <span class="font-mono text-[10px] leading-snug tracking-[0.14em] text-white/85 uppercase sm:text-xs">Места и музыка<br />твоего города</span>
+        </h1>
 
-        <!-- Подбор по городу и жанру: жанр уходит в фильтры страницы мест -->
-        <!-- На мобильных - в колонку, чтобы названия не обрезались -->
-        <form class="search-bar mx-auto mt-10 flex max-w-md flex-col gap-2 p-2 text-left sm:flex-row" @submit.prevent="search">
-          <!-- Выбор всегда в модалке: выпадашки уезжали за низ экрана. Телефон: текст крупнее -->
-          <CitySelect inline modal class="h-12 shrink-0 border-b border-white/15 pb-2 sm:h-auto sm:border-r sm:border-b-0 sm:pr-1 sm:pb-0 [&>button]:text-base sm:[&>button]:text-sm" />
-          <UiSelect v-model="genre" :options="genres" all-label="Любой жанр" icon="music" label="Жанр" inline modal class="h-12 min-w-0 sm:h-auto sm:flex-1 [&>button]:text-base sm:[&>button]:text-sm" />
-          <button class="btn-primary px-6 py-3 sm:py-2" type="submit">Найти</button>
+        <!-- Поиск-фраза тем же моноширинным шрифтом: «Ищу [жанр] в городе [город] →».
+             Жанр и город - подчёркнутые слова, выбор в стеклянных модалках; стрелка ведёт на «Бары и сцены» -->
+        <form class="mt-8 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-2 font-mono text-[11px] tracking-[0.14em] text-white/80 uppercase [text-shadow:0_1px_12px_rgb(0_0_0/0.7)] sm:text-xs" @submit.prevent="search">
+          <span>Ищу</span>
+          <UiSelect v-model="genre" :options="genres" all-label="Любой жанр" label="Жанр" inline modal :class="[phraseWord, '[&>button]:w-auto']" />
+          <span>в городе</span>
+          <CitySelect inline modal :class="phraseWord" />
+          <button type="submit" class="ml-1 grid size-8 place-items-center rounded-full bg-white text-ink transition-colors hover:bg-white/85" aria-label="Найти места">
+            <UiIcon name="arrow-right" :size="16" />
+          </button>
         </form>
       </div>
-    </section>
 
-    <!-- БЛИЖАЙШИЕ СОБЫТИЯ -->
-    <section class="container-x mt-28">
-      <UiSectionHead eyebrow="Афиша" title="Ближайшие события" to="/events" link-label="Вся афиша" />
-      <div v-if="upcoming.length" class="grid sm:grid-cols-2 lg:grid-cols-3">
-        <EventCard v-for="e in upcoming" :key="e.id" :event="e" :venue-name="getVenue(e.venue)?.name" />
-      </div>
-      <UiEmpty v-else icon="calendar" title="Пока нет событий" text="Попробуйте другой город - афиша обновляется каждый день." />
-      <NuxtLink to="/events" class="btn-dark mt-4 w-full sm:hidden">Вся афиша</NuxtLink>
+      <!-- Большого футера на главной нет - обязательное (условия, 18+) тонкой строкой внизу первого экрана -->
+      <footer class="container-x flex flex-wrap items-center justify-between gap-x-6 gap-y-2 pb-5 text-xs text-white/60 sm:pb-6">
+        <span>© {{ new Date().getFullYear() }} Joined. Места и музыка</span>
+        <nav class="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <NuxtLink to="/rules" class="transition-colors hover:text-sand">Условия сервиса</NuxtLink>
+          <NuxtLink to="/rules#privacy" class="transition-colors hover:text-sand">Конфиденциальность</NuxtLink>
+          <span>18+</span>
+        </nav>
+      </footer>
     </section>
 
     <!-- СТАТИСТИКА (временно скрыта) -->
@@ -74,23 +69,6 @@ const stats = [
           <div class="mt-2 text-xs text-white/70 sm:text-sm">{{ s.label }}</div>
         </div>
       </div>
-    </section>
-
-    <!-- ПОПУЛЯРНЫЕ БАРЫ -->
-    <section class="container-x mt-28">
-      <UiSectionHead
-        eyebrow="Рядом"
-        title="Места твоего города"
-        :subtitle="`Бары и сцены ${city.where}`"
-        to="/venues"
-        link-label="Все заведения"
-      />
-      <div v-if="popularVenues.length" class="grid sm:grid-cols-2 lg:grid-cols-3">
-        <VenueCard v-for="v in popularVenues" :key="v.slug" :venue="v">
-          <template #actions><FavoriteButton kind="venues" :id="v.slug" /></template>
-        </VenueCard>
-      </div>
-      <UiEmpty v-else icon="glass" title="Ничего не нашлось" text="В этом городе пока нет заведений." />
     </section>
   </div>
 </template>

@@ -7,6 +7,7 @@ import { FavoriteButton } from '@features/favorites'
 import { genreName } from '@shared/config'
 import { dayNumber, formatPrice, formatWeekdayLong, isWeekend, monthShort } from '@shared/lib'
 import { UiEmpty, UiIcon, UiPhoto, UiSectionHead } from '@shared/ui'
+import { EventStories } from '@widgets/event-stories'
 
 const route = useRoute()
 const found = getArtist(String(route.params.slug))
@@ -26,6 +27,14 @@ const where = (venueSlug: string) => {
   const v = getVenue(venueSlug)
   return v ? `${v.name} · ${cityName(v.city)}` : ''
 }
+
+// концерт - афиша в историях; с модификаторами (новая вкладка и т.п.) ссылка работает как обычно
+const storyId = ref<string | null>(null)
+const openStory = (e: MouseEvent, id: string) => {
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+  e.preventDefault()
+  storyId.value = id
+}
 </script>
 
 <template>
@@ -34,11 +43,11 @@ const where = (venueSlug: string) => {
     <section class="container-x pt-6">
       <NuxtLink to="/artists" class="btn-ghost mb-5 pl-3"><UiIcon name="chevron-left" :size="16" /> Все артисты</NuxtLink>
 
-      <article class="rim relative overflow-hidden rounded-4xl bg-black">
+      <article class="rim relative overflow-hidden rounded-4xl bg-ink">
         <!-- Постер -->
         <div class="relative aspect-4/5 sm:aspect-video lg:aspect-21/9">
           <UiPhoto :src="a.photo" :alt="a.name" class="absolute inset-0 h-full w-full" />
-          <div class="pointer-events-none absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black" />
+          <div class="pointer-events-none absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-ink" />
 
           <div class="absolute inset-0 grid place-items-center px-4">
             <h1 class="h-display text-center text-[13vw] font-bold lowercase sm:text-8xl lg:text-9xl">{{ a.name }}</h1>
@@ -91,17 +100,19 @@ const where = (venueSlug: string) => {
 
           <div class="space-y-4 md:pt-2">
             <p class="text-xs tracking-widest uppercase" :class="isWeekend(date) ? 'text-accent-text' : 'text-muted'">{{ formatWeekdayLong(date) }}</p>
-            <NuxtLink v-for="e in items" :key="e.id" :to="`/events/${e.id}`" class="group flex items-baseline justify-between gap-4">
+            <a v-for="e in items" :key="e.id" :href="`/events?event=${e.id}`" class="group flex items-baseline justify-between gap-4" @click="openStory($event, e.id)">
               <div class="min-w-0">
                 <p class="font-medium uppercase transition-colors group-hover:text-sand">{{ e.title }}</p>
                 <p class="mt-0.5 text-xs tracking-wider text-muted uppercase">{{ where(e.venue) }} · {{ e.time }}</p>
               </div>
               <span class="shrink-0 text-sm tabular-nums">от {{ formatPrice(minPrice(e)) }}</span>
-            </NuxtLink>
+            </a>
           </div>
         </div>
       </div>
       <UiEmpty v-else icon="calendar" title="Концертов пока нет" text="Новые даты появятся здесь, как только артист их объявит." />
     </section>
+
+    <EventStories v-model="storyId" :events="own" />
   </div>
 </template>

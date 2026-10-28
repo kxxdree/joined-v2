@@ -1,6 +1,6 @@
 # Joined - бары и живая музыка
 
-Фронтенд веб-сервиса для поиска баров и музыкальных событий: фильтры по жанрам, афиша, профили заведений и групп, билеты с QR-кодом, брони столиков, кабинеты партнёров и админ-панель.
+Фронтенд веб-сервиса для поиска баров и музыкальных событий: фильтры по жанрам, афиша, профили заведений и групп, афиши событий в формате историй, брони столиков, кабинеты партнёров и админ-панель.
 
 **Стек:** Nuxt 4 (Composition API, SSR) · Tailwind CSS 4 · Яндекс Карты (виджет) · qrcode
 **Архитектура:** Feature-Sliced Design
@@ -23,11 +23,11 @@ app/                      слой app: всё, что нужно Nuxt
   styles/main.css         тема Tailwind и дизайн-система liquid glass
 
 src/
-  pages/      home, venues, venue, events, event, artists, artist, auth, account, partner, admin, rules
-  widgets/    header, footer, event-calendar
-  features/   select-city, favorites, filter-venues, buy-ticket, refund-ticket, book-table,
+  pages/      home, venues, venue, events, artists, artist, auth, account, partner, admin, rules, about
+  widgets/    header, footer, event-calendar, event-stories
+  features/   select-city, favorites, filter-venues, book-table,
               auth, newsletter, share, notification-settings
-  entities/   city, venue, artist, event, session, ticket, booking
+  entities/   city, venue, artist, event, session, booking
   shared/     ui (Ui*-компоненты), lib (даты, форматирование, cookie-состояние, тосты), config (жанры)
 ```
 
@@ -35,7 +35,7 @@ src/
 
 - импорты идут только сверху вниз: `pages → widgets → features → entities → shared`;
 - каждый слайс открывает публичный API через `index.ts`, во внутренние файлы чужих слайсов не лезем;
-- сущности не импортируют друг друга. Исключение - `@x`-нотация (`entities/event/@x/ticket.ts`);
+- сущности не импортируют друг друга (при необходимости - через `@x`-нотацию);
 - автоимпорт своих компонентов и composables выключен (`nuxt.config.ts`), все зависимости явные. Автоимпортируются только API Vue и Nuxt.
 
 Алиасы: `@pages`, `@widgets`, `@features`, `@entities`, `@shared`.
@@ -60,12 +60,12 @@ src/
 
 ## Демо-доступ
 
-Бэкенда нет. Каталог лежит в `src/entities/*/api`, а пользователь, билеты, брони и избранное хранятся в cookie.
+Бэкенда нет. Каталог лежит в `src/entities/*/api`, а пользователь, брони и избранное хранятся в cookie.
 На странице `/login` есть кнопки быстрого входа под каждую роль:
 
 | Роль | Куда попадает |
 |---|---|
-| Гость (пользователь) | `/account` - билеты с QR, брони, история, избранное, уведомления |
+| Гость (пользователь) | `/account` - брони, история, избранное, уведомления |
 | Бар | `/partner` - профиль заведения, мероприятия, входящие брони, фото и меню |
 | Группа | `/partner` - профиль группы, концерты, треки и медиа |
 | Админ | `/admin` - статистика, модерация, города, теги, пользователи, комиссии |
@@ -76,7 +76,7 @@ src/
 
 - `src/entities/*/api` → запросы к API через `useFetch` (интерфейс сущностей менять не придётся)
 - `entities/session` → настоящая авторизация (JWT или сессии)
-- `entities/ticket`, `entities/booking` → эндпоинты покупки, возврата и бронирования
+- `entities/booking` → эндпоинты бронирования
 - `UiPaymentSheet` → платёжный провайдер
 - фото: сейчас подобранные снимки с Unsplash (`shared/lib/photo.ts`)
 - карта на странице заведения - виджет Яндекс Карт (`shared/ui/UiYandexMap.vue`), ключ API не нужен
