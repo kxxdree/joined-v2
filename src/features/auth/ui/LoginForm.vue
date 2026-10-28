@@ -31,17 +31,17 @@ const demoLogin = (d: typeof demo[number]) => {
 }
 
 // поле и вариант демо-входа - одна и та же стеклянная строка, как варианты ответа в онбординге
-const row = 'flex h-14 items-center gap-3 rounded-2xl bg-white/[0.06] px-4 ring-1 ring-white/10 transition-colors'
+const row = 'flex h-14 items-center gap-3 rounded-2xl bg-black/20 px-4 ring-1 ring-white/10 transition-colors'
 </script>
 
 <template>
   <div>
     <form class="grid gap-2.5" novalidate @submit.prevent="submit">
-      <label :class="row" class="focus-within:bg-white/10 focus-within:ring-white/25">
+      <label :class="row" class="focus-within:bg-black/30 focus-within:ring-white/25">
         <UiIcon name="user" :size="18" class="shrink-0 text-white/60" />
         <input v-model="form.email" type="email" autocomplete="email" class="w-full bg-transparent text-sm placeholder:text-white/50" placeholder="Email" aria-label="Email">
       </label>
-      <label :class="row" class="focus-within:bg-white/10 focus-within:ring-white/25">
+      <label :class="row" class="focus-within:bg-black/30 focus-within:ring-white/25">
         <UiIcon name="lock" :size="18" class="shrink-0 text-white/60" />
         <input v-model="form.password" type="password" autocomplete="current-password" class="w-full bg-transparent text-sm placeholder:text-white/50" placeholder="Пароль" aria-label="Пароль">
       </label>
@@ -54,7 +54,7 @@ const row = 'flex h-14 items-center gap-3 rounded-2xl bg-white/[0.06] px-4 ring-
       <div class="h-px flex-1 bg-white/10" /> или демо-вход <div class="h-px flex-1 bg-white/10" />
     </div>
     <div class="grid grid-cols-2 gap-2.5">
-      <button v-for="d in demo" :key="d.role" type="button" :class="row" class="justify-center text-sm hover:bg-white/10" @click="demoLogin(d)">
+      <button v-for="d in demo" :key="d.role" type="button" :class="row" class="justify-center text-sm hover:bg-black/35" @click="demoLogin(d)">
         {{ d.label }}
       </button>
     </div>

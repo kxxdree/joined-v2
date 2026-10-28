@@ -28,7 +28,7 @@ const modes = [
       <div class="absolute top-[30%] left-[30%] size-[min(60vw,28rem)] -translate-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(69_48_39/0.9),transparent)]" />
     </div>
 
-    <div class="glass-strong w-full max-w-md rounded-[2.5rem] p-6 [--lg-blur:48px] [--lg-tint:rgb(40_28_24/0.5)] sm:p-8">
+    <div class="glass glass-clear w-full max-w-md rounded-[2.5rem] p-6 sm:p-8">
       <!-- Шапка: назад, переключатель «Вход | Регистрация», закрыть -->
       <div class="mb-8 flex items-center justify-between gap-3">
         <NuxtLink to="/" class="btn-icon size-9 bg-transparent" aria-label="Назад на главную"><UiIcon name="chevron-left" :size="20" /></NuxtLink>

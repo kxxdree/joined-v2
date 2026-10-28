@@ -34,7 +34,7 @@ const submit = () => {
 }
 
 // поле - стеклянная строка, как на странице входа
-const row = 'flex h-14 items-center gap-3 rounded-2xl bg-white/[0.06] px-4 ring-1 ring-white/10 transition-colors focus-within:bg-white/10 focus-within:ring-white/25'
+const row = 'flex h-14 items-center gap-3 rounded-2xl bg-black/20 px-4 ring-1 ring-white/10 transition-colors focus-within:bg-black/30 focus-within:ring-white/25'
 </script>
 
 <template>
