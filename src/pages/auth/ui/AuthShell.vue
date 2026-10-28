@@ -20,7 +20,7 @@ const modes = [
     <!-- фото: кадр по лицу, лёгкое затемнение под карточку и плавный переход в цвет страницы снизу -->
     <div v-if="background" class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
       <img :src="background" alt="" fetchpriority="high" decoding="async" class="absolute inset-0 h-full w-full object-cover object-[50%_30%]">
-      <div class="absolute inset-0 bg-ink/25" />
+      <div class="absolute inset-0 bg-ink/40" />
       <div class="absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-b from-transparent to-ink" />
     </div>
     <div v-else class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
@@ -28,7 +28,7 @@ const modes = [
       <div class="absolute top-[30%] left-[30%] size-[min(60vw,28rem)] -translate-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(69_48_39/0.9),transparent)]" />
     </div>
 
-    <div class="glass glass-clear w-full max-w-md rounded-[2.5rem] p-6 sm:p-8">
+    <div class="glass glass-clear lg-refract w-full max-w-md rounded-[2.5rem] p-6 sm:p-8">
       <!-- Шапка: назад, переключатель «Вход | Регистрация», закрыть -->
       <div class="mb-8 flex items-center justify-between gap-3">
         <NuxtLink to="/" class="btn-icon size-9 bg-transparent" aria-label="Назад на главную"><UiIcon name="chevron-left" :size="20" /></NuxtLink>
