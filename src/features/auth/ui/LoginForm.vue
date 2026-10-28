@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { homeForRole, type Role, useSession } from '@entities/session'
+import { type Role, useSession } from '@entities/session'
 import { isEmail } from '@shared/lib'
 import { UiIcon } from '@shared/ui'
 
@@ -8,7 +8,8 @@ const { login } = useSession()
 const form = reactive({ email: '', password: '' })
 const error = ref('')
 
-const go = (role: Role) => navigateTo(route.query.redirect ? String(route.query.redirect) : homeForRole(role))
+// после входа - на главную; если на вход отправила закрытая страница (?redirect=) - обратно на неё
+const go = () => navigateTo(route.query.redirect ? String(route.query.redirect) : '/')
 
 const submit = () => {
   if (!isEmail(form.email)) return (error.value = 'Введите корректный email')
@@ -16,7 +17,7 @@ const submit = () => {
   // демо: роль угадываем по началу email
   const role: Role = form.email.startsWith('admin') ? 'admin' : form.email.startsWith('bar') ? 'venue' : form.email.startsWith('band') ? 'artist' : 'user'
   login({ email: form.email, role })
-  go(role)
+  go()
 }
 
 const demo: { role: Role; label: string; email: string; name: string }[] = [
@@ -27,7 +28,7 @@ const demo: { role: Role; label: string; email: string; name: string }[] = [
 ]
 const demoLogin = (d: typeof demo[number]) => {
   login({ email: d.email, name: d.name, role: d.role })
-  go(d.role)
+  go()
 }
 
 // поле и вариант демо-входа - одна и та же стеклянная строка, как варианты ответа в онбординге

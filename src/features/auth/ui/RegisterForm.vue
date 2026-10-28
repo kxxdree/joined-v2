@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { homeForRole, type Role, useSession } from '@entities/session'
+import { type Role, useSession } from '@entities/session'
 import { isEmail } from '@shared/lib'
 import { UiIcon } from '@shared/ui'
 
@@ -30,7 +30,7 @@ const submit = () => {
   if (form.password.length < 6) return (error.value = 'Пароль - минимум 6 символов')
   if (!form.agree) return (error.value = 'Нужно согласиться с условиями сервиса')
   login({ email: form.email, name: form.name.trim(), role: form.role })
-  navigateTo(homeForRole(form.role))
+  navigateTo('/') // после регистрации - на главную
 }
 
 // поле - стеклянная строка, как на странице входа

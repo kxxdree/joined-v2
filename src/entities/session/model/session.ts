@@ -15,10 +15,6 @@ export const roleNames: Record<Role, string> = {
   admin: 'Администратор',
 }
 
-/** Куда вести пользователя после входа */
-export const homeForRole = (role: Role) =>
-  role === 'admin' ? '/admin' : role === 'venue' || role === 'artist' ? '/partner' : '/account'
-
 /** Демо-сессия: пользователь хранится в cookie, без бэкенда */
 export const useSession = () => {
   const user = usePersisted<User | null>('joined_user', () => null, 60 * 60 * 24 * 30)
