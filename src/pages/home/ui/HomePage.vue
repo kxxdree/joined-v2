@@ -28,7 +28,7 @@ const stats = [
       <div class="container-x my-auto flex justify-center py-14">
         <h1 class="flex items-center gap-4 sm:gap-6">
           <span class="text-4xl font-medium tracking-[-0.04em] sm:text-6xl">Joined</span>
-          <span class="font-mono text-[10px] leading-snug tracking-[0.14em] text-white/85 uppercase sm:text-xs">Бары и живая музыка<br />твоего города</span>
+          <span class="font-mono text-[10px] leading-snug tracking-[0.14em] text-white/85 uppercase sm:text-xs">Места и музыка<br />твоего города</span>
         </h1>
       </div>
 
