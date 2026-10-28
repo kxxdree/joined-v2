@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useSession } from '@entities/session'
-import { UiIcon, UiLogo } from '@shared/ui'
+import { UiIcon } from '@shared/ui'
 
 const { user, logout } = useSession()
 const route = useRoute()
@@ -38,14 +38,15 @@ watch(open, (v) => {
 
 <template>
   <header class="sticky top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-4">
-    <!-- Минималистичная шапка: логотип слева, ссылки простым текстом справа, без кнопок и капсулы.
+    <!-- Минималистичная шапка: название слева, ссылки простым текстом справа, без кнопок и капсулы.
          Над первым экраном без фона; при прокрутке - лёгкая тёмная размытая подложка, чтобы текст читался.
          Высота и отступы прежние (h-16 + pt-3/sm:pt-4): страницы, заезжающие под шапку, сдвинуты ровно на неё -->
     <div
       class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 rounded-2xl px-4 transition-[background-color,backdrop-filter] duration-500 sm:px-5"
       :class="scrolled ? 'bg-ink/60 backdrop-blur-xl' : ''"
     >
-      <UiLogo class="transition-opacity duration-300 hover:opacity-70" />
+      <!-- Название без иконки, обычными буквами - как «Joined©» на главной -->
+      <NuxtLink to="/" class="text-xl font-medium tracking-[-0.04em] transition-opacity duration-300 hover:opacity-70" aria-label="Joined - на главную">Joined</NuxtLink>
 
       <nav class="hidden items-center gap-7 text-sm md:flex" aria-label="Основная навигация">
         <NuxtLink
