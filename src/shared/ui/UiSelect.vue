@@ -69,8 +69,8 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
       </div>
     </Transition>
 
-    <!-- Телефон (или modal): выбор в модалке, пункты крупнее -->
-    <UiModal v-if="sheet || modal":model-value="open && asSheet" :title="label" panel-class="[--lg-tint:rgb(26_21_22/0.92)]" @update:model-value="open = $event">
+    <!-- Телефон (или modal): выбор в модалке, пункты крупнее; modal (hero на главной) - лёгкое стекло (glass) -->
+    <UiModal v-if="sheet || modal" :model-value="open && asSheet" :title="label" :glass="modal" :panel-class="modal ? '' : '[--lg-tint:rgb(26_21_22/0.92)]'" @update:model-value="open = $event">
       <div role="listbox" class="-mx-2">
         <button
           v-for="o in items"

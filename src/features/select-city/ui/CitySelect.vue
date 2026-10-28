@@ -97,8 +97,8 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
       </div>
     </Transition>
 
-    <!-- Телефон (или modal): выбор в модалке, пункты крупнее -->
-    <UiModal v-if="sheet || modal":model-value="open && asSheet" title="Город" panel-class="[--lg-tint:rgb(26_21_22/0.92)]" @update:model-value="open = $event">
+    <!-- Телефон (или modal): выбор в модалке, пункты крупнее; modal (hero на главной) - лёгкое стекло (glass) -->
+    <UiModal v-if="sheet || modal" :model-value="open && asSheet" title="Город" :glass="modal" :panel-class="modal ? '' : '[--lg-tint:rgb(26_21_22/0.92)]'" @update:model-value="open = $event">
       <div class="-mx-2">
         <button type="button" class="flex w-full items-center gap-2 rounded-lg px-3 py-3.5 text-left text-base text-accent-text hover:bg-white/10" @click="onDetect">
           <UiIcon name="locate" :size="18" />
