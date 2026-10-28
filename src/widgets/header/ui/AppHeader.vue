@@ -17,7 +17,7 @@ const links = [
 const cabinet = computed(() => {
   if (!user.value) return null
   if (user.value.role === 'admin') return { to: '/admin', label: 'Админ-панель' }
-  if (user.value.role === 'venue' || user.value.role === 'artist') return { to: '/partner', label: 'Кабинет партнёра' }
+  if (user.value.role === 'venue' || user.value.role === 'artist') return { to: '/partner', label: 'Профиль партнёра' }
   return null
 })
 
@@ -62,7 +62,7 @@ watch(open, (v) => {
           class="transition-colors"
           :class="isActive(user ? '/account' : '/login') ? 'text-white' : 'text-white/70 hover:text-white'"
         >
-          {{ user ? 'Кабинет' : 'Войти' }}
+          {{ user ? 'Профиль' : 'Войти' }}
         </NuxtLink>
       </nav>
 
@@ -97,7 +97,7 @@ watch(open, (v) => {
 
           <div class="mt-6 flex flex-col gap-2 px-1 pb-1">
             <template v-if="user">
-              <NuxtLink to="/account" class="btn-primary py-4">Личный кабинет</NuxtLink>
+              <NuxtLink to="/account" class="btn-primary py-4">Профиль</NuxtLink>
               <button class="btn-dark py-4" @click="logout()">Выйти</button>
             </template>
             <template v-else>
