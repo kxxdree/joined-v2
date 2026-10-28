@@ -24,15 +24,18 @@ const stats = [
     <!-- HERO: на всю высоту вьюпорта, заезжает под sticky-хедер (h-16 + pt-3 / sm:pt-4) -->
     <section class="relative isolate -mt-19 flex min-h-dvh flex-col pt-19 sm:-mt-20 sm:pt-20">
       <UiBackdrop />
-      <div class="container-x my-auto py-14 text-center sm:py-24">
-        <h1 class="h-display text-[15vw] sm:text-8xl lg:text-[9rem]">Найди свой звук сегодня</h1>
-        <!-- <p class="mx-auto mt-7 max-w-xl text-base text-white/80 sm:text-lg">
-          Бары, концерты и джем-сейшены - по жанрам, с расписанием выступлений и билетами в пару кликов
-        </p> -->
+      <!-- Минималистичный логотип-подпись по центру фото: название + мелкая моноширинная подпись в две строки -->
+      <div class="container-x my-auto flex justify-center py-14">
+        <h1 class="flex items-center gap-4 sm:gap-6">
+          <span class="text-4xl font-medium tracking-[-0.04em] sm:text-6xl">Joined</span>
+          <span class="font-mono text-[10px] leading-snug tracking-[0.14em] text-white/85 uppercase sm:text-xs">Бары и живая музыка<br />твоего города</span>
+        </h1>
+      </div>
 
-        <!-- Подбор по городу и жанру: жанр уходит в фильтры страницы мест -->
+      <div class="container-x pb-8 sm:pb-10">
+        <!-- Подбор по городу и жанру - внизу первого экрана, чтобы центр оставался чистым; жанр уходит в фильтры страницы мест -->
         <!-- На мобильных - в колонку, чтобы названия не обрезались -->
-        <form class="search-bar mx-auto mt-10 flex max-w-md flex-col gap-2 p-2 text-left sm:flex-row" @submit.prevent="search">
+        <form class="search-bar mx-auto flex max-w-md flex-col gap-2 p-2 text-left sm:flex-row" @submit.prevent="search">
           <!-- Выбор всегда в модалке: выпадашки уезжали за низ экрана. Телефон: текст крупнее -->
           <CitySelect inline modal class="h-12 shrink-0 border-b border-white/15 pb-2 sm:h-auto sm:border-r sm:border-b-0 sm:pr-1 sm:pb-0 [&>button]:text-base sm:[&>button]:text-sm" />
           <UiSelect v-model="genre" :options="genres" all-label="Любой жанр" icon="music" label="Жанр" inline modal class="h-12 min-w-0 sm:h-auto sm:flex-1 [&>button]:text-base sm:[&>button]:text-sm" />
