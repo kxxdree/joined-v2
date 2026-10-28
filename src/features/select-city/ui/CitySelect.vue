@@ -63,7 +63,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
       leave-active-class="transition duration-150"
       leave-to-class="opacity-0 scale-95"
     >
-      <div v-if="open && !asSheet" class="absolute top-full z-40 mt-2 w-64 origin-top rounded-xl bg-[#1c1c1e] p-1 shadow-[0_16px_40px_-12px_rgb(0_0_0/0.8)]" :class="inline ? 'left-0' : 'left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0'">
+      <div v-if="open && !asSheet" class="absolute top-full z-40 mt-2 w-64 origin-top rounded-xl bg-[#241b1a] p-1 shadow-[0_16px_40px_-12px_rgb(0_0_0/0.8)]" :class="inline ? 'left-0' : 'left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0'">
         <button type="button" class="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm text-accent-text hover:bg-white/10" @click="onDetect">
           <UiIcon name="locate" :size="16" />
           {{ locating ? 'Определяем…' : 'Определить автоматически' }}
@@ -98,7 +98,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
     </Transition>
 
     <!-- Телефон (или modal): выбор в модалке, пункты крупнее -->
-    <UiModal v-if="sheet || modal":model-value="open && asSheet" title="Город" panel-class="[--lg-tint:rgb(18_18_20/0.92)]" @update:model-value="open = $event">
+    <UiModal v-if="sheet || modal":model-value="open && asSheet" title="Город" panel-class="[--lg-tint:rgb(26_21_22/0.92)]" @update:model-value="open = $event">
       <div class="-mx-2">
         <button type="button" class="flex w-full items-center gap-2 rounded-lg px-3 py-3.5 text-left text-base text-accent-text hover:bg-white/10" @click="onDetect">
           <UiIcon name="locate" :size="18" />

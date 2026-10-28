@@ -79,7 +79,7 @@ onBeforeUnmount(() => {
 
         <!-- Универсальный кадр: всегда 9:16 одного размера (на телефоне - сколько влезает в экран, шире - до 31.5rem).
              Любая картинка вписана целиком, свободное место - размытая копия той же картинки -->
-        <div class="relative aspect-9/16 w-[min(100vw,calc(100dvh*9/16))] overflow-hidden bg-black select-none sm:w-[min(31.5rem,calc(92dvh*9/16))] sm:rounded-3xl">
+        <div class="relative aspect-9/16 w-[min(100vw,calc(100dvh*9/16))] overflow-hidden bg-ink select-none sm:w-[min(31.5rem,calc(92dvh*9/16))] sm:rounded-3xl">
           <!-- тап-зоны - по всей площади кадра -->
           <div class="absolute inset-0 cursor-pointer" @click="onTap">
             <img :key="`bg-${pos}`" :src="frame.src" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full scale-110 object-cover opacity-50 blur-2xl" draggable="false">

@@ -51,11 +51,11 @@ const todayIdx = weekdayIndex();
       <NuxtLink to="/venues" class="btn-ghost mb-5 pl-3"><UiIcon name="chevron-left" :size="16" /> Все заведения</NuxtLink>
 
       <!-- Обложка: постер с названием по центру, как у артиста; описание - под фото -->
-      <article class="rim relative overflow-hidden rounded-4xl bg-black">
+      <article class="rim relative overflow-hidden rounded-4xl bg-ink">
         <div class="relative aspect-4/5 sm:aspect-video lg:aspect-21/9">
           <UiPhoto :src="v.photo" :alt="v.name" class="absolute inset-0 h-full w-full" />
           <div class="pointer-events-none absolute inset-0 bg-black/30" />
-          <div class="pointer-events-none absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black" />
+          <div class="pointer-events-none absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-ink" />
 
           <div class="absolute inset-0 grid place-items-center px-4">
             <h1 class="h-display text-center text-[13vw] font-bold lowercase sm:text-8xl lg:text-9xl">{{ v.name }}</h1>

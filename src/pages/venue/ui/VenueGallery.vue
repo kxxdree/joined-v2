@@ -31,7 +31,7 @@ const tile = (i: number) => {
   <div>
     <UiSectionHead eyebrow="Галерея" title="Интерьер и события" :subtitle="`${photos.length} ${plural(photos.length, ['фото', 'фото', 'фото'])}`" />
     <!-- Сетка встык и без скруглений, как карточки мест и событий; рамка - как у обложки заведения -->
-    <div class="rim relative grid grid-cols-2 overflow-hidden bg-black md:grid-cols-3">
+    <div class="rim relative grid grid-cols-2 overflow-hidden bg-ink md:grid-cols-3">
       <button
         v-for="(src, i) in photos"
         :key="src"

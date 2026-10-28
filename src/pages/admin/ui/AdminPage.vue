@@ -123,7 +123,7 @@ const transactions = [
               <div class="space-y-3">
                 <div v-for="g in byGenre.slice(0, 6)" :key="g.label">
                   <div class="mb-1 flex justify-between text-sm"><span class="text-soft">{{ g.label }}</span><span>{{ g.value }}%</span></div>
-                  <div class="h-2 overflow-hidden rounded-full bg-black/30 shadow-[inset_0_1px_2px_rgb(0_0_0/0.4)]"><div class="h-full rounded-full bg-linear-to-r from-[#ff4d00] to-[#ffb27a]" :style="{ width: `${g.value / 34 * 100}%` }" /></div>
+                  <div class="h-2 overflow-hidden rounded-full bg-black/30 shadow-[inset_0_1px_2px_rgb(0_0_0/0.4)]"><div class="h-full rounded-full bg-linear-to-r from-[#ff6d29] to-[#ff9f70]" :style="{ width: `${g.value / 34 * 100}%` }" /></div>
                 </div>
               </div>
             </div>

@@ -43,11 +43,11 @@ const openStory = (e: MouseEvent, id: string) => {
     <section class="container-x pt-6">
       <NuxtLink to="/artists" class="btn-ghost mb-5 pl-3"><UiIcon name="chevron-left" :size="16" /> Все артисты</NuxtLink>
 
-      <article class="rim relative overflow-hidden rounded-4xl bg-black">
+      <article class="rim relative overflow-hidden rounded-4xl bg-ink">
         <!-- Постер -->
         <div class="relative aspect-4/5 sm:aspect-video lg:aspect-21/9">
           <UiPhoto :src="a.photo" :alt="a.name" class="absolute inset-0 h-full w-full" />
-          <div class="pointer-events-none absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black" />
+          <div class="pointer-events-none absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-ink" />
 
           <div class="absolute inset-0 grid place-items-center px-4">
             <h1 class="h-display text-center text-[13vw] font-bold lowercase sm:text-8xl lg:text-9xl">{{ a.name }}</h1>

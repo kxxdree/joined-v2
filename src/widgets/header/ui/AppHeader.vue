@@ -41,7 +41,7 @@ watch(open, (v) => {
     <!-- Плавающая стеклянная капсула -->
     <div
       class="glass lg-refract mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 rounded-3xl pr-3 pl-5 transition-[box-shadow,background] duration-500 [--lg-refract-blur:14px] sm:pl-6"
-      :class="scrolled ? '[--lg-tint:rgb(16_16_18/0.66)]' : '[--lg-tint:rgb(16_16_18/0.42)]'"
+      :class="scrolled ? '[--lg-tint:rgb(22_19_22/0.66)]' : '[--lg-tint:rgb(22_19_22/0.42)]'"
     >
       <UiLogo class="transition-opacity duration-300 hover:opacity-70" />
 

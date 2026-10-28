@@ -5,7 +5,7 @@ import { UiGlassDefs, UiPageBackground, UiToaster } from '@shared/ui'
 <template>
   <UiPageBackground />
   <UiGlassDefs />
-  <NuxtLoadingIndicator color="linear-gradient(90deg,#ff4d00,#ffd98c)" :height="2" />
+  <NuxtLoadingIndicator color="linear-gradient(90deg,#ff6d29,#ffc4a3)" :height="2" />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>

@@ -15,7 +15,7 @@ const max = computed(() => Math.max(...props.data.map(d => d.value), 1))
           {{ d.value.toLocaleString('ru-RU') }}{{ unit }}
         </span>
         <div
-          class="w-full rounded-t-xl bg-linear-to-b from-[#ffb27a] via-[#ff6a26] to-[#ff4d00]/40 shadow-[inset_0_1px_0_rgb(255_255_255/0.18)] transition-opacity group-hover:opacity-100 opacity-85"
+          class="w-full rounded-t-xl bg-linear-to-b from-[#ff9f70] via-[#ff8a52] to-[#ff6d29]/40 shadow-[inset_0_1px_0_rgb(255_255_255/0.18)] transition-opacity group-hover:opacity-100 opacity-85"
           :style="{ height: `${Math.max((d.value / max) * 100, 2)}%` }"
         />
       </div>
