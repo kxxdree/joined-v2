@@ -44,24 +44,21 @@
   --lg-raised: linear-gradient(180deg, rgb(255 255 255 / 0.075), rgb(255 255 255 / 0.025) 45%, rgb(0 0 0 / 0.14)), rgb(36 27 25 / 0.74);
   --lg-raised-hover: linear-gradient(180deg, rgb(255 255 255 / 0.11), rgb(255 255 255 / 0.04) 45%, rgb(0 0 0 / 0.1)), rgb(52 38 32 / 0.78);
   --lg-raised-shadow:
-    inset 0 1px 1px rgb(255 255 255 / 0.05),
-    inset 0 -3px 8px rgb(0 0 0 / 0.45),
-    0 2px 3px rgb(0 0 0 / 0.45),
-    0 12px 28px -10px rgb(0 0 0 / 0.85);
+    inset 0 1px 1px rgb(255 255 255 / 0.05), inset 0 -3px 8px rgb(0 0 0 / 0.45), 0 2px 3px rgb(0 0 0 / 0.45), 0 12px 28px -10px rgb(0 0 0 / 0.85);
   /* вдавленный элемент (бейдж, поле, дорожка) */
   --lg-sunken: rgb(0 0 0 / 0.34);
   --lg-sunken-shadow: inset 0 2px 4px rgb(0 0 0 / 0.55), inset 0 -1px 0 rgb(255 255 255 / 0.035);
   /* акцент: объёмный «жидкий» оранжевый */
   --lg-rim-warm: linear-gradient(180deg, rgb(255 225 200 / 0.45), rgb(255 255 255 / 0.06) 40%, rgb(255 255 255 / 0) 70%, rgb(255 190 150 / 0.12));
-  --accent-fill:
-    radial-gradient(110% 80% at 50% -20%, rgb(255 255 255 / 0.22), transparent 55%),
-    linear-gradient(180deg, #ff9a62, #ff6d29 50%, #e2541b);
+  --accent-fill: radial-gradient(110% 80% at 50% -20%, rgb(255 255 255 / 0.22), transparent 55%), linear-gradient(180deg, #ff9a62, #ff6d29 50%, #e2541b);
   --accent-shadow:
-    inset 0 1px 1px rgb(255 235 215 / 0.3),
-    inset 0 -3px 8px rgb(110 45 15 / 0.5),
-    0 2px 3px rgb(0 0 0 / 0.45),
-    0 12px 28px -10px rgb(0 0 0 / 0.85);
+    inset 0 1px 1px rgb(255 235 215 / 0.3), inset 0 -3px 8px rgb(110 45 15 / 0.5), 0 2px 3px rgb(0 0 0 / 0.45), 0 12px 28px -10px rgb(0 0 0 / 0.85);
   --accent-ink: #ffffff;
+}
+
+html,
+body {
+  scrollbar-gutter: stable;
 }
 
 @layer base {
@@ -163,7 +160,9 @@
     border-radius: inherit;
     padding: 1px;
     background: var(--lg-rim);
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
@@ -177,7 +176,9 @@
   .raised {
     background: var(--lg-raised);
     box-shadow: var(--lg-raised-shadow);
-    transition: background 0.25s, box-shadow 0.25s;
+    transition:
+      background 0.25s,
+      box-shadow 0.25s;
   }
   .raised:hover {
     background: var(--lg-raised-hover);
@@ -206,10 +207,7 @@
     --lg-refract-blur: 14px;
     --lg-rim: linear-gradient(155deg, rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.1) 30%, rgb(255 255 255 / 0.04) 60%, rgb(255 255 255 / 0.35));
     --lg-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.3),
-      inset 0 0 24px rgb(255 255 255 / 0.06),
-      0 40px 90px -30px rgb(0 0 0 / 0.7),
-      0 10px 30px -10px rgb(0 0 0 / 0.4);
+      inset 0 1px 0 rgb(255 255 255 / 0.3), inset 0 0 24px rgb(255 255 255 / 0.06), 0 40px 90px -30px rgb(0 0 0 / 0.7), 0 10px 30px -10px rgb(0 0 0 / 0.4);
   }
 
   /* Стекло модалки (UiModal glass, поверх .glass-strong): подложка заметно легче; страницу размывает слой-затемнение, текст
@@ -221,14 +219,10 @@
     --lg-refract-blur: 36px;
     --lg-sheen:
       radial-gradient(90% 50% at 15% 0%, rgb(255 255 255 / 0.14), transparent 60%),
-      radial-gradient(70% 40% at 100% 100%, rgb(255 109 41 / 0.1), transparent 70%),
-      linear-gradient(160deg, rgb(255 255 255 / 0.06), transparent 40%);
+      radial-gradient(70% 40% at 100% 100%, rgb(255 109 41 / 0.1), transparent 70%), linear-gradient(160deg, rgb(255 255 255 / 0.06), transparent 40%);
     --lg-rim: linear-gradient(155deg, rgb(255 255 255 / 0.45), rgb(255 255 255 / 0.08) 30%, rgb(255 255 255 / 0.03) 65%, rgb(255 196 163 / 0.25));
     --lg-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.18),
-      inset 0 0 40px rgb(255 255 255 / 0.03),
-      0 40px 100px -30px rgb(0 0 0 / 0.75),
-      0 12px 32px -12px rgb(0 0 0 / 0.5);
+      inset 0 1px 0 rgb(255 255 255 / 0.18), inset 0 0 40px rgb(255 255 255 / 0.03), 0 40px 100px -30px rgb(0 0 0 / 0.75), 0 12px 32px -12px rgb(0 0 0 / 0.5);
   }
 
   .glass-chip {
@@ -239,11 +233,15 @@
 
   /* Карточка-ссылка: «всплывает» под курсором */
   .card-hover {
-    transition: transform 0.5s var(--ease-liquid), box-shadow 0.5s var(--ease-liquid);
+    transition:
+      transform 0.5s var(--ease-liquid),
+      box-shadow 0.5s var(--ease-liquid);
   }
   .card-hover:hover {
     transform: translateY(-4px);
-    box-shadow: var(--lg-shadow), 0 34px 70px -26px rgb(0 0 0 / 0.95);
+    box-shadow:
+      var(--lg-shadow),
+      0 34px 70px -26px rgb(0 0 0 / 0.95);
     --lg-rim: linear-gradient(180deg, rgb(255 255 255 / 0.18), rgb(255 255 255 / 0.05) 30%, rgb(255 255 255 / 0.02) 70%, rgb(255 255 255 / 0.05));
   }
 
@@ -254,7 +252,9 @@
   .btn-ghost,
   .pill {
     @apply relative inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white select-none disabled:cursor-not-allowed disabled:opacity-50;
-    transition: background 0.2s, color 0.2s;
+    transition:
+      background 0.2s,
+      color 0.2s;
   }
   .btn-dark:hover:not(:disabled),
   .pill:hover {
@@ -326,7 +326,9 @@
   /* ---------- Поля ввода ---------- */
   .field {
     @apply w-full rounded-lg bg-white/10 px-4 py-3 text-sm text-white placeholder:text-muted;
-    transition: background 0.2s, box-shadow 0.2s;
+    transition:
+      background 0.2s,
+      box-shadow 0.2s;
   }
   .field:hover {
     @apply bg-white/[0.13];
@@ -375,7 +377,9 @@
       background: var(--lg-sheen), var(--lg-tint);
       -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
       backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
-      box-shadow: var(--lg-shadow), inset 0 1px 0 rgb(255 255 255 / 0.05);
+      box-shadow:
+        var(--lg-shadow),
+        inset 0 1px 0 rgb(255 255 255 / 0.05);
     }
   }
 
@@ -402,7 +406,9 @@
    ============================================================ */
 .page-enter-active,
 .page-leave-active {
-  transition: opacity 0.25s, transform 0.35s var(--ease-liquid);
+  transition:
+    opacity 0.25s,
+    transform 0.35s var(--ease-liquid);
 }
 .page-enter-from,
 .page-leave-to {

@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { cityName } from "@entities/city";
 import { events, isUpcoming } from "@entities/event";
 import { formatName, getVenue } from "@entities/venue";
 import { FavoriteButton } from "@features/favorites";
 import { ShareButton } from "@features/share";
-import { genreName } from "@shared/config";
 import { weekdayIndex } from "@shared/lib";
-import { UiIcon, UiPhoto } from "@shared/ui";
+import { UiIcon } from "@shared/ui";
 import { EventCalendar } from "@widgets/event-calendar";
 import { EventStories } from "@widgets/event-stories";
 import VenueAbout from "./VenueAbout.vue";
@@ -21,107 +19,79 @@ const v = found;
 useHead({ title: `${v.name} - Joined`, meta: [{ name: "description", content: v.short }] });
 
 const tabs = [
-  { id: "schedule", name: "Афиша" },
-  { id: "about", name: "О заведении" },
-  { id: "menu", name: "Меню" },
-  { id: "gallery", name: "Галерея" },
-  { id: "booking", name: "Бронирование" },
-  { id: "rules", name: "Правила" },
+  { id: "gallery", name: "Галерея", icon: "image" },
+  { id: "schedule", name: "Афиша", icon: "calendar" },
+  { id: "menu", name: "Меню", icon: "utensils" },
+  { id: "about", name: "О месте", icon: "info" },
+  { id: "booking", name: "Бронь", icon: "users" },
+  { id: "rules", name: "Правила", icon: "list" },
 ] as const;
 type TabId = (typeof tabs)[number]["id"];
-const tab = ref<TabId>(tabs.find((t) => t.id === route.query.tab)?.id ?? "schedule");
-watch(tab, (t) => navigateTo({ query: { ...route.query, tab: t } }, { replace: true }));
+const tab = ref<TabId>(tabs.find((t) => t.id === route.query.tab)?.id ?? "gallery");
+watch(tab, (t) => {
+  const { feed: _, ...query } = route.query; // лента фото относится только к галерее
+  navigateTo({ query: { ...query, tab: t } }, { replace: true });
+});
 
-// «Забронировать»: открыть вкладку и доскроллить до условий (отступ сверху - scroll-mt под липкие шапку и вкладки)
-const bookingBlock = ref<HTMLElement>();
-const openBooking = async () => {
-  tab.value = "booking";
-  await nextTick();
-  bookingBlock.value?.scrollIntoView({ behavior: "smooth", block: "start" });
+// активная вкладка всегда на виду: лента сама прокручивается к ней (на телефоне вкладки не влезают в экран)
+const tabsEl = ref<HTMLElement>();
+const revealTab = () => {
+  const el = tabsEl.value;
+  const btn = el?.querySelector<HTMLElement>("[aria-pressed=true]");
+  if (el && btn) el.scrollTo({ left: btn.offsetLeft - (el.clientWidth - btn.offsetWidth) / 2, behavior: "smooth" });
 };
+watch(tab, () => nextTick(revealTab));
+onMounted(revealTab);
 
 const venueEvents = events.filter((e) => e.venue === v.slug && isUpcoming(e));
 const storyId = ref<string | null>(null); // выступление из календаря, открытое в историях
 const todayIdx = weekdayIndex();
+
+// круглая стеклянная кнопка в шапке заведения (size-10! - перебивает размер внутри ShareButton)
+const glassIcon = "grid size-10! shrink-0 place-items-center rounded-full bg-black/35 text-white ring-1 ring-white/15 backdrop-blur-md transition-colors hover:bg-black/50";
 </script>
 
 <template>
   <div>
-    <section class="container-x pt-6">
-      <NuxtLink to="/venues" class="btn-ghost mb-5 pl-3"><UiIcon name="chevron-left" :size="16" /> Все заведения</NuxtLink>
-
-      <!-- Обложка: постер с названием по центру, как у артиста; описание - под фото -->
-      <article class="rim relative overflow-hidden rounded-4xl bg-ink">
-        <div class="relative aspect-4/5 sm:aspect-video lg:aspect-21/9">
-          <UiPhoto :src="v.photo" :alt="v.name" class="absolute inset-0 h-full w-full" />
-          <div class="pointer-events-none absolute inset-0 bg-black/30" />
-          <div class="pointer-events-none absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-ink" />
-
-          <div class="absolute inset-0 grid place-items-center px-4">
-            <h1 class="h-display text-center text-[13vw] font-bold lowercase sm:text-8xl lg:text-9xl">{{ v.name }}</h1>
-          </div>
-        </div>
-
-        <!-- Описание под фото, на чёрном - чтобы не сливалось с изображением -->
-        <div class="p-6 sm:px-10 sm:pb-10 lg:px-14">
-          <p class="max-w-2xl text-white/85 sm:text-lg">{{ v.short }}</p>
-          <p class="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold tracking-wider uppercase">
-            <span class="text-accent-text">{{ formatName(v.format) }}</span>
-            <span v-for="g in v.genres" :key="g">{{ genreName(g) }}</span>
-          </p>
-        </div>
-      </article>
-
-      <!-- Быстрые факты и действия -->
-      <div class="mt-3 grid gap-3 lg:grid-cols-[2fr_1fr]">
-        <div class="card grid grid-cols-2 gap-4 p-5 sm:flex sm:gap-12 sm:p-6">
-          <div>
-            <p class="text-xs text-muted">Сегодня</p>
-            <p class="mt-1 text-xl font-medium">{{ v.hours[todayIdx]!.time }}</p>
-          </div>
-          <a :href="`https://yandex.ru/maps/?pt=${v.lng},${v.lat}&z=16&l=map`" target="_blank" rel="noopener" class="group col-span-2 sm:col-span-1">
-            <p class="text-xs text-muted">Адрес</p>
-            <p class="mt-1 text-xl font-medium underline decoration-white/30 underline-offset-4 transition-colors group-hover:text-sand group-hover:decoration-current">{{ cityName(v.city) }}, {{ v.address }}</p>
-          </a>
-        </div>
-        <div class="card flex items-center gap-2 p-3">
-          <button class="btn-primary flex-1 py-3.5" @click="openBooking"><UiIcon name="calendar" :size="18" /> Забронировать</button>
-          <FavoriteButton kind="venues" :id="v.slug" class="size-12" />
-          <ShareButton :title="v.name" />
-        </div>
+    <!-- Шапка как в профиле: назад, название с короткой подписью, действия - ничего лишнего над галереей -->
+    <section class="mx-auto flex max-w-7xl items-center gap-3 px-4 pt-2 sm:px-6">
+      <NuxtLink to="/venues" :class="glassIcon" aria-label="Все заведения"><UiIcon name="chevron-left" :size="20" /></NuxtLink>
+      <div class="min-w-0 flex-1">
+        <h1 class="truncate text-2xl font-medium tracking-[-0.04em] sm:text-3xl">{{ v.name }}</h1>
+        <p class="mt-1 font-mono text-[10px] leading-snug tracking-[0.14em] text-white/70 uppercase sm:text-xs">
+          {{ formatName(v.format) }} · {{ v.metro ? `м. ${v.metro}` : v.address }} · <span class="whitespace-nowrap">{{ v.hours[todayIdx]!.time }}</span>
+        </p>
       </div>
+      <FavoriteButton kind="venues" :id="v.slug" :class="glassIcon" />
+      <ShareButton :title="v.name" :class="glassIcon" />
     </section>
 
-    <!-- Вкладки: стеклянная плавающая лента -->
-    <nav class="sticky top-22 z-30 mt-8 px-3 sm:top-24 sm:px-6">
-      <div class="glass lg-refract mx-auto max-w-7xl rounded-full p-1.5 [--lg-refract-blur:16px]">
-        <div class="scroll-x py-0">
-          <button
-            v-for="t in tabs"
-            :key="t.id"
-            class="pill"
-            :class="tab === t.id ? 'pill-active' : 'bg-transparent shadow-none backdrop-blur-none before:hidden'"
-            @click="tab = t.id"
-          >
-            {{ t.name }}
-          </button>
-        </div>
+    <!-- Вкладки: стеклянные пилюли с иконками, прилипают под шапкой сайта; активная - светлая -->
+    <nav class="sticky top-19 z-30 mx-auto mt-3 max-w-7xl sm:top-20 sm:px-6" aria-label="Разделы заведения">
+      <div ref="tabsEl" class="scroll-x px-4 sm:px-0">
+        <button
+          v-for="t in tabs"
+          :key="t.id"
+          type="button"
+          class="flex h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-medium transition-colors"
+          :class="tab === t.id ? 'bg-[#ffe3d6] text-ink' : 'bg-black/35 text-white/85 ring-1 ring-white/15 backdrop-blur-md hover:bg-black/50'"
+          :aria-pressed="tab === t.id"
+          @click="tab = t.id"
+        >
+          <UiIcon :name="t.icon" :size="18" /> {{ t.name }}
+        </button>
       </div>
     </nav>
 
-    <section class="container-x pt-10">
-      <div v-if="tab === 'schedule'">
-        <h2 class="h-display mb-8 text-4xl sm:text-5xl">Музыкальный календарь</h2>
-        <EventCalendar :events="venueEvents" :title="v.name" @open="storyId = $event" />
-      </div>
-
+    <!-- Галерея на телефоне - от края до края, остальные вкладки с обычными отступами -->
+    <section class="mx-auto max-w-7xl pt-3 sm:px-6" :class="{ 'px-4': tab !== 'gallery' }">
+      <VenueGallery v-if="tab === 'gallery'" :photos="v.gallery" />
+      <EventCalendar v-else-if="tab === 'schedule'" :events="venueEvents" :title="v.name" @open="storyId = $event" />
       <VenueAbout v-else-if="tab === 'about'" :venue="v" />
       <VenueMenu v-else-if="tab === 'menu'" :venue="v" />
-      <VenueGallery v-else-if="tab === 'gallery'" :photos="v.gallery" />
 
       <!-- Бронирование: условия в стиле меню + контакты для брони -->
-      <div v-else-if="tab === 'booking'" ref="bookingBlock" class="card scroll-mt-40 p-6 sm:scroll-mt-44 sm:p-10">
-        <h2 class="h-display mb-6 text-4xl sm:text-5xl">Условия бронирования</h2>
+      <div v-else-if="tab === 'booking'" class="card p-6 sm:p-10">
         <ul>
           <li class="flex items-baseline justify-between gap-6 border-b border-line py-3.5">
             <p class="min-w-0 text-base">Количество гостей</p>
@@ -140,7 +110,6 @@ const todayIdx = weekdayIndex();
 
       <!-- Правила: тот же вид, что у меню и условий бронирования -->
       <div v-else-if="tab === 'rules'" class="card p-6 sm:p-10">
-        <h2 class="h-display mb-6 text-4xl sm:text-5xl">Правила посещения</h2>
         <ul>
           <li v-for="r in v.rules" :key="r" class="border-b border-line py-3.5 text-base last:border-b-0">{{ r }}</li>
         </ul>

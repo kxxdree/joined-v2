@@ -8,8 +8,9 @@ import UiIcon from "./UiIcon.vue";
 
 /** panelClass - доп. классы для самой панели (например, плотнее фон);
  * glass - лёгкое стекло .glass-modal. Размывает страницу слой-затемнение: он «корень фона» для панели,
- * поэтому собственный blur панели страницу не видит */
-withDefaults(defineProps<{ title?: string; wide?: boolean; panelClass?: string; glass?: boolean }>(), { wide: false, panelClass: "", glass: false });
+ * поэтому собственный blur панели страницу не видит;
+ * bare - без панели: только затемнение, блокировка прокрутки и Esc, содержимое рисует сам вызывающий (просмотр фото) */
+withDefaults(defineProps<{ title?: string; wide?: boolean; panelClass?: string; glass?: boolean; bare?: boolean }>(), { wide: false, panelClass: "", glass: false, bare: false });
 const open = defineModel<boolean>({ required: true });
 
 const id = Symbol("modal");
@@ -51,11 +52,13 @@ onBeforeUnmount(() => {
     >
       <div
         v-if="open"
-        class="fixed inset-0 z-[100] flex items-end justify-center bg-black/45 sm:items-center sm:p-6"
-        :class="glass ? 'backdrop-blur-lg' : 'backdrop-blur-[3px]'"
+        class="fixed inset-0 z-[100] flex justify-center"
+        :class="bare ? 'items-center bg-black/85' : ['items-end bg-black/45 sm:items-center sm:p-6', glass ? 'backdrop-blur-lg' : 'backdrop-blur-[3px]']"
         @click.self="open = false"
       >
+        <slot v-if="bare" />
         <div
+          v-else
           role="dialog"
           aria-modal="true"
           class="glass-strong lg-refract max-h-[92vh] w-full overflow-y-auto rounded-t-[2rem] p-5 transition-transform duration-300 [--lg-refract-blur:30px] sm:rounded-[2rem] sm:p-8"

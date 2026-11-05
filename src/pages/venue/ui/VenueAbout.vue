@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { drinkName, type Venue } from '@entities/venue'
+import { genreName } from '@shared/config'
 import { weekdayIndex } from '@shared/lib'
 import { UiIcon, UiYandexMap } from '@shared/ui'
 
@@ -13,6 +14,10 @@ const todayIdx = weekdayIndex()
       <div class="card p-6 sm:p-8">
         <h2 class="mb-4 text-2xl font-medium">О заведении</h2>
         <p class="leading-relaxed text-soft">{{ venue.description }}</p>
+        <h3 class="mt-8 mb-3 text-sm text-muted">Музыка</h3>
+        <div class="flex flex-wrap gap-2">
+          <span v-for="g in venue.genres" :key="g" class="pill pointer-events-none">{{ genreName(g) }}</span>
+        </div>
         <h3 class="mt-8 mb-3 text-sm text-muted">Бар и кухня</h3>
         <div class="flex flex-wrap gap-2">
           <span v-for="d in venue.drinks" :key="d" class="pill pointer-events-none">{{ drinkName(d) }}</span>
