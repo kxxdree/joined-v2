@@ -2,11 +2,12 @@
 import { useToast } from '@shared/lib'
 import { UiIcon } from '@shared/ui'
 
-const props = defineProps<{ title: string }>()
+/** url - чем поделиться; без него текущая страница */
+const props = defineProps<{ title: string; url?: string }>()
 const { push } = useToast()
 
 const share = async () => {
-  const url = window.location.href
+  const url = new URL(props.url ?? '', window.location.href).href
   if (navigator.share) {
     await navigator.share({ title: props.title, url }).catch(() => {})
     return

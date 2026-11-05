@@ -1,37 +1,50 @@
 <script setup lang="ts">
-import { ArtistCard, artists } from '@entities/artist'
-import { cities, cityName } from '@entities/city'
-import { type GenreId, genres } from '@shared/config'
-import { plural } from '@shared/lib'
-import { UiEmpty, UiIcon, UiPageHead, UiPills, UiSelect } from '@shared/ui'
+import { ArtistCard, artists } from "@entities/artist";
+import { cities, cityName } from "@entities/city";
+import { type GenreId, genres } from "@shared/config";
+import { UiEmpty, UiIcon, UiPageHead, UiPills, UiSelect } from "@shared/ui";
 
-useHead({ title: 'Артисты и группы - Joined' })
+useHead({ title: "Артисты и группы - Joined" });
 
-const genre = ref<GenreId | ''>('')
-const city = ref('')
-const q = ref('')
+const genre = ref<GenreId | "">("");
+const city = ref("");
+const q = ref("");
 
 const list = computed(() =>
   artists
-    .filter(a => !genre.value || a.genres.includes(genre.value))
-    .filter(a => !city.value || a.city === city.value)
-    .filter(a => !q.value.trim() || a.name.toLowerCase().includes(q.value.trim().toLowerCase()))
+    .filter((a) => !genre.value || a.genres.includes(genre.value))
+    .filter((a) => !city.value || a.city === city.value)
+    .filter((a) => !q.value.trim() || a.name.toLowerCase().includes(q.value.trim().toLowerCase()))
     .sort((a, b) => b.followers - a.followers),
-)
+);
 </script>
 
 <template>
   <div>
     <section class="container-x">
-      <UiPageHead title="Артисты" :caption="`${list.length} ${plural(list.length, ['группа', 'группы', 'групп'])} и музыкантов`" />
+      <UiPageHead title="Артисты" />
 
       <!-- Поиск одной плашкой: поле и город внутри -->
       <div class="search-bar mt-4 flex flex-col gap-1 p-2 sm:flex-row">
         <label class="flex min-w-0 flex-1 items-center gap-3 px-3">
           <UiIcon name="search" class="shrink-0 text-white/60" :size="18" />
-          <input v-model="q" type="search" placeholder="Название группы" class="w-full bg-transparent py-2.5 text-sm placeholder:text-white/50" aria-label="Поиск артистов" />
+          <input
+            v-model="q"
+            type="search"
+            placeholder="Название группы"
+            class="w-full bg-transparent py-2.5 text-sm placeholder:text-white/50"
+            aria-label="Поиск артистов"
+          />
         </label>
-        <UiSelect v-model="city" :options="cities" all-label="Все города" icon="pin" label="Город" modal class="min-w-0 sm:w-48 [&>button]:h-full [&>button]:w-full" />
+        <UiSelect
+          v-model="city"
+          :options="cities"
+          all-label="Все города"
+          icon="pin"
+          label="Город"
+          modal
+          class="min-w-0 sm:w-48 [&>button]:h-full [&>button]:w-full"
+        />
       </div>
       <div class="mt-3"><UiPills v-model="genre" :options="genres" /></div>
     </section>

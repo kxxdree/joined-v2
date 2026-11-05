@@ -36,6 +36,12 @@ watch(tab, (t) => {
 const venueEvents = events.filter((e) => e.venue === v.slug && isUpcoming(e));
 const storyId = ref<string | null>(null); // выступление из календаря, открытое в историях
 const todayIdx = weekdayIndex();
+
+// из карточки афиши: вкладка брони короче, поэтому возвращаемся к началу страницы
+const openBooking = () => {
+  tab.value = "booking";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
 </script>
 
 <template>
@@ -54,10 +60,10 @@ const todayIdx = weekdayIndex();
     </div>
     <UiTabs v-model="tab" :tabs="tabs" class="container-x" />
 
-    <!-- Галерея и меню на телефоне - от края до края, остальные вкладки с обычными отступами -->
-    <section class="mx-auto w-full max-w-7xl pt-3 sm:px-6 lg:px-12" :class="{ 'px-4': tab !== 'gallery' && tab !== 'menu' }">
+    <!-- Галерея, меню и афиша на телефоне - от края до края, остальные вкладки с обычными отступами -->
+    <section class="mx-auto w-full max-w-7xl pt-3 sm:px-6 lg:px-12" :class="{ 'px-4': tab !== 'gallery' && tab !== 'menu' && tab !== 'schedule' }">
       <VenueGallery v-if="tab === 'gallery'" :photos="v.gallery" />
-      <EventCalendar v-else-if="tab === 'schedule'" :events="venueEvents" @open="storyId = $event" />
+      <EventCalendar v-else-if="tab === 'schedule'" :events="venueEvents" @open="storyId = $event" @book="openBooking" />
       <VenueAbout v-else-if="tab === 'about'" :venue="v" />
       <VenueMenu v-else-if="tab === 'menu'" :venue="v" />
 
