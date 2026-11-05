@@ -174,7 +174,7 @@ const transactions = [
             <div class="flex flex-wrap gap-2">
               <span v-for="(t, j) in g.items" :key="t" class="pill gap-2 pr-2">
                 {{ t }}
-                <button class="grid size-5 place-items-center rounded-full bg-black/30 transition-colors hover:bg-accent" :aria-label="`Удалить ${t}`" @click="g.items.splice(j, 1)"><UiIcon name="x" :size="12" /></button>
+                <button class="grid size-5 place-items-center rounded-full bg-black/30 hover:bg-accent" :aria-label="`Удалить ${t}`" @click="g.items.splice(j, 1)"><UiIcon name="x" :size="12" /></button>
               </span>
             </div>
             <form class="mt-4 flex gap-2" @submit.prevent="addTag(i)">

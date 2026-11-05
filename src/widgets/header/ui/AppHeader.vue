@@ -45,28 +45,26 @@ watch(open, (v) => {
          Сетка как у страниц (container-x). Высота прежняя (h-16 + pt-3/sm:pt-4): страницы, заезжающие под шапку, сдвинуты ровно на неё -->
     <div class="container-x flex h-16 items-center justify-between gap-6">
       <!-- Название без иконки, обычными буквами - как «Joined©» на главной -->
-      <NuxtLink to="/" class="text-xl font-medium tracking-[-0.04em] transition-opacity duration-300 hover:opacity-70" aria-label="Joined - на главную">Joined</NuxtLink>
+      <NuxtLink to="/" class="text-xl font-medium tracking-[-0.04em] hover:opacity-70" aria-label="Joined - на главную">Joined</NuxtLink>
 
       <nav class="hidden items-center gap-7 text-sm md:flex" aria-label="Основная навигация">
         <NuxtLink
           v-for="l in [...links, ...(cabinet ? [cabinet] : [])]"
           :key="l.to"
           :to="l.to"
-          class="transition-colors"
           :class="isActive(l.to) ? 'text-white' : 'text-white/70 hover:text-white'"
         >
           {{ l.label }}
         </NuxtLink>
         <NuxtLink
           :to="user ? '/account' : '/login'"
-          class="transition-colors"
           :class="isActive(user ? '/account' : '/login') ? 'text-white' : 'text-white/70 hover:text-white'"
         >
           {{ user ? 'Профиль' : 'Войти' }}
         </NuxtLink>
       </nav>
 
-      <button class="-mr-1 grid size-10 place-items-center text-white/80 transition-colors hover:text-white md:hidden" :aria-expanded="open" aria-label="Меню" @click="open = !open">
+      <button class="-mr-1 grid size-10 place-items-center text-white/80 hover:text-white md:hidden" :aria-expanded="open" aria-label="Меню" @click="open = !open">
         <UiIcon :name="open ? 'x' : 'menu'" :size="22" />
       </button>
     </div>
@@ -89,7 +87,7 @@ watch(open, (v) => {
             v-for="l in [...links, ...(cabinet ? [cabinet] : [])]"
             :key="l.to"
             :to="l.to"
-            class="flex items-center rounded-lg px-4 py-3.5 text-xl font-medium tracking-tight transition-colors"
+            class="flex items-center rounded-lg px-4 py-3.5 text-xl font-medium tracking-tight"
             :class="isActive(l.to) ? 'bg-white text-ink' : 'text-white/75 hover:bg-white/10'"
           >
             {{ l.label }}

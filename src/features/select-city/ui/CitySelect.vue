@@ -52,7 +52,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
 
 <template>
   <div ref="root" class="relative">
-    <button type="button" :class="inline ? 'flex h-full items-center gap-2 px-3 text-sm whitespace-nowrap transition-colors hover:text-sand' : 'pill'" :aria-expanded="open" @click="toggle">
+    <button type="button" :class="inline ? 'flex h-full items-center gap-2 px-3 text-sm whitespace-nowrap hover:text-sand' : 'pill'" :aria-expanded="open" @click="toggle">
       <UiIcon name="pin" :size="16" class="shrink-0 text-accent-text" />
       <!-- в одну строку: длинное название не должно растягивать плашку по высоте -->
       <span class="min-w-0 truncate">{{ city.name }}</span>

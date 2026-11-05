@@ -34,7 +34,7 @@ const shown = (date: string, items: EventItem[]) => (props.perDay && !expanded.v
           </div>
         </li>
       </ul>
-      <button v-if="perDay && !expanded.has(date) && items.length > perDay" type="button" class="mono-cap mt-3 transition-colors hover:text-white" @click="expand(date)">
+      <button v-if="perDay && !expanded.has(date) && items.length > perDay" type="button" class="mono-cap mt-3 hover:text-white" @click="expand(date)">
         Ещё {{ items.length - perDay }} {{ plural(items.length - perDay, ['событие', 'события', 'событий']) }}
       </button>
     </section>

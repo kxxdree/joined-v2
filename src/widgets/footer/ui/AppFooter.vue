@@ -38,7 +38,7 @@ const socials = [
             <h3 class="mb-5 text-sm text-white/50">Навигация</h3>
             <ul class="space-y-3 text-sm">
               <li v-for="l in nav" :key="l.label">
-                <NuxtLink :to="l.to" class="transition-colors hover:text-sand">{{ l.label }}</NuxtLink>
+                <NuxtLink :to="l.to" class="hover:text-sand">{{ l.label }}</NuxtLink>
               </li>
             </ul>
           </div>
@@ -46,7 +46,7 @@ const socials = [
             <h3 class="mb-5 text-sm text-white/50">Партнёрам</h3>
             <ul class="space-y-3 text-sm">
               <li v-for="l in partners" :key="l.label">
-                <NuxtLink :to="l.to" class="transition-colors hover:text-sand">{{ l.label }}</NuxtLink>
+                <NuxtLink :to="l.to" class="hover:text-sand">{{ l.label }}</NuxtLink>
               </li>
             </ul>
           </div>

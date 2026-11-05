@@ -55,7 +55,7 @@ const favArtists = computed(() => artists.filter(a => favs.value.artists.include
             <li v-for="b in bookings" :key="b.id" class="hair-row flex items-center gap-3" :class="{ 'opacity-50': b.status === 'cancelled' }">
               <UiPhoto :src="getVenue(b.venue)!.photo" class="aspect-3/4 w-11 shrink-0 rounded-lg" />
               <div class="min-w-0 flex-1">
-                <NuxtLink :to="`/venues/${b.venue}`" class="block truncate font-medium transition-colors hover:text-sand">{{ getVenue(b.venue)!.name }}</NuxtLink>
+                <NuxtLink :to="`/venues/${b.venue}`" class="block truncate font-medium hover:text-sand">{{ getVenue(b.venue)!.name }}</NuxtLink>
                 <p class="mono-cap mt-1">{{ formatDay(b.date) }}, {{ b.time }} · {{ b.guests }} {{ plural(b.guests, ['гость', 'гостя', 'гостей']) }} · депозит {{ formatPrice(b.deposit) }}</p>
                 <p class="mono-cap mt-0.5" :class="{ 'text-accent-text': b.status === 'confirmed' }">{{ b.status === 'confirmed' ? 'Подтверждено' : 'Отменено' }} · № {{ b.id }}</p>
               </div>
@@ -73,7 +73,7 @@ const favArtists = computed(() => artists.filter(a => favs.value.artists.include
             <li v-for="h in history" :key="h.id" class="hair-row">
               <p class="mono-cap">{{ formatDate(h.date) }} · {{ h.kind }}</p>
               <p class="mt-1 font-medium">{{ h.title }}</p>
-              <NuxtLink :to="`/venues/${h.venue}`" class="mt-0.5 inline-block text-sm text-white/70 transition-colors hover:text-sand">{{ getVenue(h.venue)?.name }}</NuxtLink>
+              <NuxtLink :to="`/venues/${h.venue}`" class="mt-0.5 inline-block text-sm text-white/70 hover:text-sand">{{ getVenue(h.venue)?.name }}</NuxtLink>
             </li>
           </ul>
           <UiEmpty v-else icon="clock" title="История пока пуста" />
@@ -88,7 +88,7 @@ const favArtists = computed(() => artists.filter(a => favs.value.artists.include
                 <NuxtLink :to="`/venues/${v.slug}`" class="group flex min-w-0 flex-1 items-center gap-3">
                   <UiPhoto :src="v.photo" :alt="v.name" class="aspect-3/4 w-11 shrink-0 rounded-lg" />
                   <div class="min-w-0">
-                    <p class="truncate font-medium transition-colors group-hover:text-sand">{{ v.name }}</p>
+                    <p class="truncate font-medium group-hover:text-sand">{{ v.name }}</p>
                     <p class="mono-cap mt-1 truncate">{{ formatName(v.format) }} · {{ v.metro ? `м. ${v.metro}` : v.address }}</p>
                   </div>
                 </NuxtLink>
@@ -103,7 +103,7 @@ const favArtists = computed(() => artists.filter(a => favs.value.artists.include
               <li v-for="a in favArtists" :key="a.slug" class="hair-row flex items-center gap-3">
                 <NuxtLink :to="`/artists/${a.slug}`" class="group flex min-w-0 flex-1 items-center gap-3">
                   <UiPhoto :src="a.photo" :alt="a.name" class="size-11 shrink-0 rounded-full" />
-                  <p class="truncate font-medium transition-colors group-hover:text-sand">{{ a.name }}</p>
+                  <p class="truncate font-medium group-hover:text-sand">{{ a.name }}</p>
                 </NuxtLink>
                 <FavoriteButton kind="artists" :id="a.slug" class="size-10" />
               </li>

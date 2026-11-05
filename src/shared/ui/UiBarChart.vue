@@ -11,11 +11,11 @@ const max = computed(() => Math.max(...props.data.map(d => d.value), 1))
   <div>
     <div class="flex items-end gap-1.5 sm:gap-2" :style="{ height: `${height}px` }">
       <div v-for="d in data" :key="d.label" class="group relative flex h-full flex-1 flex-col justify-end">
-        <span class="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 rounded-full bg-white px-2 py-0.5 text-xs whitespace-nowrap text-black opacity-0 transition-opacity group-hover:opacity-100">
+        <span class="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 rounded-full bg-white px-2 py-0.5 text-xs whitespace-nowrap text-black opacity-0 group-hover:opacity-100">
           {{ d.value.toLocaleString('ru-RU') }}{{ unit }}
         </span>
         <div
-          class="w-full rounded-t-xl bg-linear-to-b from-[#ff6d29] via-[#ff6d29] to-[#ff6d29]/40 shadow-[inset_0_1px_0_rgb(255_255_255/0.18)] transition-opacity group-hover:opacity-100 opacity-85"
+          class="w-full rounded-t-xl bg-linear-to-b from-[#ff6d29] via-[#ff6d29] to-[#ff6d29]/40 shadow-[inset_0_1px_0_rgb(255_255_255/0.18)] group-hover:opacity-100 opacity-85"
           :style="{ height: `${Math.max((d.value / max) * 100, 2)}%` }"
         />
       </div>

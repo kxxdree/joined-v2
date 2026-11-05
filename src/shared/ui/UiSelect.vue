@@ -40,7 +40,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
 
 <template>
   <div ref="root" class="relative" @keydown.esc="open = false">
-    <button type="button" class="w-full justify-between" :class="inline ? 'flex h-full items-center gap-2 px-3 text-sm transition-colors hover:text-sand' : 'pill'" :aria-expanded="open" aria-haspopup="listbox" :aria-label="label" @click="toggle">
+    <button type="button" class="w-full justify-between" :class="inline ? 'flex h-full items-center gap-2 px-3 text-sm hover:text-sand' : 'pill'" :aria-expanded="open" aria-haspopup="listbox" :aria-label="label" @click="toggle">
       <span class="flex min-w-0 items-center gap-2">
         <UiIcon v-if="icon" :name="icon" :size="16" class="shrink-0 text-accent-text" />
         <span class="truncate">{{ current }}</span>

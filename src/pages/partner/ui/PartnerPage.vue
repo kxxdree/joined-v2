@@ -239,14 +239,14 @@ const setStatus = (id: string, status: Exclude<BookingStatus, 'new'>) => {
               </div>
               <!-- Лента: 3 фото в ряд на телефоне, 6 - шире; не влезают - листаются стрелками -->
               <UiCarousel v-if="media[k.id].length">
-                <div v-for="(src, i) in media[k.id]" :key="src" class="group/item relative w-[calc((100%-1rem)/3)] shrink-0 snap-start sm:w-[calc((100%-2.5rem)/6)]">
+                <div v-for="(src, i) in media[k.id]" :key="src" class="group group/item relative w-[calc((100%-1rem)/3)] shrink-0 snap-start sm:w-[calc((100%-2.5rem)/6)]">
                   <button type="button" class="block w-full overflow-hidden rounded-2xl" :aria-label="`Открыть фото ${i + 1}`" @click="viewer = { kind: k.id, index: i }">
-                    <UiPhoto :src="src" :alt="`${k.name}, фото ${i + 1}`" class="transition-transform duration-700 ease-liquid group-hover/item:scale-[1.03]" :class="k.aspect" />
+                    <UiPhoto :src="src" :alt="`${k.name}, фото ${i + 1}`" :class="k.aspect"><div class="tile-dim" /></UiPhoto>
                   </button>
                   <!-- с мышью - появляется при наведении, на тач-экранах видна всегда -->
                   <button
                     type="button"
-                    class="btn-icon absolute top-1.5 right-1.5 size-8 bg-black/50 transition-opacity focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover/item:opacity-100"
+                    class="btn-icon absolute top-1.5 right-1.5 size-8 bg-black/50 focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover/item:opacity-100"
                     :aria-label="`Удалить фото ${i + 1}`"
                     @click="removePhoto(k.id, src)"
                   >
@@ -254,7 +254,7 @@ const setStatus = (id: string, status: Exclude<BookingStatus, 'new'>) => {
                   </button>
                 </div>
               </UiCarousel>
-              <label v-else class="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-dashed border-white/15 px-4 py-10 text-center text-sm text-muted transition-colors hover:border-white/30 hover:text-white">
+              <label v-else class="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-dashed border-white/15 px-4 py-10 text-center text-sm text-muted hover:border-white/30 hover:text-white">
                 <UiIcon name="image" :size="22" class="text-accent-text" />
                 {{ k.empty }}
                 <input type="file" accept="image/*" multiple class="sr-only" @change="addPhotos(k.id, $event)">

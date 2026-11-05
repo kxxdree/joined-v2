@@ -45,7 +45,7 @@ const stats = [
           <UiSelect v-model="genre" :options="genres" all-label="Любой жанр" label="Жанр" inline modal :class="[phraseWord, '[&>button]:w-auto']" />
           <span>в городе</span>
           <CitySelect inline modal :class="phraseWord" />
-          <button type="submit" class="ml-1 grid size-8 place-items-center rounded-full bg-white text-ink transition-colors hover:bg-white/85" aria-label="Найти места">
+          <button type="submit" class="ml-1 grid size-8 place-items-center rounded-full bg-white text-ink hover:bg-white/85" aria-label="Найти места">
             <UiIcon name="arrow-right" :size="16" />
           </button>
         </form>
@@ -55,8 +55,8 @@ const stats = [
       <footer class="container-x flex flex-wrap items-center justify-between gap-x-6 gap-y-2 pb-5 text-xs text-white/60 sm:pb-6">
         <span>© {{ new Date().getFullYear() }} Joined. Места и музыка</span>
         <nav class="flex flex-wrap items-center gap-x-5 gap-y-2">
-          <NuxtLink to="/rules" class="transition-colors hover:text-sand">Условия сервиса</NuxtLink>
-          <NuxtLink to="/rules#privacy" class="transition-colors hover:text-sand">Конфиденциальность</NuxtLink>
+          <NuxtLink to="/rules" class="hover:text-sand">Условия сервиса</NuxtLink>
+          <NuxtLink to="/rules#privacy" class="hover:text-sand">Конфиденциальность</NuxtLink>
           <span>18+</span>
         </nav>
       </footer>

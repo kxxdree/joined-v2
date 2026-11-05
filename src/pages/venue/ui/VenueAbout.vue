@@ -46,9 +46,9 @@ const todayIdx = weekdayIndex()
       <div>
         <h2 class="mono-cap mb-1">Контакты</h2>
         <ul>
-          <li class="hair-row py-0"><a :href="`tel:${venue.phone.replace(/[^\d+]/g, '')}`" class="flex items-center gap-3 py-3 text-sm transition-colors hover:text-sand"><UiIcon name="phone" :size="18" class="text-white/60" />{{ venue.phone }}</a></li>
-          <li class="hair-row py-0"><a :href="`https://instagram.com/${venue.instagram.replace('@', '')}`" target="_blank" rel="noopener" class="flex items-center gap-3 py-3 text-sm transition-colors hover:text-sand"><UiIcon name="instagram" :size="18" class="text-white/60" />{{ venue.instagram }}</a></li>
-          <li class="hair-row py-0"><a :href="`https://t.me/${venue.telegram.replace('@', '')}`" target="_blank" rel="noopener" class="flex items-center gap-3 py-3 text-sm transition-colors hover:text-sand"><UiIcon name="telegram" :size="18" class="text-white/60" />{{ venue.telegram }}</a></li>
+          <li class="hair-row py-0"><a :href="`tel:${venue.phone.replace(/[^\d+]/g, '')}`" class="flex items-center gap-3 py-3 text-sm hover:text-sand"><UiIcon name="phone" :size="18" class="text-white/60" />{{ venue.phone }}</a></li>
+          <li class="hair-row py-0"><a :href="`https://instagram.com/${venue.instagram.replace('@', '')}`" target="_blank" rel="noopener" class="flex items-center gap-3 py-3 text-sm hover:text-sand"><UiIcon name="instagram" :size="18" class="text-white/60" />{{ venue.instagram }}</a></li>
+          <li class="hair-row py-0"><a :href="`https://t.me/${venue.telegram.replace('@', '')}`" target="_blank" rel="noopener" class="flex items-center gap-3 py-3 text-sm hover:text-sand"><UiIcon name="telegram" :size="18" class="text-white/60" />{{ venue.telegram }}</a></li>
         </ul>
       </div>
     </div>

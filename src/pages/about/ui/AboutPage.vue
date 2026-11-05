@@ -55,8 +55,8 @@ const steps = [
               <p class="font-medium">{{ a.eyebrow }}: {{ a.title.toLowerCase() }}</p>
               <p class="mt-1 text-sm leading-relaxed text-soft">{{ a.text }}</p>
             </div>
-            <NuxtLink :to="a.to" class="group inline-flex shrink-0 items-center gap-2 text-sm font-medium transition-colors hover:text-sand">
-              {{ a.cta }} <UiIcon name="arrow-right" :size="16" class="transition-transform group-hover:translate-x-0.5" />
+            <NuxtLink :to="a.to" class="group inline-flex shrink-0 items-center gap-2 text-sm font-medium hover:text-sand">
+              {{ a.cta }} <UiIcon name="arrow-right" :size="16" class="group-hover:translate-x-0.5" />
             </NuxtLink>
           </li>
         </ul>

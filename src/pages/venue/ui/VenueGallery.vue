@@ -69,12 +69,12 @@ onMounted(() => {
         v-for="(src, i) in photos"
         :key="src"
         type="button"
-        class="block scroll-mt-32 sm:scroll-mt-36"
+        class="group block scroll-mt-32 sm:scroll-mt-36"
         :data-tile="i"
         :aria-label="`Открыть фото ${i + 1}`"
         @click="openPhoto(i)"
       >
-        <UiPhoto :src="src" :alt="`Фото ${i + 1}`" class="aspect-3/4" :class="{ 'max-sm:aspect-4/5': feed }" />
+        <UiPhoto :src="src" :alt="`Фото ${i + 1}`" class="aspect-3/4" :class="{ 'max-sm:aspect-4/5': feed }"><div class="tile-dim" /></UiPhoto>
       </button>
     </div>
 

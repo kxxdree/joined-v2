@@ -31,12 +31,12 @@ const select = (id: T | '') => {
       v-for="o in items"
       :key="o.id"
       type="button"
-      class="flex items-center gap-2 py-1 text-xs font-semibold tracking-wider uppercase transition-colors"
+      class="flex items-center gap-2 py-1 text-xs font-semibold tracking-wider uppercase"
       :class="isActive(o.id) ? 'text-white' : 'text-muted hover:text-white'"
       :aria-pressed="isActive(o.id)"
       @click="select(o.id)"
     >
-      <span class="size-1.5 rounded-full transition-colors" :class="isActive(o.id) ? 'bg-accent' : 'bg-white/20'" />
+      <span class="size-1.5 rounded-full" :class="isActive(o.id) ? 'bg-accent' : 'bg-white/20'" />
       {{ o.name }}
     </button>
   </div>
