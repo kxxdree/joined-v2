@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { UiIcon } from "@shared/ui";
+import { UiIcon, UiPageHead } from "@shared/ui";
 
 useHead({ title: "О нас - Joined", meta: [{ name: "description", content: "Joined - бары, концерты и джем-сейшены твоего города в одном месте" }] });
 
@@ -37,46 +37,48 @@ const steps = [
 </script>
 
 <template>
-  <section class="container-x max-w-5xl pt-12 sm:pt-20">
-    <p class="text-xs font-medium tracking-[0.2em] text-accent-text uppercase">О нас</p>
-    <h1 class="h-display mt-4 text-[13vw] sm:text-8xl">Музыка рядом</h1>
-    <p class="mt-6 max-w-2xl text-white/80 sm:text-lg">
-      Joined - агрегатор баров и музыкальных событий. Мы собираем в одном месте площадки с живой музыкой, их афишу и
-      артистов, чтобы найти вечер под настроение было так же просто, как выбрать трек.
-    </p>
+  <section class="container-x">
+    <UiPageHead title="О нас" caption="Места и музыка твоего города" />
 
-    <!-- Для кого: три колонки встык, как сетки карточек на сайте -->
-    <div class="mt-16 grid sm:grid-cols-3">
-      <div v-for="a in audiences" :key="a.eyebrow" class="card flex flex-col rounded-none p-6 sm:p-8">
-        <p class="text-xs font-semibold tracking-wider text-accent-text uppercase">{{ a.eyebrow }}</p>
-        <h2 class="h-display mt-3 text-3xl uppercase">{{ a.title }}</h2>
-        <p class="mt-4 flex-1 text-sm leading-relaxed text-soft">{{ a.text }}</p>
-        <NuxtLink :to="a.to" class="group mt-6 inline-flex items-center gap-2 text-sm font-medium transition-colors hover:text-sand">
-          {{ a.cta }} <UiIcon name="arrow-right" :size="16" class="transition-transform group-hover:translate-x-0.5" />
-        </NuxtLink>
-      </div>
-    </div>
+    <!-- Текстовая страница: узкая колонка от левого края, разделы - подпись и строки с тонкой линией -->
+    <div class="mt-6 grid max-w-3xl gap-10">
+      <p class="text-base leading-relaxed text-soft sm:text-lg">
+        Joined - агрегатор баров и музыкальных событий. Мы собираем в одном месте площадки с живой музыкой, их афишу и
+        артистов, чтобы найти вечер под настроение было так же просто, как выбрать трек.
+      </p>
 
-    <!-- Как это работает: нумерованный список, как разделы «Условий» -->
-    <div class="card mt-6 p-6 sm:p-10">
-      <h2 class="h-display mb-6 text-3xl sm:text-5xl">Как это работает</h2>
-      <ol>
-        <li v-for="(s, i) in steps" :key="s" class="flex items-baseline gap-6 border-b border-line py-3.5 last:border-b-0">
-          <span class="shrink-0 text-xs text-muted tabular-nums">{{ String(i + 1).padStart(2, "0") }}</span>
-          <p class="min-w-0 text-base">{{ s }}</p>
-        </li>
-      </ol>
-    </div>
-
-    <!-- Контакты -->
-    <div class="card mt-6 flex flex-col gap-6 p-6 sm:flex-row sm:items-end sm:justify-between sm:p-10">
       <div>
-        <h2 class="h-display text-3xl sm:text-5xl">На связи</h2>
-        <p class="mt-3 text-soft">Вопросы, партнёрство и предложения - пишите, ответим в течение дня.</p>
+        <h2 class="mono-cap mb-1">Для кого</h2>
+        <ul>
+          <li v-for="a in audiences" :key="a.eyebrow" class="hair-row flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+            <div class="min-w-0">
+              <p class="font-medium">{{ a.eyebrow }}: {{ a.title.toLowerCase() }}</p>
+              <p class="mt-1 text-sm leading-relaxed text-soft">{{ a.text }}</p>
+            </div>
+            <NuxtLink :to="a.to" class="group inline-flex shrink-0 items-center gap-2 text-sm font-medium transition-colors hover:text-sand">
+              {{ a.cta }} <UiIcon name="arrow-right" :size="16" class="transition-transform group-hover:translate-x-0.5" />
+            </NuxtLink>
+          </li>
+        </ul>
       </div>
-      <div class="flex flex-col gap-2 sm:flex-row">
-        <a href="mailto:hello@joined.ru" class="btn-primary py-3.5">hello@joined.ru</a>
-        <NuxtLink to="/rules" class="btn-dark py-3.5">Условия сервиса</NuxtLink>
+
+      <div>
+        <h2 class="mono-cap mb-1">Как это работает</h2>
+        <ol>
+          <li v-for="(s, i) in steps" :key="s" class="hair-row flex items-baseline gap-4">
+            <span class="shrink-0 font-mono text-xs text-white/50 tabular-nums">{{ String(i + 1).padStart(2, "0") }}</span>
+            <p class="min-w-0 text-sm sm:text-base">{{ s }}</p>
+          </li>
+        </ol>
+      </div>
+
+      <div>
+        <h2 class="mono-cap mb-3">На связи</h2>
+        <p class="text-sm text-soft sm:text-base">Вопросы, партнёрство и предложения - пишите, ответим в течение дня.</p>
+        <div class="mt-4 grid gap-2 sm:flex">
+          <a href="mailto:hello@joined.ru" class="btn-primary h-12">hello@joined.ru</a>
+          <NuxtLink to="/rules" class="btn-dark h-12">Условия сервиса</NuxtLink>
+        </div>
       </div>
     </div>
   </section>
