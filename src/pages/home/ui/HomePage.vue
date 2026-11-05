@@ -34,7 +34,8 @@ const stats = [
       <div class="container-x my-auto flex flex-col items-center py-14">
         <h1 class="flex items-center gap-4 sm:gap-6">
           <span class="text-4xl font-medium tracking-[-0.04em] sm:text-6xl">Joined</span>
-          <span class="font-mono text-[10px] leading-snug tracking-[0.14em] text-white/85 uppercase sm:text-xs">Места и музыка<br />твоего города</span>
+          <!-- сдвиг вниз - оптическая поправка: основная масса букв «Joined» ниже геометрического центра слова -->
+          <span class="translate-y-[3px] font-mono text-[10px] leading-snug tracking-[0.14em] text-white/85 uppercase sm:translate-y-[5px] sm:text-xs">Места и музыка<br />твоего города</span>
         </h1>
 
         <!-- Поиск-фраза тем же моноширинным шрифтом: «Ищу [жанр] в городе [город] →».
