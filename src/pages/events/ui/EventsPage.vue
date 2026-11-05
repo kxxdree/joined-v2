@@ -7,7 +7,6 @@ import { CitySelect } from "@features/select-city";
 import { type GenreId, genres } from "@shared/config";
 import { addDays, isWeekend, plural, todayISO } from "@shared/lib";
 import { UiEmpty, UiIcon, UiPageHead, UiPills } from "@shared/ui";
-import { EventStories } from "@widgets/event-stories";
 
 useHead({ title: "Афиша - Joined" });
 
@@ -61,10 +60,6 @@ const grouped = computed(() => {
   return [...map.entries()];
 });
 
-// Истории: клик по событию открывает его афиши (листаются только внутри этого события).
-// Открытое событие - в ?event=: по такой ссылке (в т.ч. старые /events/:id) истории открываются сразу
-const storyId = ref<string | null>(typeof route.query.event === "string" ? route.query.event : null);
-watch(storyId, (id) => navigateTo({ query: { ...route.query, event: id ?? undefined } }, { replace: true }));
 const total = computed(() => grouped.value.reduce((n, [, items]) => n + items.length, 0));
 
 // Длинная афиша: дни подгружаются порциями, а длинный день свёрнут до первых событий (в EventRows)
@@ -98,8 +93,7 @@ const venueName = (e: EventItem) => getVenue(e.venue)?.name ?? "";
 
         <div class="mt-6">
           <template v-if="grouped.length">
-            <!-- клик - афиша в историях; ссылка с ?event= - для новой вкладки -->
-            <EventRows :groups="visible" :subtitle="venueName" :per-day="PER_DAY" @open="storyId = $event" />
+            <EventRows :groups="visible" :subtitle="venueName" :per-day="PER_DAY" />
             <div v-if="daysShown < grouped.length" class="mt-6 text-center">
               <button type="button" class="btn-dark" @click="daysShown += DAYS_STEP">Показать ещё</button>
             </div>
@@ -120,8 +114,5 @@ const venueName = (e: EventItem) => getVenue(e.venue)?.name ?? "";
         </div>
       </div>
     </section>
-
-    <!-- все события, а не только выборка: по ссылке может прийти событие другого города или даты -->
-    <EventStories v-model="storyId" :events="events" />
   </div>
 </template>

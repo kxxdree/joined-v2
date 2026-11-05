@@ -6,7 +6,6 @@ import { getVenue } from '@entities/venue'
 import { FavoriteButton } from '@features/favorites'
 import { genreName } from '@shared/config'
 import { UiEmpty, UiIcon, UiPageHead, UiPhoto, UiTabs } from '@shared/ui'
-import { EventStories } from '@widgets/event-stories'
 
 const route = useRoute()
 const found = getArtist(String(route.params.slug))
@@ -32,7 +31,6 @@ const where = (e: EventItem) => {
   const v = getVenue(e.venue)
   return v ? `${v.name} · ${cityName(v.city)}` : ''
 }
-const storyId = ref<string | null>(null) // концерт, открытый в историях
 </script>
 
 <template>
@@ -50,7 +48,7 @@ const storyId = ref<string | null>(null) // концерт, открытый в 
 
     <section class="container-x pt-3">
       <div v-if="tab === 'concerts'" class="max-w-3xl">
-        <EventRows v-if="grouped.length" :groups="grouped" :subtitle="where" @open="storyId = $event" />
+        <EventRows v-if="grouped.length" :groups="grouped" :subtitle="where" />
         <UiEmpty v-else icon="calendar" title="Концертов пока нет" text="Новые даты появятся здесь, как только артист их объявит." />
       </div>
 
@@ -65,7 +63,5 @@ const storyId = ref<string | null>(null) // концерт, открытый в 
         </div>
       </div>
     </section>
-
-    <EventStories v-model="storyId" :events="own" />
   </div>
 </template>

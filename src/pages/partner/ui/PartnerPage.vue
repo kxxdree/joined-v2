@@ -180,7 +180,6 @@ const setStatus = (id: string, status: Exclude<BookingStatus, 'new'>) => {
           <EventRows v-if="grouped.length" :groups="grouped" :subtitle="(e) => `${getVenue(e.venue)?.name ?? '-'} · ${e.time}`">
             <template #actions="{ event: e }">
               <div class="flex shrink-0 gap-2">
-                <NuxtLink v-if="!e.id.startsWith('new')" :to="`/events?event=${e.id}`" class="btn-icon size-9" aria-label="Открыть афишу"><UiIcon name="eye" :size="16" /></NuxtLink>
                 <button class="btn-icon size-9" aria-label="Снять с публикации" @click="removeEvent(e.id)"><UiIcon name="trash" :size="16" /></button>
               </div>
             </template>

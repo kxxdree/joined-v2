@@ -6,7 +6,6 @@ import { ShareButton } from "@features/share";
 import { weekdayIndex } from "@shared/lib";
 import { UiIcon, UiPageHead, UiTabs } from "@shared/ui";
 import { EventCalendar } from "@widgets/event-calendar";
-import { EventStories } from "@widgets/event-stories";
 import VenueAbout from "./VenueAbout.vue";
 import VenueGallery from "./VenueGallery.vue";
 import VenueMenu from "./VenueMenu.vue";
@@ -34,7 +33,6 @@ watch(tab, (t) => {
 });
 
 const venueEvents = events.filter((e) => e.venue === v.slug && isUpcoming(e));
-const storyId = ref<string | null>(null); // выступление из календаря, открытое в историях
 const todayIdx = weekdayIndex();
 
 // из карточки афиши: вкладка брони короче, поэтому возвращаемся к началу страницы
@@ -63,7 +61,7 @@ const openBooking = () => {
     <!-- Галерея, меню и афиша на телефоне - от края до края, остальные вкладки с обычными отступами -->
     <section class="mx-auto w-full max-w-7xl pt-3 sm:px-6 lg:px-12" :class="{ 'px-4': tab !== 'gallery' && tab !== 'menu' && tab !== 'schedule' }">
       <VenueGallery v-if="tab === 'gallery'" :photos="v.gallery" />
-      <EventCalendar v-else-if="tab === 'schedule'" :events="venueEvents" @open="storyId = $event" @book="openBooking" />
+      <EventCalendar v-else-if="tab === 'schedule'" :events="venueEvents" @book="openBooking" />
       <VenueAbout v-else-if="tab === 'about'" :venue="v" />
       <VenueMenu v-else-if="tab === 'menu'" :venue="v" />
 
@@ -90,7 +88,5 @@ const openBooking = () => {
         </li>
       </ol>
     </section>
-
-    <EventStories v-model="storyId" :events="venueEvents" />
   </div>
 </template>

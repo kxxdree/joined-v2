@@ -7,9 +7,9 @@ import { addDays, dayNumber, formatDay, formatWeekday, formatWeekdayLong, todayI
 import { UiEmpty, UiIcon } from '@shared/ui'
 
 /** Афиша заведения: полоса дней и плитки выбранного дня встык, как галерея (слева афиша, справа её размытые цвета).
- * Клик по афише - событие open (страница открывает её в историях), «Забронировать» - событие book */
+ * «Забронировать» - событие book */
 const props = defineProps<{ events: EventItem[] }>()
-const emit = defineEmits<{ open: [id: string]; book: [] }>()
+const emit = defineEmits<{ book: [] }>()
 
 const sorted = computed(() => [...props.events].sort(byDateTime))
 const today = todayISO()
@@ -90,10 +90,10 @@ const addToCalendar = (e: EventItem) => {
     <div class="mt-3 grid grid-cols-1 gap-0.5">
       <article v-for="e in dayEvents" :key="e.id" class="grid min-h-56 min-w-0 grid-cols-[2fr_3fr] overflow-hidden bg-brown sm:min-h-64 sm:grid-cols-2">
         <!-- Афиша: картинка-постер видна целиком на своём размытом фоне, обычное фото заполняет блок -->
-        <a :href="`/events?event=${e.id}`" class="relative block overflow-hidden" :aria-label="`Открыть афишу: ${e.title}`" @click.exact.prevent="emit('open', e.id)">
+        <div class="relative overflow-hidden">
           <img v-if="e.posters?.length" :src="e.posters[0]" alt="" loading="lazy" class="absolute -inset-1/5 size-[140%] max-w-none object-cover blur-2xl">
           <img :src="e.posters?.[0] ?? e.photo" :alt="e.title" loading="lazy" class="absolute inset-0 size-full" :class="e.posters?.length ? 'object-contain' : 'object-cover'">
-        </a>
+        </div>
 
         <!-- Панель: та же картинка, отражённая и размытая, сверху затемнение - цвета продолжают афишу, но не спорят с текстом -->
         <div class="relative flex min-w-0 flex-col gap-4 overflow-hidden p-3 sm:p-5">
@@ -106,7 +106,7 @@ const addToCalendar = (e: EventItem) => {
           </div>
 
           <div class="relative mt-auto flex flex-wrap items-center gap-1">
-            <ShareButton :title="e.title" :url="`/events?event=${e.id}`" class="size-9" />
+            <ShareButton :title="e.title" class="size-9" />
             <button type="button" class="btn-icon size-9" aria-label="Добавить в календарь" @click="addToCalendar(e)"><UiIcon name="calendar" :size="18" /></button>
             <button type="button" class="btn-dark h-9 flex-1 px-3 sm:ml-auto sm:flex-none" @click="emit('book')">Забронировать</button>
           </div>
