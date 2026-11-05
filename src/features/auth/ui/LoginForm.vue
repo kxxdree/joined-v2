@@ -48,7 +48,7 @@ const row = 'flex h-14 items-center gap-3 rounded-2xl bg-black/10 px-4 ring-1 ri
       </label>
       <p v-if="error" class="px-1 text-sm text-accent-text">{{ error }}</p>
       <!-- главная кнопка - белая пилюля -->
-      <button class="mt-4 h-14 rounded-full bg-linear-to-b from-white to-[#f1ece9] text-sm font-semibold text-ink shadow-[inset_0_-2px_0_rgb(0_0_0/0.08),0_12px_30px_-12px_rgb(0_0_0/0.6)] transition-[filter] hover:brightness-95" type="submit">Войти</button>
+      <button class="mt-4 h-14 rounded-full bg-linear-to-b from-white to-[#ffffff] text-sm font-semibold text-ink shadow-[inset_0_-2px_0_rgb(0_0_0/0.08),0_12px_30px_-12px_rgb(0_0_0/0.6)] transition-[filter] hover:brightness-95" type="submit">Войти</button>
     </form>
 
     <div class="my-7 flex items-center gap-4 text-xs text-white/50">

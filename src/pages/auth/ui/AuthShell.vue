@@ -24,7 +24,7 @@ const modes = [
       <div class="absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-b from-transparent to-ink" />
     </div>
     <div v-else class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
-      <div class="absolute top-1/2 left-1/2 size-[min(90vw,46rem)] -translate-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(255_109_41/0.55),rgb(255_196_163/0.18)_55%,transparent)]" />
+      <div class="absolute top-1/2 left-1/2 size-[min(90vw,46rem)] -translate-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(255_109_41/0.55),rgb(255_109_41/0.18)_55%,transparent)]" />
       <div class="absolute top-[30%] left-[30%] size-[min(60vw,28rem)] -translate-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(69_48_39/0.9),transparent)]" />
     </div>
 

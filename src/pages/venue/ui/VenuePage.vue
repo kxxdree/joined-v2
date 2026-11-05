@@ -4,7 +4,7 @@ import { formatName, getVenue } from "@entities/venue";
 import { FavoriteButton } from "@features/favorites";
 import { ShareButton } from "@features/share";
 import { weekdayIndex } from "@shared/lib";
-import { UiIcon } from "@shared/ui";
+import { UiIcon, UiPageHead, UiTabs } from "@shared/ui";
 import { EventCalendar } from "@widgets/event-calendar";
 import { EventStories } from "@widgets/event-stories";
 import VenueAbout from "./VenueAbout.vue";
@@ -33,87 +33,56 @@ watch(tab, (t) => {
   navigateTo({ query: { ...query, tab: t } }, { replace: true });
 });
 
-// активная вкладка всегда на виду: лента сама прокручивается к ней (на телефоне вкладки не влезают в экран)
-const tabsEl = ref<HTMLElement>();
-const revealTab = () => {
-  const el = tabsEl.value;
-  const btn = el?.querySelector<HTMLElement>("[aria-pressed=true]");
-  if (el && btn) el.scrollTo({ left: btn.offsetLeft - (el.clientWidth - btn.offsetWidth) / 2, behavior: "smooth" });
-};
-watch(tab, () => nextTick(revealTab));
-onMounted(revealTab);
-
 const venueEvents = events.filter((e) => e.venue === v.slug && isUpcoming(e));
 const storyId = ref<string | null>(null); // выступление из календаря, открытое в историях
 const todayIdx = weekdayIndex();
-
-// круглая стеклянная кнопка в шапке заведения (size-10! - перебивает размер внутри ShareButton)
-const glassIcon = "grid size-10! shrink-0 place-items-center rounded-full bg-black/35 text-white ring-1 ring-white/15 backdrop-blur-md transition-colors hover:bg-black/50";
 </script>
 
 <template>
   <div>
-    <!-- Шапка как в профиле: назад, название с короткой подписью, действия - ничего лишнего над галереей -->
-    <section class="mx-auto flex max-w-7xl items-center gap-3 px-4 pt-2 sm:px-6">
-      <NuxtLink to="/venues" :class="glassIcon" aria-label="Все заведения"><UiIcon name="chevron-left" :size="20" /></NuxtLink>
-      <div class="min-w-0 flex-1">
-        <h1 class="truncate text-2xl font-medium tracking-[-0.04em] sm:text-3xl">{{ v.name }}</h1>
-        <p class="mt-1 font-mono text-[10px] leading-snug tracking-[0.14em] text-white/70 uppercase sm:text-xs">
+    <!-- Шапка как в профиле и вкладки - ничего лишнего над содержимым -->
+    <div class="container-x">
+      <UiPageHead :title="v.name" back="/venues" back-label="Все заведения">
+        <template #caption>
           {{ formatName(v.format) }} · {{ v.metro ? `м. ${v.metro}` : v.address }} · <span class="whitespace-nowrap">{{ v.hours[todayIdx]!.time }}</span>
-        </p>
-      </div>
-      <FavoriteButton kind="venues" :id="v.slug" :class="glassIcon" />
-      <ShareButton :title="v.name" :class="glassIcon" />
-    </section>
+        </template>
+        <template #actions>
+          <FavoriteButton kind="venues" :id="v.slug" class="size-10" />
+          <ShareButton :title="v.name" class="size-10" />
+        </template>
+      </UiPageHead>
+    </div>
+    <UiTabs v-model="tab" :tabs="tabs" class="container-x" />
 
-    <!-- Вкладки: стеклянные пилюли с иконками, прилипают под шапкой сайта; активная - светлая -->
-    <nav class="sticky top-19 z-30 mx-auto mt-3 max-w-7xl sm:top-20 sm:px-6" aria-label="Разделы заведения">
-      <div ref="tabsEl" class="scroll-x px-4 sm:px-0">
-        <button
-          v-for="t in tabs"
-          :key="t.id"
-          type="button"
-          class="flex h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-medium transition-colors"
-          :class="tab === t.id ? 'bg-[#ffe3d6] text-ink' : 'bg-black/35 text-white/85 ring-1 ring-white/15 backdrop-blur-md hover:bg-black/50'"
-          :aria-pressed="tab === t.id"
-          @click="tab = t.id"
-        >
-          <UiIcon :name="t.icon" :size="18" /> {{ t.name }}
-        </button>
-      </div>
-    </nav>
-
-    <!-- Галерея на телефоне - от края до края, остальные вкладки с обычными отступами -->
-    <section class="mx-auto max-w-7xl pt-3 sm:px-6" :class="{ 'px-4': tab !== 'gallery' }">
+    <!-- Галерея и меню на телефоне - от края до края, остальные вкладки с обычными отступами -->
+    <section class="mx-auto w-full max-w-7xl pt-3 sm:px-6 lg:px-12" :class="{ 'px-4': tab !== 'gallery' && tab !== 'menu' }">
       <VenueGallery v-if="tab === 'gallery'" :photos="v.gallery" />
-      <EventCalendar v-else-if="tab === 'schedule'" :events="venueEvents" :title="v.name" @open="storyId = $event" />
+      <EventCalendar v-else-if="tab === 'schedule'" :events="venueEvents" @open="storyId = $event" />
       <VenueAbout v-else-if="tab === 'about'" :venue="v" />
       <VenueMenu v-else-if="tab === 'menu'" :venue="v" />
 
-      <!-- Бронирование: условия в стиле меню + контакты для брони -->
-      <div v-else-if="tab === 'booking'" class="card p-6 sm:p-10">
+      <!-- Бронирование: условия строками и способы связаться -->
+      <div v-else-if="tab === 'booking'" class="max-w-3xl">
         <ul>
-          <li class="flex items-baseline justify-between gap-6 border-b border-line py-3.5">
-            <p class="min-w-0 text-base">Количество гостей</p>
-            <span class="shrink-0 text-base tabular-nums">{{ v.booking.minGuests }}–{{ v.booking.maxGuests }}</span>
+          <li class="hair-row flex items-baseline justify-between gap-6">
+            <p class="min-w-0">Количество гостей</p>
+            <span class="shrink-0 tabular-nums">{{ v.booking.minGuests }}–{{ v.booking.maxGuests }}</span>
           </li>
-          <li v-for="c in v.booking.conditions" :key="c" class="border-b border-line py-3.5 text-base last:border-b-0">{{ c }}</li>
+          <li v-for="c in v.booking.conditions" :key="c" class="hair-row">{{ c }}</li>
         </ul>
-
-        <div class="mt-8 flex flex-col gap-2 sm:flex-row">
-          <a :href="`https://t.me/${v.telegram.replace('@', '')}`" target="_blank" rel="noopener" class="btn-primary py-3.5">
-            <UiIcon name="telegram" :size="18" /> Написать в Telegram
-          </a>
-          <a :href="`tel:${v.phone.replace(/[^\d+]/g, '')}`" class="btn-dark py-3.5"><UiIcon name="phone" :size="18" /> {{ v.phone }}</a>
+        <div class="mt-6 flex flex-col gap-2 sm:flex-row">
+          <a :href="`https://t.me/${v.telegram.replace('@', '')}`" target="_blank" rel="noopener" class="btn-primary h-12"><UiIcon name="telegram" :size="18" /> Написать в Telegram</a>
+          <a :href="`tel:${v.phone.replace(/[^\d+]/g, '')}`" class="btn-dark h-12"><UiIcon name="phone" :size="18" /> {{ v.phone }}</a>
         </div>
       </div>
 
-      <!-- Правила: тот же вид, что у меню и условий бронирования -->
-      <div v-else-if="tab === 'rules'" class="card p-6 sm:p-10">
-        <ul>
-          <li v-for="r in v.rules" :key="r" class="border-b border-line py-3.5 text-base last:border-b-0">{{ r }}</li>
-        </ul>
-      </div>
+      <!-- Правила: нумерованные строки -->
+      <ol v-else-if="tab === 'rules'" class="max-w-3xl">
+        <li v-for="(r, i) in v.rules" :key="r" class="hair-row flex items-baseline gap-4">
+          <span class="mono-cap shrink-0 tabular-nums">{{ String(i + 1).padStart(2, "0") }}</span>
+          <p class="min-w-0">{{ r }}</p>
+        </li>
+      </ol>
     </section>
 
     <EventStories v-model="storyId" :events="venueEvents" />

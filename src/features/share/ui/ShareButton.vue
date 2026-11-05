@@ -17,7 +17,7 @@ const share = async () => {
 </script>
 
 <template>
-  <button type="button" class="btn-icon size-12" aria-label="Поделиться" @click="share">
+  <button type="button" class="btn-icon" aria-label="Поделиться" @click="share">
     <UiIcon name="share" />
   </button>
 </template>

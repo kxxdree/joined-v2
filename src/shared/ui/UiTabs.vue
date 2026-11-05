@@ -1,28 +1,36 @@
 <script setup lang="ts" generic="T extends string">
 import UiIcon from './UiIcon.vue'
 
-/** Разделы кабинета: стеклянное вертикальное меню на десктопе, горизонтальная лента на мобильных */
-defineProps<{ tabs: { id: T; name: string; icon: string; badge?: number }[] }>()
+/** Разделы страницы: стеклянные пилюли с иконками, прилипают под шапкой сайта; лента сама прокручивается к активной */
+defineProps<{ tabs: readonly { id: T; name: string; icon: string; badge?: number }[] }>()
 const model = defineModel<T>({ required: true })
+
+const track = ref<HTMLElement>()
+const reveal = () => {
+  const el = track.value
+  const btn = el?.querySelector<HTMLElement>('[aria-pressed=true]')
+  if (el && btn) el.scrollTo({ left: btn.offsetLeft - (el.clientWidth - btn.offsetWidth) / 2, behavior: 'smooth' })
+}
+watch(model, () => nextTick(reveal))
+onMounted(reveal)
 </script>
 
 <template>
-  <nav class="tabs-panel scroll-x -mx-4 px-4 lg:mx-0 lg:flex-col lg:gap-1 lg:p-2" aria-label="Разделы">
-    <button
-      v-for="t in tabs"
-      :key="t.id"
-      class="pill gap-3 lg:justify-start lg:py-3"
-      :class="model === t.id ? 'pill-active' : 'lg:bg-transparent lg:hover:bg-white/10'"
-      :aria-pressed="model === t.id"
-      @click="model = t.id"
-    >
-      <UiIcon :name="t.icon" :size="18" class="hidden lg:block" />
-      {{ t.name }}
-      <span
-        v-if="t.badge"
-        class="ml-auto grid min-w-5 place-items-center rounded-md px-1.5 text-xs"
-        :class="model === t.id ? 'bg-accent text-white' : 'bg-accent/25 text-[#ffc4a3]'"
-      >{{ t.badge }}</span>
-    </button>
+  <nav class="sticky top-19 z-30 mt-3 sm:top-20" aria-label="Разделы">
+    <div ref="track" class="scroll-x -mx-4 px-4 sm:mx-0 sm:px-0">
+      <button
+        v-for="t in tabs"
+        :key="t.id"
+        type="button"
+        class="pill h-11 px-4 py-0"
+        :class="{ 'pill-active': model === t.id }"
+        :aria-pressed="model === t.id"
+        @click="model = t.id"
+      >
+        <UiIcon :name="t.icon" :size="18" />
+        {{ t.name }}
+        <span v-if="t.badge" class="grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[11px] font-semibold text-white">{{ t.badge }}</span>
+      </button>
+    </div>
   </nav>
 </template>

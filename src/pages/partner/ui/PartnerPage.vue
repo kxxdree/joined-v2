@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { getArtist } from '@entities/artist'
-import { byDateTime, type EventItem, events, isUpcoming } from '@entities/event'
+import { byDateTime, type EventItem, EventRows, events, isUpcoming } from '@entities/event'
 import { useSession } from '@entities/session'
 import { getVenue, venues } from '@entities/venue'
 import { type GenreId, genres } from '@shared/config'
-import { addDays, dayNumber, formatWeekdayLong, isWeekend, monthShort, ph, plural, todayISO, useToast } from '@shared/lib'
-import { UiCarousel, UiEmpty, UiIcon, UiModal, UiPhoto, UiPills, UiTabs } from '@shared/ui'
+import { addDays, dayNumber, monthShort, ph, plural, todayISO, useToast } from '@shared/lib'
+import { UiCarousel, UiEmpty, UiIcon, UiModal, UiPageHead, UiPhoto, UiPhotoViewer, UiPills, UiTabs } from '@shared/ui'
 
 useHead({ title: 'Кабинет партнёра - Joined' })
 
@@ -115,12 +115,11 @@ const removePhoto = (kind: MediaKind, src: string) => {
 }
 // Просмотр фото крупно, с листанием - как на странице заведения
 const viewer = ref<{ kind: MediaKind; index: number } | null>(null)
-const viewerOpen = computed({ get: () => viewer.value !== null, set: (v) => { if (!v) viewer.value = null } })
 const viewerPhotos = computed(() => (viewer.value ? media[viewer.value.kind] : []))
-const viewerTitle = computed(() => (viewer.value ? `${mediaKinds.value.find(k => k.id === viewer.value!.kind)?.name} · ${viewer.value.index + 1} / ${viewerPhotos.value.length}` : ''))
-const stepViewer = (d: number) => {
-  if (viewer.value) viewer.value.index = Math.min(Math.max(viewer.value.index + d, 0), viewerPhotos.value.length - 1)
-}
+const viewerIndex = computed({
+  get: () => viewer.value?.index ?? null,
+  set: (i) => { viewer.value = viewer.value && i !== null ? { ...viewer.value, index: i } : null },
+})
 
 // --- Входящие брони (только для заведения)
 type BookingStatus = 'new' | 'ok' | 'no'
@@ -137,21 +136,16 @@ const setStatus = (id: string, status: Exclude<BookingStatus, 'new'>) => {
 </script>
 
 <template>
-  <section class="container-x pt-10">
-    <div class="card mb-8 flex flex-wrap items-end justify-between gap-4 p-6 sm:p-8">
-      <div>
-        <p class="text-xs font-medium tracking-[0.2em] text-accent-text uppercase">{{ isVenue ? 'Владелец заведения' : 'Музыкальная группа' }}</p>
-        <h1 class="h-display mt-2 text-4xl sm:text-6xl">{{ profile.name }}</h1>
-      </div>
-      <NuxtLink :to="isVenue ? `/venues/${venue.slug}` : `/artists/${artist.slug}`" class="btn-dark">
-        <UiIcon name="eye" :size="18" /> Публичная страница
-      </NuxtLink>
-    </div>
+  <section class="container-x">
+    <UiPageHead :title="profile.name" :caption="isVenue ? 'Владелец заведения' : 'Музыкальная группа'">
+      <template #actions>
+        <NuxtLink :to="isVenue ? `/venues/${venue.slug}` : `/artists/${artist.slug}`" class="btn-icon size-10" aria-label="Публичная страница"><UiIcon name="eye" :size="18" /></NuxtLink>
+      </template>
+    </UiPageHead>
+    <UiTabs v-model="tab" :tabs="tabs" />
 
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
-      <aside class="min-w-0 lg:sticky lg:top-28 lg:h-fit"><UiTabs v-model="tab" :tabs="tabs" /></aside>
-
-      <div class="min-w-0">
+    <div class="pt-4">
+      <div class="max-w-4xl">
         <!-- ПРОФИЛЬ -->
         <form v-if="tab === 'profile'" class="grid grid-cols-1 gap-4" @submit.prevent="push('Изменения отправлены на модерацию')">
           <div class="card grid grid-cols-1 gap-5 p-5 sm:p-8">
@@ -180,55 +174,36 @@ const setStatus = (id: string, status: Exclude<BookingStatus, 'new'>) => {
 
         <!-- МЕРОПРИЯТИЯ -->
         <div v-else-if="tab === 'events'" class="grid grid-cols-1 gap-4">
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <h2 class="text-2xl font-medium">Мероприятия</h2>
+          <div class="flex justify-end">
             <button class="btn-primary" @click="newOpen = true"><UiIcon name="plus" :size="18" /> Новое событие</button>
           </div>
-          <!-- Афиша-постер: крупная дата слева, события дня с продажами и действиями справа -->
-          <div v-if="grouped.length" class="card p-5 sm:p-10">
-            <div v-for="[date, items] in grouped" :key="date" class="grid grid-cols-1 gap-4 border-t border-line py-5 first:border-t-0 first:pt-0 md:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] md:gap-8">
-              <h3 class="h-display text-[12vw] leading-[0.85] uppercase sm:text-6xl md:self-center" :class="isWeekend(date) ? 'text-sand' : ''">
-                {{ monthShort(date) }} {{ dayNumber(date) }}
-              </h3>
-
-              <div class="space-y-5 md:pt-2">
-                <p class="text-xs tracking-widest uppercase" :class="isWeekend(date) ? 'text-accent-text' : 'text-muted'">{{ formatWeekdayLong(date) }}</p>
-                <div v-for="e in items" :key="e.id" class="grid gap-3">
-                  <div class="flex items-start justify-between gap-4">
-                    <div class="min-w-0">
-                      <p class="font-medium uppercase">{{ e.title }}</p>
-                      <p class="mt-0.5 text-xs tracking-wider text-muted uppercase">{{ getVenue(e.venue)?.name ?? '-' }} · {{ e.time }}</p>
-                    </div>
-                    <div class="flex shrink-0 gap-2">
-                      <NuxtLink v-if="!e.id.startsWith('new')" :to="`/events?event=${e.id}`" class="btn-icon size-9" aria-label="Открыть афишу"><UiIcon name="eye" :size="16" /></NuxtLink>
-                      <button class="btn-icon size-9" aria-label="Снять с публикации" @click="removeEvent(e.id)"><UiIcon name="trash" :size="16" /></button>
-                    </div>
-                  </div>
-                </div>
+          <EventRows v-if="grouped.length" :groups="grouped" :subtitle="(e) => `${getVenue(e.venue)?.name ?? '-'} · ${e.time}`">
+            <template #actions="{ event: e }">
+              <div class="flex shrink-0 gap-2">
+                <NuxtLink v-if="!e.id.startsWith('new')" :to="`/events?event=${e.id}`" class="btn-icon size-9" aria-label="Открыть афишу"><UiIcon name="eye" :size="16" /></NuxtLink>
+                <button class="btn-icon size-9" aria-label="Снять с публикации" @click="removeEvent(e.id)"><UiIcon name="trash" :size="16" /></button>
               </div>
-            </div>
-          </div>
+            </template>
+          </EventRows>
           <UiEmpty v-else icon="calendar" title="Пока нет событий" text="Нажмите «Новое событие», чтобы добавить первое." />
         </div>
 
         <!-- БРОНИ -->
         <div v-else-if="tab === 'bookings'" class="grid grid-cols-1 gap-4">
-          <h2 class="text-2xl font-medium">Входящие брони</h2>
-          <!-- Список в стиле афиши: дата крупно слева, гость и время, статус точкой -->
-          <ul v-if="incoming.length" class="card px-5 sm:px-8">
+          <ul v-if="incoming.length">
             <li
               v-for="b in incoming"
               :key="b.id"
-              class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-5 gap-y-4 border-b border-line py-5 last:border-b-0 sm:grid-cols-[auto_minmax(0,1fr)_auto]"
+              class="hair-row grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-3 sm:grid-cols-[auto_minmax(0,1fr)_auto]"
               :class="b.status === 'no' ? 'opacity-50' : ''"
             >
-              <div class="w-14 text-center">
-                <p class="h-display text-3xl leading-none">{{ dayNumber(b.date) }}</p>
-                <p class="mt-1 text-xs tracking-widest text-muted uppercase">{{ monthShort(b.date) }}</p>
+              <div class="w-11 text-center">
+                <p class="text-xl leading-none font-medium tracking-[-0.03em]">{{ dayNumber(b.date) }}</p>
+                <p class="mono-cap mt-1">{{ monthShort(b.date) }}</p>
               </div>
               <div class="min-w-0">
-                <p class="truncate font-medium uppercase">{{ b.name }}</p>
-                <p class="mt-0.5 text-xs tracking-wider text-muted uppercase">
+                <p class="truncate font-medium">{{ b.name }}</p>
+                <p class="mono-cap mt-1">
                   {{ b.time }} · {{ b.guests }} {{ plural(b.guests, ['гость', 'гостя', 'гостей']) }} ·
                   <a :href="`tel:${b.phone.replace(/[^\d+]/g, '')}`" class="hover:text-white">{{ b.phone }}</a>
                 </p>
@@ -237,7 +212,7 @@ const setStatus = (id: string, status: Exclude<BookingStatus, 'new'>) => {
                 <button class="btn-dark flex-1 sm:flex-none" @click="setStatus(b.id, 'no')">Отклонить</button>
                 <button class="btn-primary flex-1 sm:flex-none" @click="setStatus(b.id, 'ok')">Подтвердить</button>
               </div>
-              <p v-else class="col-span-2 flex items-center gap-2 text-xs font-semibold tracking-wider uppercase sm:col-span-1" :class="b.status === 'ok' ? 'text-white' : 'text-muted'">
+              <p v-else class="mono-cap col-span-2 flex items-center gap-2 sm:col-span-1" :class="{ 'text-white': b.status === 'ok' }">
                 <span class="size-1.5 rounded-full" :class="b.status === 'ok' ? 'bg-accent' : 'bg-white/20'" />
                 {{ b.status === 'ok' ? 'Подтверждена' : 'Отклонена' }}
               </p>
@@ -248,16 +223,15 @@ const setStatus = (id: string, status: Exclude<BookingStatus, 'new'>) => {
 
         <!-- МЕДИА -->
         <div v-else-if="tab === 'media'" class="grid grid-cols-1 gap-4">
-          <h2 class="text-2xl font-medium">{{ isVenue ? 'Фото и меню' : 'Медиа' }}</h2>
-          <!-- Афиша-постер, как у мероприятий: галерея и меню (бар, кухня) - секции через линию -->
-          <div class="card p-5 sm:p-10">
-            <section v-for="k in mediaKinds" :key="k.id" class="border-t border-line py-6 first:border-t-0 first:pt-0 last:pb-0 sm:py-8">
+          <!-- Галерея и меню (бар, кухня) - секции через линию -->
+          <div>
+            <section v-for="k in mediaKinds" :key="k.id" class="border-t border-white/10 py-6 first:border-t-0 first:pt-0 last:pb-0">
               <div class="mb-5 flex items-end justify-between gap-4">
                 <div class="min-w-0">
-                  <p class="text-xs tracking-widest text-accent-text uppercase">
+                  <p class="mono-cap">
                     {{ k.eyebrow }} · {{ media[k.id].length }} {{ plural(media[k.id].length, k.units) }}
                   </p>
-                  <h3 class="h-display mt-2 text-3xl uppercase sm:text-5xl">{{ k.title }}</h3>
+                  <h3 class="mt-1 text-xl font-medium tracking-[-0.03em]">{{ k.title }}</h3>
                 </div>
                 <label class="btn-dark shrink-0 cursor-pointer">
                   <UiIcon name="plus" :size="16" /> Загрузить
@@ -292,14 +266,7 @@ const setStatus = (id: string, status: Exclude<BookingStatus, 'new'>) => {
       </div>
     </div>
 
-    <UiModal v-model="viewerOpen" :title="viewerTitle" wide>
-      <!-- целиком, без обрезки: фото бывают любых пропорций -->
-      <img v-if="viewer" :src="viewerPhotos[viewer.index]" :alt="viewerTitle" class="mx-auto max-h-[70vh] w-auto rounded-3xl object-contain">
-      <div class="mt-4 flex justify-between">
-        <button class="btn-icon" :disabled="!viewer?.index" aria-label="Предыдущее фото" @click="stepViewer(-1)"><UiIcon name="chevron-left" :size="20" /></button>
-        <button class="btn-icon" :disabled="viewer?.index === viewerPhotos.length - 1" aria-label="Следующее фото" @click="stepViewer(1)"><UiIcon name="chevron-right" :size="20" /></button>
-      </div>
-    </UiModal>
+    <UiPhotoViewer v-model="viewerIndex" :photos="viewerPhotos" />
 
     <UiModal v-model="newOpen" title="Новое событие">
       <form class="grid gap-4" @submit.prevent="createEvent">

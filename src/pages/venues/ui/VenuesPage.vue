@@ -7,7 +7,7 @@ import { applyVenueFilters, countExtra, emptyFilters, VenueFilters, type VenueFi
 import { CitySelect } from "@features/select-city";
 import { type GenreId, genres } from "@shared/config";
 import { plural } from "@shared/lib";
-import { UiEmpty, UiIcon, UiModal, UiPills } from "@shared/ui";
+import { UiEmpty, UiIcon, UiModal, UiPageHead, UiPills } from "@shared/ui";
 
 useHead({ title: "Бары и площадки - Joined" });
 
@@ -28,85 +28,55 @@ const results = computed(() =>
 );
 const extraCount = computed(() => countExtra(filters.value));
 
-const panelOpen = ref(false);
-const sheetOpen = ref(false);
-const toggleFilters = () => {
-  if (window.matchMedia("(min-width: 768px)").matches) panelOpen.value = !panelOpen.value;
-  else sheetOpen.value = true;
-};
+const filtersOpen = ref(false);
 
-// сброс сразу закрывает фильтры - и панель на десктопе, и лист на мобайле
+// сброс сразу закрывает фильтры
 const reset = () => {
   filters.value = emptyFilters();
-  panelOpen.value = false;
-  sheetOpen.value = false;
+  filtersOpen.value = false;
 };
 </script>
 
 <template>
   <div>
-    <section class="container-x pt-12 pb-10 text-center sm:pt-20">
-      <h1 class="h-display text-[14vw] sm:text-8xl lg:text-[8.5rem]">Бары и сцены</h1>
-      <p class="mt-4 text-white/80">{{ results.length }} {{ plural(results.length, ["место", "места", "мест"]) }} {{ city.where }}</p>
+    <section class="container-x">
+      <UiPageHead title="Бары и сцены" :caption="`${results.length} ${plural(results.length, ['место', 'места', 'мест'])} ${city.where}`" />
 
-      <div class="search-bar relative z-30 mx-auto mt-8 flex max-w-2xl flex-col gap-1 p-2 sm:flex-row">
-        <label class="flex flex-1 items-center gap-3 px-3">
-          <UiIcon name="search" class="text-white/60" :size="18" />
-          <input
-            v-model="filters.q"
-            type="search"
-            placeholder="Название, улица или метро"
-            class="w-full bg-transparent py-2.5 text-sm placeholder:text-white/50"
-            aria-label="Поиск по заведениям"
-          />
+      <!-- Поиск одной плашкой: поле и кнопки внутри; на телефоне кнопки строкой под полем -->
+      <div class="search-bar mt-4 flex flex-col gap-1 p-2 sm:flex-row">
+        <label class="flex min-w-0 flex-1 items-center gap-3 px-3">
+          <UiIcon name="search" class="shrink-0 text-white/60" :size="18" />
+          <input v-model="filters.q" type="search" placeholder="Название, улица или метро" class="w-full bg-transparent py-2.5 text-sm placeholder:text-white/50" aria-label="Поиск по заведениям" />
         </label>
         <div class="flex gap-1">
-          <CitySelect class="flex-1 [&>button]:h-full [&>button]:w-full" />
-          <button class="pill" :class="{ 'pill-active': panelOpen }" :aria-expanded="panelOpen" @click="toggleFilters">
+          <CitySelect modal class="min-w-0 flex-1 [&>button]:h-full [&>button]:w-full" />
+          <button type="button" class="pill" aria-haspopup="dialog" @click="filtersOpen = true">
             <UiIcon name="filter" :size="16" /> Фильтры
             <span v-if="extraCount" class="grid size-5 place-items-center rounded-md bg-accent text-[11px] text-white">{{ extraCount }}</span>
           </button>
         </div>
       </div>
-      <div class="mt-6"><UiPills v-model="filters.genres" :options="genres" multiple center /></div>
+      <div class="mt-3"><UiPills v-model="filters.genres" :options="genres" multiple /></div>
     </section>
 
-    <section class="container-x">
-      <!-- Десктоп: раскрывающаяся панель доп. фильтров -->
-      <Transition
-        enter-active-class="transition duration-400 ease-[var(--ease-liquid)]"
-        enter-from-class="opacity-0 -translate-y-2"
-        leave-active-class="transition duration-200"
-        leave-to-class="opacity-0"
-      >
-        <div v-if="panelOpen" class="card mb-8 hidden p-6 md:block">
-          <VenueFilters v-model="filters" />
-          <div class="mt-6 flex justify-end">
-            <button class="btn-ghost" @click="reset">Сбросить всё</button>
-          </div>
-        </div>
-      </Transition>
-
-      <!-- Мобайл: стеклянный лист -->
-      <UiModal v-model="sheetOpen" title="Фильтры" panel-class="max-sm:[--lg-tint:rgb(26_21_22/0.92)]">
-        <VenueFilters v-model="filters" />
-        <div class="mt-8 grid grid-cols-2 gap-2">
-          <button class="btn-dark py-3.5" @click="reset">Сбросить</button>
-          <button class="btn-primary py-3.5" @click="sheetOpen = false">Показать {{ results.length }}</button>
-        </div>
-      </UiModal>
-    </section>
-
-    <!-- Результаты: сетка карточек -->
-    <section class="container-x">
-      <div v-if="results.length" class="grid sm:grid-cols-2 lg:grid-cols-3">
+    <!-- Сетка как у артистов: три колонки, на больших экранах пять; на телефоне от края до края -->
+    <section class="mx-auto w-full max-w-7xl pt-3 sm:px-6 lg:px-12">
+      <div v-if="results.length" class="grid grid-cols-3 gap-0.5 lg:grid-cols-5">
         <VenueCard v-for="v in results" :key="v.slug" :venue="v">
-          <template #actions><FavoriteButton kind="venues" :id="v.slug" /></template>
+          <template #actions><FavoriteButton kind="venues" :id="v.slug" class="size-8 bg-black/40 sm:size-10" /></template>
         </VenueCard>
       </div>
       <UiEmpty v-else icon="glass" title="Ничего не нашлось">
-        <button class="btn-dark" @click="reset">Сбросить фильтры</button>
+        <button type="button" class="btn-dark" @click="reset">Сбросить фильтры</button>
       </UiEmpty>
     </section>
+
+    <UiModal v-model="filtersOpen" title="Фильтры" glass>
+      <VenueFilters v-model="filters" />
+      <div class="mt-8 grid grid-cols-2 gap-2">
+        <button type="button" class="btn-dark h-12" @click="reset">Сбросить</button>
+        <button type="button" class="btn-primary h-12" @click="filtersOpen = false">Показать {{ results.length }}</button>
+      </div>
+    </UiModal>
   </div>
 </template>

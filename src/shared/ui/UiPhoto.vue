@@ -12,7 +12,7 @@ watch(() => props.src, () => { failed.value = false })
 </script>
 
 <template>
-  <div class="relative overflow-hidden bg-linear-to-br from-[#ff8a52] via-[#d9501c] to-[#453027]">
+  <div class="relative overflow-hidden bg-linear-to-br from-[#ff6d29] via-[#ff6d29] to-[#453027]">
     <img
       v-if="!failed"
       ref="img"

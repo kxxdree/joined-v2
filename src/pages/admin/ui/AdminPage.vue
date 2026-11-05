@@ -4,7 +4,7 @@ import { cities as baseCities } from '@entities/city'
 import { drinks, formats, venues } from '@entities/venue'
 import { genres } from '@shared/config'
 import { formatPrice, ph, plural, useToast } from '@shared/lib'
-import { UiBarChart, UiEmpty, UiIcon, UiPhoto, UiTabs, UiToggle } from '@shared/ui'
+import { UiBarChart, UiEmpty, UiIcon, UiPageHead, UiPhoto, UiTabs, UiToggle } from '@shared/ui'
 
 useHead({ title: 'Админ-панель - Joined' })
 
@@ -94,16 +94,12 @@ const transactions = [
 </script>
 
 <template>
-  <section class="container-x pt-10">
-    <div class="card mb-8 p-6 sm:p-8">
-      <p class="text-xs font-medium tracking-[0.2em] text-accent-text uppercase">Администратор системы</p>
-      <h1 class="h-display mt-2 text-4xl sm:text-6xl">Управление платформой</h1>
-    </div>
+  <section class="container-x">
+    <UiPageHead title="Управление платформой" caption="Администратор системы" />
+    <UiTabs v-model="tab" :tabs="tabs" />
 
-    <div class="grid grid-cols-1 gap-8 lg:grid-cols-[260px_1fr]">
-      <aside class="min-w-0 lg:sticky lg:top-28 lg:h-fit"><UiTabs v-model="tab" :tabs="tabs" /></aside>
-
-      <div class="min-w-0">
+    <div class="pt-4">
+      <div>
         <!-- СТАТИСТИКА -->
         <div v-if="tab === 'overview'" class="grid grid-cols-1 gap-4">
           <div class="grid grid-cols-2 gap-3 xl:grid-cols-4">
@@ -123,7 +119,7 @@ const transactions = [
               <div class="space-y-3">
                 <div v-for="g in byGenre.slice(0, 6)" :key="g.label">
                   <div class="mb-1 flex justify-between text-sm"><span class="text-soft">{{ g.label }}</span><span>{{ g.value }}%</span></div>
-                  <div class="h-2 overflow-hidden rounded-full bg-black/30 shadow-[inset_0_1px_2px_rgb(0_0_0/0.4)]"><div class="h-full rounded-full bg-linear-to-r from-[#ff6d29] to-[#ff9f70]" :style="{ width: `${g.value / 34 * 100}%` }" /></div>
+                  <div class="h-2 overflow-hidden rounded-full bg-black/30 shadow-[inset_0_1px_2px_rgb(0_0_0/0.4)]"><div class="h-full rounded-full bg-linear-to-r from-[#ff6d29] to-[#ff6d29]" :style="{ width: `${g.value / 34 * 100}%` }" /></div>
                 </div>
               </div>
             </div>
@@ -132,23 +128,17 @@ const transactions = [
 
         <!-- МОДЕРАЦИЯ -->
         <div v-else-if="tab === 'moderation'" class="grid grid-cols-1 gap-4">
-          <h2 class="text-2xl font-medium">Очередь модерации</h2>
-          <!-- Список в стиле афиши, как входящие брони партнёра: обложка, тип точкой, название заглавными -->
-          <ul v-if="moderation.length" class="card px-5 sm:px-8">
+          <ul v-if="moderation.length" class="max-w-4xl">
             <li
               v-for="m in moderation"
               :key="m.id"
-              class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-5 gap-y-4 border-b border-line py-5 last:border-b-0 sm:grid-cols-[auto_minmax(0,1fr)_auto]"
+              class="hair-row grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-3 sm:grid-cols-[auto_minmax(0,1fr)_auto]"
             >
-              <UiPhoto :src="m.photo" :alt="m.name" class="size-16 rounded-2xl sm:size-20" />
+              <UiPhoto :src="m.photo" :alt="m.name" class="aspect-3/4 w-11 rounded-lg" />
               <div class="min-w-0">
-                <p class="flex items-center gap-2 text-xs font-semibold tracking-wider text-accent-text uppercase">
-                  <span class="size-1.5 rounded-full bg-accent" />
-                  {{ m.kind }}
-                </p>
-                <p class="mt-1.5 truncate font-medium uppercase">{{ m.name }}</p>
-                <p class="mt-0.5 truncate text-xs tracking-wider text-muted uppercase">{{ m.city }} · {{ m.date }}</p>
-                <p class="mt-0.5 truncate text-xs text-muted">{{ m.author }}</p>
+                <p class="truncate font-medium">{{ m.name }}</p>
+                <p class="mono-cap mt-1 truncate"><span class="text-accent-text">{{ m.kind }}</span> · {{ m.city }} · {{ m.date }}</p>
+                <p class="mono-cap mt-0.5 truncate normal-case">{{ m.author }}</p>
               </div>
               <div class="col-span-2 flex gap-2 sm:col-span-1">
                 <button class="btn-dark flex-1 sm:flex-none" @click="moderate(m.id, false)">Отклонить</button>
@@ -198,7 +188,7 @@ const transactions = [
         <div v-else-if="tab === 'users'" class="grid grid-cols-1 gap-4">
           <label class="search-bar flex items-center gap-3 px-5">
             <UiIcon name="search" class="text-muted" :size="18" />
-            <input v-model="userQuery" type="search" placeholder="Имя или email" class="w-full bg-transparent py-3 text-sm placeholder:text-muted">
+            <input v-model="userQuery" type="search" placeholder="Имя или email" class="w-full bg-transparent py-3 text-sm placeholder:text-white/50">
           </label>
           <!-- Скролл во внутреннем блоке: иначе рамка карточки (::before) уезжает вместе с таблицей -->
           <div class="card overflow-hidden">

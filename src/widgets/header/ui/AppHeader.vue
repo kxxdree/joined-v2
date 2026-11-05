@@ -37,14 +37,13 @@ watch(open, (v) => {
 </script>
 
 <template>
-  <header class="sticky top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-4">
+  <header class="sticky top-0 z-50 pt-3 sm:pt-4">
+    <!-- Подложка при прокрутке - отдельным слоем во всю ширину: backdrop-filter на самом header сделал бы его
+         контейнером для fixed-детей (затемнение и мобильное меню сжались бы до шапки) -->
+    <div class="pointer-events-none absolute inset-0 -z-10 transition-[background-color,backdrop-filter] duration-500" :class="scrolled ? 'bg-ink/60 backdrop-blur-xl' : ''" aria-hidden="true" />
     <!-- Минималистичная шапка: название слева, ссылки простым текстом справа, без кнопок и капсулы.
-         Над первым экраном без фона; при прокрутке - лёгкая тёмная размытая подложка, чтобы текст читался.
-         Высота и отступы прежние (h-16 + pt-3/sm:pt-4): страницы, заезжающие под шапку, сдвинуты ровно на неё -->
-    <div
-      class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 rounded-2xl px-4 transition-[background-color,backdrop-filter] duration-500 sm:px-5"
-      :class="scrolled ? 'bg-ink/60 backdrop-blur-xl' : ''"
-    >
+         Сетка как у страниц (container-x). Высота прежняя (h-16 + pt-3/sm:pt-4): страницы, заезжающие под шапку, сдвинуты ровно на неё -->
+    <div class="container-x flex h-16 items-center justify-between gap-6">
       <!-- Название без иконки, обычными буквами - как «Joined©» на главной -->
       <NuxtLink to="/" class="text-xl font-medium tracking-[-0.04em] transition-opacity duration-300 hover:opacity-70" aria-label="Joined - на главную">Joined</NuxtLink>
 

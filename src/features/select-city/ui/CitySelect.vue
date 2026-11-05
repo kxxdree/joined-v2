@@ -53,9 +53,10 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
 <template>
   <div ref="root" class="relative">
     <button type="button" :class="inline ? 'flex h-full items-center gap-2 px-3 text-sm whitespace-nowrap transition-colors hover:text-sand' : 'pill'" :aria-expanded="open" @click="toggle">
-      <UiIcon name="pin" :size="16" class="text-accent-text" />
-      {{ city.name }}
-      <UiIcon name="chevron-down" :size="16" class="text-muted transition-transform duration-300" :class="{ 'rotate-180': open }" />
+      <UiIcon name="pin" :size="16" class="shrink-0 text-accent-text" />
+      <!-- в одну строку: длинное название не должно растягивать плашку по высоте -->
+      <span class="min-w-0 truncate">{{ city.name }}</span>
+      <UiIcon name="chevron-down" :size="16" class="shrink-0 text-muted transition-transform duration-300" :class="{ 'rotate-180': open }" />
     </button>
     <Transition
       enter-active-class="transition duration-300 ease-[var(--ease-liquid)]"
@@ -63,7 +64,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
       leave-active-class="transition duration-150"
       leave-to-class="opacity-0 scale-95"
     >
-      <div v-if="open && !asSheet" class="absolute top-full z-40 mt-2 w-64 origin-top rounded-xl bg-[#241b1a] p-1 shadow-[0_16px_40px_-12px_rgb(0_0_0/0.8)]" :class="inline ? 'left-0' : 'left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0'">
+      <div v-if="open && !asSheet" class="absolute top-full z-40 mt-2 w-64 origin-top rounded-xl bg-[#161316] p-1 shadow-[0_16px_40px_-12px_rgb(0_0_0/0.8)]" :class="inline ? 'left-0' : 'left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0'">
         <button type="button" class="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm text-accent-text hover:bg-white/10" @click="onDetect">
           <UiIcon name="locate" :size="16" />
           {{ locating ? 'Определяем…' : 'Определить автоматически' }}
@@ -98,7 +99,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
     </Transition>
 
     <!-- Телефон (или modal): выбор в модалке, пункты крупнее; modal (hero на главной) - лёгкое стекло (glass) -->
-    <UiModal v-if="sheet || modal" :model-value="open && asSheet" title="Город" :glass="modal" :panel-class="modal ? '' : '[--lg-tint:rgb(26_21_22/0.92)]'" @update:model-value="open = $event">
+    <UiModal v-if="sheet || modal" :model-value="open && asSheet" title="Город" :glass="modal" :panel-class="modal ? '' : '[--lg-tint:rgb(22_19_22/0.92)]'" @update:model-value="open = $event">
       <div class="-mx-2">
         <button type="button" class="flex w-full items-center gap-2 rounded-lg px-3 py-3.5 text-left text-base text-accent-text hover:bg-white/10" @click="onDetect">
           <UiIcon name="locate" :size="18" />
