@@ -1,8 +1,6 @@
 <script setup lang="ts" generic="T extends string">
-import UiIcon from './UiIcon.vue'
-
-/** Разделы страницы: стеклянные пилюли с иконками, прилипают под шапкой сайта; лента сама прокручивается к активной */
-defineProps<{ tabs: readonly { id: T; name: string; icon: string; badge?: number }[] }>()
+/** Разделы страницы: текстовые пилюли, прилипают под шапкой сайта; лента сама прокручивается к активной */
+defineProps<{ tabs: readonly { id: T; name: string; badge?: number }[] }>()
 const model = defineModel<T>({ required: true })
 
 const track = ref<HTMLElement>()
@@ -27,7 +25,6 @@ onMounted(reveal)
         :aria-pressed="model === t.id"
         @click="model = t.id"
       >
-        <UiIcon :name="t.icon" :size="18" />
         {{ t.name }}
         <span v-if="t.badge" class="grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[11px] font-semibold text-white">{{ t.badge }}</span>
       </button>

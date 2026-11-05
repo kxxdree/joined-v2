@@ -15,8 +15,8 @@ const a = found
 useHead({ title: `${a.name} - Joined`, meta: [{ name: 'description', content: a.short }] })
 
 const tabs = [
-  { id: 'concerts', name: 'Концерты', icon: 'calendar' },
-  { id: 'about', name: 'Об артисте', icon: 'info' },
+  { id: 'concerts', name: 'Концерты' },
+  { id: 'about', name: 'Об артисте' },
 ] as const
 const tab = ref<(typeof tabs)[number]['id']>('concerts')
 

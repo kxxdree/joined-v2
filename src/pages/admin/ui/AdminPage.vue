@@ -18,12 +18,12 @@ const moderation = ref([
   { id: 'm4', kind: 'Событие', name: 'Ночь винила', city: 'Москва', author: 'bar@redvelvet.ru', photo: ph('vinyl', 504), date: 'вчера' },
 ])
 const tabs = computed(() => [
-  { id: 'overview' as Tab, name: 'Статистика', icon: 'chart' },
-  { id: 'moderation' as Tab, name: 'Модерация', icon: 'shield', badge: moderation.value.length },
-  { id: 'cities' as Tab, name: 'Города и регионы', icon: 'globe' },
-  { id: 'tags' as Tab, name: 'Категории и теги', icon: 'tag' },
-  { id: 'users' as Tab, name: 'Пользователи', icon: 'users' },
-  { id: 'payments' as Tab, name: 'Комиссии и платежи', icon: 'wallet' },
+  { id: 'overview' as Tab, name: 'Статистика' },
+  { id: 'moderation' as Tab, name: 'Модерация', badge: moderation.value.length },
+  { id: 'cities' as Tab, name: 'Города и регионы' },
+  { id: 'tags' as Tab, name: 'Категории и теги' },
+  { id: 'users' as Tab, name: 'Пользователи' },
+  { id: 'payments' as Tab, name: 'Комиссии и платежи' },
 ])
 const tab = ref<Tab>('overview')
 

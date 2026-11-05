@@ -18,9 +18,9 @@ const { push } = useToast()
 
 type Tab = 'bookings' | 'history' | 'favorites'
 const tabs = computed(() => [
-  { id: 'bookings' as Tab, name: 'Бронирования', icon: 'calendar', badge: confirmed.value.length },
-  { id: 'history' as Tab, name: 'История', icon: 'clock' },
-  { id: 'favorites' as Tab, name: 'Избранное', icon: 'heart' },
+  { id: 'bookings' as Tab, name: 'Бронирования', badge: confirmed.value.length },
+  { id: 'history' as Tab, name: 'История' },
+  { id: 'favorites' as Tab, name: 'Избранное' },
 ])
 const tab = ref<Tab>(tabs.value.some(t => t.id === route.query.tab) ? (route.query.tab as Tab) : 'bookings')
 watch(tab, t => navigateTo({ query: { tab: t } }, { replace: true }))

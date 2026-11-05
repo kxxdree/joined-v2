@@ -19,10 +19,10 @@ const artist = getArtist('orange-sunset')!
 
 type Tab = 'profile' | 'events' | 'bookings' | 'media'
 const tabs = computed(() => [
-  { id: 'events' as Tab, name: 'Мероприятия', icon: 'calendar' },
-  { id: 'profile' as Tab, name: isVenue.value ? 'Профиль заведения' : 'Профиль группы', icon: 'edit' },
-  ...(isVenue.value ? [{ id: 'bookings' as Tab, name: 'Бронирования', icon: 'users', badge: incoming.value.filter(b => b.status === 'new').length }] : []),
-  { id: 'media' as Tab, name: isVenue.value ? 'Фото и меню' : 'Медиа', icon: 'image' },
+  { id: 'events' as Tab, name: 'Мероприятия' },
+  { id: 'profile' as Tab, name: isVenue.value ? 'Профиль заведения' : 'Профиль группы' },
+  ...(isVenue.value ? [{ id: 'bookings' as Tab, name: 'Бронирования', badge: incoming.value.filter(b => b.status === 'new').length }] : []),
+  { id: 'media' as Tab, name: isVenue.value ? 'Фото и меню' : 'Медиа' },
 ])
 const tab = ref<Tab>('events')
 

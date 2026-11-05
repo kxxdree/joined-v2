@@ -18,12 +18,12 @@ const v = found;
 useHead({ title: `${v.name} - Joined`, meta: [{ name: "description", content: v.short }] });
 
 const tabs = [
-  { id: "gallery", name: "Галерея", icon: "image" },
-  { id: "schedule", name: "Афиша", icon: "calendar" },
-  { id: "menu", name: "Меню", icon: "utensils" },
-  { id: "about", name: "О месте", icon: "info" },
-  { id: "booking", name: "Бронь", icon: "users" },
-  { id: "rules", name: "Правила", icon: "list" },
+  { id: "gallery", name: "Галерея" },
+  { id: "schedule", name: "Афиша" },
+  { id: "menu", name: "Меню" },
+  { id: "about", name: "О месте" },
+  { id: "booking", name: "Бронь" },
+  { id: "rules", name: "Правила" },
 ] as const;
 type TabId = (typeof tabs)[number]["id"];
 const tab = ref<TabId>(tabs.find((t) => t.id === route.query.tab)?.id ?? "gallery");
