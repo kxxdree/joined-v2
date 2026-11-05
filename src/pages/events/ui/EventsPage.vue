@@ -6,7 +6,7 @@ import { getVenue } from "@entities/venue";
 import { CitySelect } from "@features/select-city";
 import { type GenreId, genres } from "@shared/config";
 import { addDays, isWeekend, plural, todayISO } from "@shared/lib";
-import { UiEmpty, UiIcon, UiPageHead, UiPills } from "@shared/ui";
+import { UiEmpty, UiIcon, UiPageHead, UiPills, UiSelect } from "@shared/ui";
 
 useHead({ title: "Афиша - Joined" });
 
@@ -80,16 +80,18 @@ const venueName = (e: EventItem) => getVenue(e.venue)?.name ?? "";
       <div class="max-w-3xl">
         <UiPageHead title="Афиша" :caption="`${total} ${plural(total, ['событие', 'события', 'событий'])} ${city.where}`" />
 
-        <!-- Поиск одной плашкой: поле и город внутри; ниже фильтры лентами -->
+        <!-- Поиск одной плашкой: поле, город и жанр внутри; ниже даты лёгкой текстовой строкой -->
         <div class="search-bar mt-4 flex flex-col gap-1 p-2 sm:flex-row">
           <label class="flex min-w-0 flex-1 items-center gap-3 px-3">
           <UiIcon name="search" class="shrink-0 text-white/60" :size="18" />
           <input v-model="q" type="search" placeholder="Событие, артист или заведение" class="w-full bg-transparent py-2.5 text-sm placeholder:text-white/50" aria-label="Поиск по афише" />
         </label>
-          <CitySelect modal class="[&>button]:h-full [&>button]:w-full" />
+          <div class="flex gap-1">
+            <CitySelect modal class="min-w-0 flex-1 [&>button]:h-full [&>button]:w-full" />
+            <UiSelect v-model="genre" :options="genres" all-label="Все жанры" icon="music" label="Жанр" modal class="min-w-0 flex-1 sm:w-44 sm:flex-none [&>button]:h-full [&>button]:w-full" />
+          </div>
         </div>
-        <div class="mt-3"><UiPills v-model="period" :options="periods" all-label="Любая дата" /></div>
-        <div class="mt-1"><UiPills v-model="genre" :options="genres" all-label="Все жанры" /></div>
+        <UiPills v-model="period" :options="periods" all-label="Все даты" variant="text" class="scroll-x mt-4 -mx-4 px-4 max-sm:flex-nowrap max-sm:gap-x-4 sm:mx-0 sm:px-0 [&>button]:shrink-0 [&>button]:whitespace-nowrap" />
 
         <div class="mt-6">
           <template v-if="grouped.length">
