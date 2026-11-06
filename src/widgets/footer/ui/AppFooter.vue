@@ -1,18 +1,12 @@
 <script setup lang="ts">
-import { NewsletterForm } from "@features/newsletter";
-import { UiIcon, UiLogo } from "@shared/ui";
+import { UiIcon } from "@shared/ui";
 
-const nav = [
-  { to: "/", label: "Главная" },
-  { to: "/venues", label: "Места" },
-  { to: "/events", label: "Афиша" },
-  { to: "/artists", label: "Артисты" },
+// только то, чего нет в шапке
+const links = [
   { to: "/about", label: "О нас" },
-];
-const partners = [
-  { to: "/register?role=venue", label: "Для заведений" },
-  { to: "/register?role=artist", label: "Для музыкантов" },
-  { to: "/rules", label: "Условия сервиса" },
+  // { to: "/register?role=venue", label: "Для заведений" },
+  // { to: "/register?role=artist", label: "Для музыкантов" },
+  { to: "/rules", label: "Условия" },
   { to: "/rules#privacy", label: "Конфиденциальность" },
 ];
 const socials = [
@@ -23,50 +17,22 @@ const socials = [
 </script>
 
 <template>
-  <footer class="relative mt-32 overflow-hidden px-3 pb-3 sm:px-6 sm:pb-6">
-    <div class="glass mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] [--lg-tint:rgb(255_255_255/0.02)] [--lg-blur:12px]">
-      <div class="grid gap-10 p-6 sm:p-10 md:grid-cols-[1.2fr_auto_auto_1.3fr] md:gap-14 lg:p-14">
-        <div>
-          <UiLogo />
-          <p class="mt-4 max-w-xs text-sm text-soft">Места, сцены и музыка в одном месте</p>
-          <div class="mt-6 flex items-center gap-2">
-            <a v-for="s in socials" :key="s.icon" href="#" :aria-label="s.label" class="btn-icon size-10"><UiIcon :name="s.icon" :size="18" /></a>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-10 md:contents">
-          <div>
-            <h3 class="mb-5 text-sm text-white/50">Навигация</h3>
-            <ul class="space-y-3 text-sm">
-              <li v-for="l in nav" :key="l.label">
-                <NuxtLink :to="l.to" class="hover:text-sand">{{ l.label }}</NuxtLink>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 class="mb-5 text-sm text-white/50">Партнёрам</h3>
-            <ul class="space-y-3 text-sm">
-              <li v-for="l in partners" :key="l.label">
-                <NuxtLink :to="l.to" class="hover:text-sand">{{ l.label }}</NuxtLink>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div>
-          <h3 class="mb-5 text-sm text-white/50">Рассылка</h3>
-          <p class="mb-5 text-xl leading-snug font-medium">Афиша недели</p>
-          <NewsletterForm />
+  <!-- Тонкая полоса под линией: название, ссылки и соцсети одной строкой; на телефоне ссылки переносятся вниз -->
+  <footer class="container-x mt-20 sm:mt-28">
+    <div class="border-t border-white/10 py-6">
+      <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+        <NuxtLink to="/" class="text-lg font-medium tracking-[-0.04em] hover:opacity-70" aria-label="Joined - на главную">Joined</NuxtLink>
+        <nav class="order-last flex w-full flex-wrap gap-x-5 gap-y-1 text-sm text-white/70 lg:order-0 lg:w-auto" aria-label="Информация">
+          <NuxtLink v-for="l in links" :key="l.to" :to="l.to" class="py-1 hover:text-white">{{ l.label }}</NuxtLink>
+        </nav>
+        <div class="-mr-2 flex items-center">
+          <a v-for="s in socials" :key="s.icon" href="#" :aria-label="s.label" class="grid size-9 place-items-center text-white/70 hover:text-white"><UiIcon :name="s.icon" :size="18" /></a>
         </div>
       </div>
-
-      <!-- Гигантский стеклянный вордмарк -->
-      <div class="pointer-events-none relative -mt-4 select-none overflow-hidden text-center" aria-hidden="true">
-        <span class=" block translate-y-[18%] text-[27vw] leading-[0.8] font-semibold tracking-[-0.07em] opacity-90 lg:text-[21rem]">JOINED</span>
-      </div>
-
-      <div class="relative flex flex-wrap justify-between gap-2 border-t border-line px-6 py-5 text-xs text-white/60 sm:px-10 lg:px-14">
-        <span>© {{ new Date().getFullYear() }} Joined. Места и живая музыка</span>
+      <p class="mono-cap mt-4 flex justify-between gap-4">
+        <span>© {{ new Date().getFullYear() }} Joined</span>
         <span>18+</span>
-      </div>
+      </p>
     </div>
   </footer>
 </template>
