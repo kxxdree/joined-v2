@@ -49,7 +49,8 @@ const reset = () => {
           <input v-model="filters.q" type="search" placeholder="Название, улица или метро" class="w-full bg-transparent py-2.5 text-sm placeholder:text-white/50" aria-label="Поиск по заведениям" />
         </label>
         <div class="flex gap-1">
-          <CitySelect modal class="min-w-0 flex-1 [&>button]:h-full [&>button]:w-full" />
+          <!-- под окном яркие фото: тонировка плотнее, чем на главной -->
+          <CitySelect modal clear panel-class="[--lg-tint:rgb(22_19_22/0.28)]" class="min-w-0 flex-1 [&>button]:h-full [&>button]:w-full" />
           <button type="button" class="pill" aria-haspopup="dialog" @click="filtersOpen = true">
             <UiIcon name="filter" :size="16" /> Фильтры
             <span v-if="extraCount" class="grid size-5 place-items-center rounded-md bg-accent text-[11px] text-white">{{ extraCount }}</span>

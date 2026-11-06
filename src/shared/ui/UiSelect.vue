@@ -82,7 +82,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
           @click="pick(o.id)"
         >
           {{ o.name }}
-          <UiIcon v-if="o.id === model" name="check" :size="18" class="text-accent-text" />
+          <UiIcon v-if="o.id === model" name="check" :size="18" :class="clear ? 'text-white' : 'text-accent-text'" />
         </button>
       </div>
     </UiModal>
