@@ -69,19 +69,20 @@ watch(open, (v) => {
       </button>
     </div>
 
-    <!-- Подложка под мобильным меню: затемняет экран, тап вне меню закрывает его -->
+    <!-- Подложка под мобильным меню: чуть затемняет экран, тап вне меню закрывает его -->
     <Transition enter-active-class="transition duration-300" enter-from-class="opacity-0" leave-active-class="transition duration-200" leave-to-class="opacity-0">
-      <div v-if="open" class="fixed inset-0 -z-10 bg-black/60 backdrop-blur-sm md:hidden" aria-hidden="true" @click="open = false" />
+      <div v-if="open" class="fixed inset-0 -z-10 bg-black/25 md:hidden" aria-hidden="true" @click="open = false" />
     </Transition>
 
-    <!-- Мобильное меню: стеклянный лист -->
+    <!-- Мобильное меню: чистое стекло, как окна выбора. Появляется только сдвигом: при opacity меньше 1 сквозь стекло виден резкий текст страницы.
+         Тонировка плотнее базовой: меню открывается на любой странице, в том числе поверх ярких фото -->
     <Transition
       enter-active-class="transition duration-400 ease-[var(--ease-liquid)]"
-      enter-from-class="opacity-0 -translate-y-3 scale-[0.98]"
+      enter-from-class="-translate-y-3 scale-[0.98]"
       leave-active-class="transition duration-200"
       leave-to-class="opacity-0 -translate-y-2"
     >
-      <div v-if="open" class="glass-strong fixed inset-x-3 top-[5.25rem] max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-[2rem] p-3 md:hidden">
+      <div v-if="open" class="glass-strong glass-pure fixed inset-x-3 top-[5.25rem] max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-[2rem] p-3 [--lg-tint:rgb(22_19_22/0.28)] md:hidden">
         <nav class="flex flex-col">
           <NuxtLink
             v-for="l in [...links, ...(cabinet ? [cabinet] : [])]"

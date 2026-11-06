@@ -2,7 +2,6 @@
 import { useCurrentCity } from "@entities/city";
 import { events } from "@entities/event";
 import { VenueCard, venues } from "@entities/venue";
-import { FavoriteButton } from "@features/favorites";
 import { applyVenueFilters, countExtra, emptyFilters, VenueFilters, type VenueFilterState } from "@features/filter-venues";
 import { CitySelect } from "@features/select-city";
 import { type GenreId, genres } from "@shared/config";
@@ -63,9 +62,7 @@ const reset = () => {
     <!-- Сетка как у артистов: три колонки, на больших экранах пять; на телефоне от края до края -->
     <section class="mx-auto w-full max-w-7xl pt-3 sm:px-6 lg:px-12">
       <div v-if="results.length" class="grid grid-cols-3 gap-0.5 lg:grid-cols-5">
-        <VenueCard v-for="v in results" :key="v.slug" :venue="v">
-          <template #actions><FavoriteButton kind="venues" :id="v.slug" class="size-8 bg-black/40 sm:size-10" /></template>
-        </VenueCard>
+        <VenueCard v-for="v in results" :key="v.slug" :venue="v" />
       </div>
       <UiEmpty v-else icon="glass" title="Ничего не нашлось">
         <button type="button" class="btn-dark" @click="reset">Сбросить фильтры</button>
