@@ -201,4 +201,10 @@ export const artists: Artist[] = [
   },
 ]
 
+// Демо: у реального артиста галерею загружает он сам. Set убирает повторы из небольшого набора заглушек
+artists.forEach((a, n) => {
+  const shots = ['band', 'crowd', 'jazz', 'hiphop', 'dj', 'stage', 'acoustic', 'microphone'].map((k, j) => ph(k, n * 3 + j, 800, 1067))
+  a.gallery = [...new Set([ph(a.photo.includes('jazz') ? 'jazz' : 'band', n, 800, 1067), ...shots])].slice(0, 8)
+})
+
 export const getArtist = (slug: string) => artists.find(a => a.slug === slug)
