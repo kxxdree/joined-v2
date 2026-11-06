@@ -42,9 +42,9 @@ const stats = [
              Жанр и город - подчёркнутые слова, выбор в стеклянных модалках; стрелка ведёт на «Бары и сцены» -->
         <form class="mt-8 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-2 font-mono text-[11px] tracking-[0.14em] text-white/80 uppercase [text-shadow:0_1px_12px_rgb(0_0_0/0.7)] sm:text-xs" @submit.prevent="search">
           <span>Ищу</span>
-          <UiSelect v-model="genre" :options="genres" all-label="Любой жанр" label="Жанр" inline modal :class="[phraseWord, '[&>button]:w-auto']" />
+          <UiSelect v-model="genre" :options="genres" all-label="Любой жанр" label="Жанр" inline modal clear :class="[phraseWord, '[&>button]:w-auto']" />
           <span>в городе</span>
-          <CitySelect inline modal :class="phraseWord" />
+          <CitySelect inline modal clear :class="phraseWord" />
           <button type="submit" class="ml-1 grid size-8 place-items-center rounded-full bg-white text-ink hover:bg-white/85" aria-label="Найти места">
             <UiIcon name="arrow-right" :size="16" />
           </button>

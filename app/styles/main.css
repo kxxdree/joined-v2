@@ -224,6 +224,17 @@ body {
       inset 0 1px 0 rgb(255 255 255 / 0.18), inset 0 0 40px rgb(255 255 255 / 0.03), 0 40px 100px -30px rgb(0 0 0 / 0.75), 0 12px 32px -12px rgb(0 0 0 / 0.5);
   }
 
+  /* Чистое стекло (UiModal clear, поверх .glass-strong): страница вокруг остаётся резкой, размыто только под панелью.
+     Подложка почти прозрачная, ровная светлая кромка, мягкая тень */
+  .glass-pure {
+    --lg-tint: rgb(22 19 22 / 0.03);
+    --lg-blur: 18px;
+    --lg-saturate: 125%;
+    --lg-sheen: linear-gradient(180deg, rgb(255 255 255 / 0.05), rgb(255 255 255 / 0.015));
+    --lg-rim: linear-gradient(180deg, rgb(255 255 255 / 0.38), rgb(255 255 255 / 0.2));
+    --lg-shadow: 0 30px 80px -30px rgb(0 0 0 / 0.55);
+  }
+
   .glass-chip {
     --lg-blur: 14px;
     background: var(--lg-raised);

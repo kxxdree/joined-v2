@@ -4,8 +4,8 @@ import { isPhone, useToast } from '@shared/lib'
 import { UiIcon, UiModal } from '@shared/ui'
 
 // inline - без «пилюли», для встраивания в строку поиска; на телефоне выбор открывается нижней модалкой (sheet: false - всегда выпадашка,
-// modal - всегда модалка, и на десктопе)
-const props = withDefaults(defineProps<{ inline?: boolean; sheet?: boolean; modal?: boolean }>(), { sheet: true })
+// modal - всегда модалка, и на десктопе; clear - модалка из чистого стекла)
+const props = withDefaults(defineProps<{ inline?: boolean; sheet?: boolean; modal?: boolean; clear?: boolean }>(), { sheet: true })
 
 const { cityId, city, cities, detect, locating } = useCurrentCity()
 const { push } = useToast()
@@ -99,7 +99,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
     </Transition>
 
     <!-- Телефон (или modal): выбор в модалке, пункты крупнее; modal (hero на главной) - лёгкое стекло (glass) -->
-    <UiModal v-if="sheet || modal" :model-value="open && asSheet" title="Город" :glass="modal" :panel-class="modal ? '' : '[--lg-tint:rgb(22_19_22/0.92)]'" @update:model-value="open = $event">
+    <UiModal v-if="sheet || modal" :model-value="open && asSheet" title="Город" :glass="modal" :clear="clear" :panel-class="modal ? '' : '[--lg-tint:rgb(22_19_22/0.92)]'" @update:model-value="open = $event">
       <div class="-mx-2">
         <button type="button" class="flex w-full items-center gap-2 rounded-lg px-3 py-3.5 text-left text-base text-accent-text hover:bg-white/10" @click="onDetect">
           <UiIcon name="locate" :size="18" />

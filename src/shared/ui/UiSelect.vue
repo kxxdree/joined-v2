@@ -6,10 +6,10 @@ import UiModal from './UiModal.vue'
 /**
  * Стеклянный выпадающий список вместо нативного select. Пустая строка = allLabel; allLabel false - без пункта «Все»;
  * inline - без «пилюли», для строки поиска; на телефоне выбор открывается нижней модалкой (sheet: false - всегда выпадашка,
- * modal - всегда модалка, и на десктопе)
+ * modal - всегда модалка, и на десктопе; clear - модалка из чистого стекла, страница вокруг не затемняется)
  */
 const props = withDefaults(
-  defineProps<{ options: readonly { id: T; name: string }[]; allLabel?: string | false; icon?: string; label?: string; inline?: boolean; sheet?: boolean; modal?: boolean }>(),
+  defineProps<{ options: readonly { id: T; name: string }[]; allLabel?: string | false; icon?: string; label?: string; inline?: boolean; sheet?: boolean; modal?: boolean; clear?: boolean }>(),
   { allLabel: 'Все', icon: undefined, label: undefined, sheet: true },
 )
 const model = defineModel<T | ''>({ required: true })
@@ -70,7 +70,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
     </Transition>
 
     <!-- Телефон (или modal): выбор в модалке, пункты крупнее; modal (hero на главной) - лёгкое стекло (glass) -->
-    <UiModal v-if="sheet || modal" :model-value="open && asSheet" :title="label" :glass="modal" :panel-class="modal ? '' : '[--lg-tint:rgb(22_19_22/0.92)]'" @update:model-value="open = $event">
+    <UiModal v-if="sheet || modal" :model-value="open && asSheet" :title="label" :glass="modal" :clear="clear" :panel-class="modal ? '' : '[--lg-tint:rgb(22_19_22/0.92)]'" @update:model-value="open = $event">
       <div role="listbox" class="-mx-2">
         <button
           v-for="o in items"
