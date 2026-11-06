@@ -59,11 +59,13 @@ const reset = () => {
       <div class="mt-3"><UiPills v-model="filters.genres" :options="genres" multiple /></div>
     </section>
 
-    <!-- Сетка как у артистов: три колонки, на больших экранах пять; на телефоне от края до края -->
-    <section class="mx-auto w-full max-w-7xl pt-3 sm:px-6 lg:px-12">
-      <div v-if="results.length" class="grid grid-cols-3 gap-0.5 lg:grid-cols-5">
-        <VenueCard v-for="v in results" :key="v.slug" :venue="v" />
-      </div>
+    <!-- Список: фото, название, формат и метро; быстро просматривается и вмещает больше мест на экран -->
+    <section class="container-x pt-3">
+      <ul v-if="results.length">
+        <li v-for="v in results" :key="v.slug" class="hair-row py-0">
+          <VenueCard :venue="v" />
+        </li>
+      </ul>
       <UiEmpty v-else icon="glass" title="Ничего не нашлось">
         <button type="button" class="btn-dark" @click="reset">Сбросить фильтры</button>
       </UiEmpty>
