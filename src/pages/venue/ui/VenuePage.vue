@@ -3,7 +3,6 @@ import { events, isUpcoming } from "@entities/event";
 import { formatName, getVenue } from "@entities/venue";
 import { FavoriteButton } from "@features/favorites";
 import { ShareButton } from "@features/share";
-import { weekdayIndex } from "@shared/lib";
 import { UiIcon, UiPageHead, UiTabs } from "@shared/ui";
 import { EventCalendar } from "@widgets/event-calendar";
 import VenueAbout from "./VenueAbout.vue";
@@ -33,23 +32,13 @@ watch(tab, (t) => {
 });
 
 const venueEvents = events.filter((e) => e.venue === v.slug && isUpcoming(e));
-const todayIdx = weekdayIndex();
-
-// из карточки афиши: вкладка брони короче, поэтому возвращаемся к началу страницы
-const openBooking = () => {
-  tab.value = "booking";
-  window.scrollTo({ top: 0, behavior: "smooth" });
-};
 </script>
 
 <template>
   <div>
     <!-- Шапка как в профиле и вкладки - ничего лишнего над содержимым -->
     <div class="container-x">
-      <UiPageHead :title="v.name" back="/venues" back-label="Все заведения">
-        <template #caption>
-          {{ formatName(v.format) }} · {{ v.metro ? `м. ${v.metro}` : v.address }} · <span class="whitespace-nowrap">{{ v.hours[todayIdx]!.time }}</span>
-        </template>
+      <UiPageHead :title="v.name" :caption="formatName(v.format)" back="/venues" back-label="Все заведения">
         <template #actions>
           <FavoriteButton kind="venues" :id="v.slug" class="size-10" />
           <ShareButton :title="v.name" class="size-10" />
@@ -58,10 +47,10 @@ const openBooking = () => {
     </div>
     <UiTabs v-model="tab" :tabs="tabs" class="container-x" />
 
-    <!-- Галерея, меню и афиша на телефоне - от края до края, остальные вкладки с обычными отступами -->
-    <section class="mx-auto w-full max-w-7xl pt-3 sm:px-6 lg:px-12" :class="{ 'px-4': tab !== 'gallery' && tab !== 'menu' && tab !== 'schedule' }">
+    <!-- Галерея и меню на телефоне - от края до края, остальные вкладки с обычными отступами -->
+    <section class="mx-auto w-full max-w-7xl pt-3 sm:px-6 lg:px-12" :class="{ 'px-4': tab !== 'gallery' && tab !== 'menu' }">
       <VenueGallery v-if="tab === 'gallery'" :photos="v.gallery" />
-      <EventCalendar v-else-if="tab === 'schedule'" :events="venueEvents" @book="openBooking" />
+      <EventCalendar v-else-if="tab === 'schedule'" :events="venueEvents" />
       <VenueAbout v-else-if="tab === 'about'" :venue="v" />
       <VenueMenu v-else-if="tab === 'menu'" :venue="v" />
 

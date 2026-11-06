@@ -1,117 +1,32 @@
 <script setup lang="ts">
 import { getArtist } from '@entities/artist'
 import { byDateTime, type EventItem } from '@entities/event'
-import { getVenue } from '@entities/venue'
-import { ShareButton } from '@features/share'
-import { addDays, dayNumber, formatDay, formatWeekday, formatWeekdayLong, todayISO } from '@shared/lib'
-import { UiEmpty, UiIcon } from '@shared/ui'
+import { formatDay, formatWeekday } from '@shared/lib'
+import { UiEmpty } from '@shared/ui'
 
-/** Афиша заведения: полоса дней и плитки выбранного дня встык, как галерея (слева афиша, справа её размытые цвета).
- * «Забронировать» - событие book */
+/** Афиша заведения: простой список, как «Ближайшие концерты» у артиста. Длинная афиша подгружается порциями */
 const props = defineProps<{ events: EventItem[] }>()
-const emit = defineEmits<{ book: [] }>()
 
+const STEP = 15
+const shown = ref(STEP)
 const sorted = computed(() => [...props.events].sort(byDateTime))
-const today = todayISO()
+const visible = computed(() => sorted.value.slice(0, shown.value))
 
-// недели отсчитываем от сегодня; в полосе только те, где есть выступления - стрелки не ведут в пустоту
-const weekOf = (iso: string) => Math.floor((Date.parse(iso) - Date.parse(today)) / 864e5 / 7)
-const eventDays = computed(() => new Set(sorted.value.map(e => e.date)))
-const weeks = computed(() => [...new Set(sorted.value.map(e => weekOf(e.date)))].sort((a, b) => a - b))
-
-const selected = ref(sorted.value[0]?.date ?? today)
-const weekIdx = computed(() => weeks.value.indexOf(weekOf(selected.value)))
-const days = computed(() => Array.from({ length: 7 }, (_, i) => addDays(today, weekOf(selected.value) * 7 + i)))
-const dayEvents = computed(() => sorted.value.filter(e => e.date === selected.value))
-
-const goWeek = (step: number) => {
-  const week = weeks.value[weekIdx.value + step]
-  const first = sorted.value.find(e => weekOf(e.date) === week)
-  if (first) selected.value = first.date
-}
-
-const artistNames = (e: EventItem) =>
-  e.artists.map(a => getArtist(a)?.name).filter(Boolean).join(', ') || 'Резиденты заведения'
-
-// Файл для календаря: время локальное для заведения; длительности в данных нет, поэтому только начало
-const addToCalendar = (e: EventItem) => {
-  const esc = (s: string) => s.replace(/[\\,;]/g, '\\$&')
-  const address = getVenue(e.venue)?.address ?? ''
-  const ics = [
-    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Joined//RU', 'BEGIN:VEVENT',
-    `UID:${e.id}@joined`,
-    `DTSTAMP:${new Date().toISOString().replace(/[-:]|\.\d+/g, '')}`,
-    `DTSTART:${e.date.replaceAll('-', '')}T${e.time.replace(':', '')}00`,
-    `SUMMARY:${esc(e.title)}`,
-    `LOCATION:${esc(address)}`,
-    'END:VEVENT', 'END:VCALENDAR',
-  ].join('\r\n')
-  const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }))
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `${e.title}.ics`
-  link.click()
-  URL.revokeObjectURL(url)
-}
+const lineup = (e: EventItem) => e.artists.map(getArtist).filter(a => !!a)
 </script>
 
 <template>
   <div v-if="sorted.length">
-    <!-- Полоса дней - те же плоские кнопки, что вкладки и жанры; на телефоне с отступами, плитки ниже от края до края -->
-    <div class="px-4 sm:px-0">
-      <div class="flex items-center gap-1 sm:max-w-xl">
-        <button v-if="weeks.length > 1" type="button" class="btn-icon size-9" :disabled="weekIdx <= 0" aria-label="Раньше" @click="goWeek(-1)">
-          <UiIcon name="chevron-left" :size="18" />
-        </button>
-        <div class="grid min-w-0 flex-1 grid-cols-7 gap-1">
-          <button
-            v-for="d in days"
-            :key="d"
-            type="button"
-            class="pill flex-col gap-0 px-0 py-1 disabled:opacity-30"
-            :class="{ 'pill-active': d === selected }"
-            :disabled="!eventDays.has(d)"
-            :aria-pressed="d === selected"
-            :aria-label="formatDay(d)"
-            @click="selected = d"
-          >
-            <span class="font-mono text-[10px] uppercase">{{ formatWeekday(d) }}</span>
-            <span class="tabular-nums">{{ dayNumber(d) }}</span>
-          </button>
-        </div>
-        <button v-if="weeks.length > 1" type="button" class="btn-icon size-9" :disabled="weekIdx >= weeks.length - 1" aria-label="Позже" @click="goWeek(1)">
-          <UiIcon name="chevron-right" :size="18" />
-        </button>
-      </div>
-      <h2 class="mono-cap mt-5">{{ formatWeekdayLong(selected) }}, {{ formatDay(selected) }}</h2>
-    </div>
-
-    <!-- Плитки встык и без скруглений, как галерея и каталог -->
-    <div class="mt-3 grid grid-cols-1 gap-0.5">
-      <article v-for="e in dayEvents" :key="e.id" class="grid min-h-56 min-w-0 grid-cols-[2fr_3fr] overflow-hidden bg-brown sm:min-h-64 sm:grid-cols-2">
-        <!-- Афиша: картинка-постер видна целиком на своём размытом фоне, обычное фото заполняет блок -->
-        <div class="relative overflow-hidden">
-          <img v-if="e.posters?.length" :src="e.posters[0]" alt="" loading="lazy" class="absolute -inset-1/5 size-[140%] max-w-none object-cover blur-2xl">
-          <img :src="e.posters?.[0] ?? e.photo" :alt="e.title" loading="lazy" class="absolute inset-0 size-full" :class="e.posters?.length ? 'object-contain' : 'object-cover'">
-        </div>
-
-        <!-- Панель: та же картинка, отражённая и размытая, сверху затемнение - цвета продолжают афишу, но не спорят с текстом -->
-        <div class="relative flex min-w-0 flex-col gap-4 overflow-hidden p-3 sm:p-5">
-          <img :src="e.posters?.[0] ?? e.photo" alt="" loading="lazy" class="absolute -inset-1/5 size-[140%] max-w-none -scale-x-100 object-cover blur-3xl" aria-hidden="true">
-          <div class="absolute inset-0 bg-ink/70" />
-
-          <div class="relative min-w-0">
-            <h3 class="font-medium wrap-break-word sm:text-lg">{{ e.title }}</h3>
-            <p class="mono-cap mt-1 line-clamp-2">{{ e.time }} · {{ artistNames(e) }}</p>
-          </div>
-
-          <div class="relative mt-auto flex flex-wrap items-center gap-1">
-            <ShareButton :title="e.title" class="size-9" />
-            <button type="button" class="btn-icon size-9" aria-label="Добавить в календарь" @click="addToCalendar(e)"><UiIcon name="calendar" :size="18" /></button>
-            <button type="button" class="btn-dark h-9 flex-1 px-3 sm:ml-auto sm:flex-none" @click="emit('book')">Забронировать</button>
-          </div>
-        </div>
-      </article>
+    <ul>
+      <li v-for="e in visible" :key="e.id" class="hair-row py-4 first:pt-0">
+        <h3 class="text-xl font-medium tracking-[-0.02em] sm:text-2xl">{{ e.title }}</h3>
+        <p class="mono-cap mt-2">
+          {{ formatWeekday(e.date) }}, {{ formatDay(e.date) }} · {{ e.time }}<template v-for="(a, i) in lineup(e)" :key="a.slug">{{ i ? ', ' : ' · ' }}<NuxtLink :to="`/artists/${a.slug}`" class="underline decoration-white/30 underline-offset-4 hover:text-white hover:decoration-white">{{ a.name }}</NuxtLink></template>
+        </p>
+      </li>
+    </ul>
+    <div v-if="shown < sorted.length" class="mt-6 text-center">
+      <button type="button" class="btn-dark" @click="shown += STEP">Показать ещё</button>
     </div>
   </div>
   <UiEmpty v-else icon="calendar" title="Выступлений пока нет" text="В эти даты бар работает в обычном режиме" />
