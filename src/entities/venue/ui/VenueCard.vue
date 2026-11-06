@@ -3,7 +3,7 @@ import { UiPhoto } from '@shared/ui'
 import { formatName } from '../model/dictionaries'
 import type { Venue } from '../model/types'
 
-/** Строка списка заведений: фото, название, формат и метро */
+/** Строка списка заведений: фото, название, формат и адрес */
 defineProps<{ venue: Venue }>()
 </script>
 
@@ -15,7 +15,7 @@ defineProps<{ venue: Venue }>()
 
     <div class="min-w-0 flex-1">
       <h3 class="truncate text-xl font-medium tracking-[-0.03em] sm:text-3xl">{{ venue.name }}</h3>
-      <p class="mono-cap mt-1 truncate">{{ formatName(venue.format) }} · {{ venue.metro ? `м. ${venue.metro}` : venue.address }}</p>
+      <p class="mono-cap mt-1 truncate">{{ formatName(venue.format) }} · {{ venue.address }}</p>
     </div>
   </NuxtLink>
 </template>

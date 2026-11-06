@@ -59,7 +59,7 @@ const reset = () => {
       <div class="mt-3"><UiPills v-model="filters.genres" :options="genres" multiple /></div>
     </section>
 
-    <!-- Список: фото, название, формат и метро; быстро просматривается и вмещает больше мест на экран -->
+    <!-- Список: фото, название, формат и адрес; быстро просматривается и вмещает больше мест на экран -->
     <section class="container-x pt-3">
       <ul v-if="results.length">
         <li v-for="v in results" :key="v.slug" class="hair-row py-0">
