@@ -9,8 +9,8 @@ import UiIcon from "./UiIcon.vue";
 /** panelClass - доп. классы для самой панели (например, плотнее фон);
  * glass - лёгкое стекло .glass-modal. Размывает страницу слой-затемнение: он «корень фона» для панели,
  * поэтому собственный blur панели страницу не видит;
- * clear - чистое стекло .glass-pure: мягкое затемнение отдельным слоем РЯДОМ с панелью, а не вокруг неё - иначе слой стал бы «корнем фона»
- * и панель перестала бы размывать страницу. Панель появляется только сдвигом: при opacity меньше 1 сквозь стекло виден резкий текст страницы;
+ * clear - чистое стекло .glass-pure: без затемнения, страница вокруг резкая, размывает сама панель.
+ * Появляется только сдвигом: при opacity меньше 1 сквозь стекло виден резкий текст страницы;
  * bare - без панели: только затемнение, блокировка прокрутки и Esc, содержимое рисует сам вызывающий (просмотр фото) */
 withDefaults(defineProps<{ title?: string; wide?: boolean; panelClass?: string; glass?: boolean; clear?: boolean; bare?: boolean }>(), { wide: false, panelClass: "", glass: false, clear: false, bare: false });
 const open = defineModel<boolean>({ required: true });
@@ -49,7 +49,7 @@ onBeforeUnmount(() => {
     <Transition
       :duration="clear ? 300 : undefined"
       :enter-active-class="clear ? '[&>div]:transition [&>div]:duration-300 [&>div]:ease-[var(--ease-liquid)]' : 'transition duration-300 ease-[var(--ease-liquid)]'"
-      :enter-from-class="clear ? '[&>[role=dialog]]:translate-y-6 [&>[role=dialog]]:scale-[0.98] [&>[aria-hidden]]:opacity-0' : 'opacity-0 [&>div]:translate-y-6 [&>div]:scale-[0.98]'"
+      :enter-from-class="clear ? '[&>div]:translate-y-6 [&>div]:scale-[0.98]' : 'opacity-0 [&>div]:translate-y-6 [&>div]:scale-[0.98]'"
       :leave-active-class="clear ? '[&>div]:transition [&>div]:duration-200' : 'transition duration-200'"
       :leave-to-class="clear ? '[&>div]:opacity-0' : 'opacity-0'"
     >
@@ -59,7 +59,6 @@ onBeforeUnmount(() => {
         :class="bare ? 'items-center bg-black/85' : clear ? 'items-end sm:items-center sm:p-6' : ['items-end bg-black/45 sm:items-center sm:p-6', glass ? 'backdrop-blur-lg' : 'backdrop-blur-[3px]']"
         @click.self="open = false"
       >
-        <div v-if="clear" class="absolute inset-0 bg-black/25 backdrop-blur-[6px]" aria-hidden="true" @click="open = false" />
         <slot v-if="bare" />
         <div
           v-else
