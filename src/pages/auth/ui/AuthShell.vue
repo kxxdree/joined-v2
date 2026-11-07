@@ -14,7 +14,7 @@ const modes = [
 <template>
   <!-- Карточка из матового стекла по центру, как онбординг-окно: за ней тёплое свечение, чтобы стеклу было что размывать -->
   <section
-    class="relative isolate grid place-items-center overflow-hidden px-4 py-10"
+    class="relative isolate grid grid-cols-1 place-items-center overflow-hidden px-4 py-10"
     :class="background ? '-mt-19 min-h-dvh pt-29 sm:-mt-20 sm:pt-30' : 'min-h-[calc(100dvh-6rem)]'"
   >
     <!-- фото: кадр по лицу, лёгкое затемнение под карточку и плавный переход в цвет страницы снизу -->
@@ -28,27 +28,19 @@ const modes = [
       <div class="absolute top-[30%] left-[30%] size-[min(60vw,28rem)] -translate-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(69_48_39/0.9),transparent)]" />
     </div>
 
-    <div class="glass glass-clear lg-refract w-full max-w-md rounded-[2.5rem] p-6 sm:p-8">
+    <div class="glass glass-clear lg-refract w-full max-w-md min-w-0 rounded-[2.5rem] p-6 sm:p-8">
       <!-- Шапка: назад, переключатель «Вход | Регистрация», закрыть -->
-      <div class="mb-8 flex items-center justify-between gap-3">
+      <div class="mb-8 flex items-center justify-between gap-2">
         <NuxtLink to="/" class="btn-icon size-9 bg-transparent" aria-label="Назад на главную"><UiIcon name="chevron-left" :size="20" /></NuxtLink>
-        <nav class="flex rounded-full bg-black/25 p-1 text-xs font-semibold" aria-label="Вход или регистрация">
-          <NuxtLink
-            v-for="m in modes"
-            :key="m.to"
-            :to="m.to"
-            class="rounded-full px-3 py-1.5 transition-colors"
-            :class="route.path === m.to ? 'bg-white text-ink' : 'text-white/70 hover:text-white'"
-          >
-            {{ m.label }}
-          </NuxtLink>
+        <nav class="segmented min-w-0 grid-cols-[auto_auto] [&>a]:px-1.5 [&>a]:text-[11px] min-[360px]:[&>a]:px-3 min-[360px]:[&>a]:text-xs" aria-label="Вход или регистрация">
+          <NuxtLink v-for="m in modes" :key="m.to" :to="m.to">{{ m.label }}</NuxtLink>
         </nav>
         <NuxtLink to="/" class="btn-icon size-9 bg-transparent" aria-label="Закрыть"><UiIcon name="x" :size="20" /></NuxtLink>
       </div>
 
       <!-- Заголовок градиентом белый → персик, как кремовый текст на стекле.
            Размер под самое длинное слово («Присоединяйтесь»): на телефоне и десктопе без переноса -->
-      <h1 class="h-display text-liquid text-2xl leading-[1.05] wrap-break-word sm:text-[2rem]">{{ title }}</h1>
+      <h1 class="h-display text-liquid text-xl leading-[1.05] min-[360px]:text-2xl sm:text-[2rem]">{{ title }}</h1>
       <p class="mt-3 mb-8 text-sm text-soft">{{ subtitle }}</p>
       <slot />
     </div>
