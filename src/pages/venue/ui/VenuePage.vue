@@ -111,7 +111,7 @@ const todayIdx = weekdayIndex();
 
     <section class="container-x pt-10">
       <div v-if="tab === 'schedule'">
-        <h2 class="h-display mb-8 text-4xl sm:text-5xl">Музыкальный календарь</h2>
+        <h2 class="h-display mb-8 text-4xl sm:text-5xl">Мероприятия</h2>
         <EventCalendar :events="venueEvents" :title="v.name" @open="storyId = $event" />
       </div>
 
