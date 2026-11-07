@@ -48,7 +48,7 @@ const artistNames = (e: EventItem) =>
       </div>
 
       <div v-for="[date, items] in grouped" :key="date" class="grid gap-4 border-t border-line py-5 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-8">
-        <h3 class="h-display text-[16vw] leading-[0.85] uppercase sm:text-8xl lg:text-9xl" :class="isWeekend(date) ? 'text-sand' : ''">
+        <h3 class="h-display text-[16vw] leading-[0.85] uppercase sm:text-8xl md:text-7xl lg:text-9xl" :class="isWeekend(date) ? 'text-sand' : ''">
           {{ monthShort(date) }} {{ dayNumber(date) }}
         </h3>
 

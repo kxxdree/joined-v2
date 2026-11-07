@@ -3,8 +3,9 @@
 @source "../../src";
 
 @theme {
-  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Unbounded", "Manrope", ui-sans-serif, system-ui, sans-serif;
+  /* Один шрифт на весь сайт - Bounded (Vlad Churkin, SIL OFL): переменный, вес 200-900; текст и заголовки отличаются начертанием */
+  --font-sans: "Bounded Text", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Bounded", ui-sans-serif, system-ui, sans-serif;
 
   --color-ink: #161316;
   --color-surface: rgb(26 21 22 / 0.75);
@@ -62,6 +63,26 @@
     0 2px 3px rgb(0 0 0 / 0.45),
     0 12px 28px -10px rgb(0 0 0 / 0.85);
   --accent-ink: #ffffff;
+}
+
+/* Шрифт сайта: один переменный файл со всеми начертаниями. Рядом в public/fonts лежат прежние Akony и Condens */
+@font-face {
+  font-family: "Bounded";
+  src: url("/fonts/bounded/Bounded-Variable.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Тот же файл для обычного текста: Bounded в 1,3 раза шире прежнего Manrope, под который свёрстан текст - уменьшаем только его.
+   Заголовки (font-display) остаются в полный размер. Файл скачивается один раз */
+@font-face {
+  font-family: "Bounded Text";
+  src: url("/fonts/bounded/Bounded-Variable.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+  size-adjust: 80%;
 }
 
 @layer base {
@@ -352,7 +373,7 @@
 
   /* ---------- Типографика ---------- */
   .h-display {
-    /* Unbounded широкий - трекинг мягче, чем был у Inter Tight */
+    /* заголовки Bounded */
     @apply font-display font-medium tracking-[-0.03em] leading-[0.95];
     text-shadow: 0 2px 30px rgb(0 0 0 / 0.35);
   }
@@ -417,4 +438,12 @@
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
   }
+}
+
+/* Заголовки не рвутся посреди слова (вне слоёв - сильнее утилит вроде wrap-break-word и hyphens-auto) */
+.h-display,
+.font-display {
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: manual;
 }
