@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useCurrentCity } from "@entities/city";
-import { events } from "@entities/event";
 import { VenueCard, venues } from "@entities/venue";
 import { FavoriteButton } from "@features/favorites";
 import { applyVenueFilters, countExtra, emptyFilters, VenueFilters, type VenueFilterState } from "@features/filter-venues";
@@ -22,7 +21,6 @@ const filters = ref<VenueFilterState>({
 const results = computed(() =>
   applyVenueFilters(
     venues.filter((v) => v.city === cityId.value),
-    events,
     filters.value,
   ),
 );
