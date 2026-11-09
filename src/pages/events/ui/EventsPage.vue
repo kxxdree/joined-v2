@@ -98,7 +98,8 @@ watch([genre, period, cityId, q], () => {
 
     <section class="container-x">
       <!-- Афиша-постер: крупная дата слева, события дня справа -->
-      <div v-if="grouped.length" class="card p-5 sm:p-10">
+      <!-- стекло, как карточка входа, но без светлой кромки: фон просвечивает и размыт; тонировка чуть плотнее - под ней много текста -->
+      <div v-if="grouped.length" class="card glass-clear p-5 [--lg-tint:rgb(12_9_9/0.28)] before:hidden sm:p-10">
         <div class="mb-6 flex items-start justify-between gap-4 text-xs tracking-widest uppercase sm:mb-8">
           <span class="text-soft">Афиша<br />{{ city.name }}</span>
         </div>
