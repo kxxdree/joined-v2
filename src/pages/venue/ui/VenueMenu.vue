@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import type { Venue } from '@entities/venue'
-import { UiEmpty, UiIcon, UiModal, UiPhoto } from '@shared/ui'
+import { UiEmpty, UiIcon, UiLightbox, UiPhoto } from '@shared/ui'
 
 const props = defineProps<{ venue: Venue }>()
 const tab = ref<'bar' | 'kitchen'>('bar')
 const photos = computed(() => props.venue.menu[tab.value])
 
-// Просмотр страницы меню крупно, с листанием - как в галерее
+// Просмотр страниц меню - тот же слайдер, что в галерее
 const current = ref<number | null>(null)
-const open = computed({ get: () => current.value !== null, set: (v) => { if (!v) current.value = null } })
-const step = (d: number) => {
-  if (current.value !== null) current.value = Math.min(Math.max(current.value + d, 0), photos.value.length - 1)
-}
+const menuAlt = (i: number) => `Меню, страница ${i + 1}`
 </script>
 
 <template>
@@ -24,27 +21,24 @@ const step = (d: number) => {
       </div>
     </div>
     <!-- Страницы меню - фото, загруженные заведением -->
-    <div v-if="photos.length" class="grid grid-cols-2 gap-3 md:grid-cols-3">
+    <!-- Сетка как в галерее: всегда 3 колонки, вертикальные плитки 3:4, тонкие зазоры -->
+    <div v-if="photos.length" class="grid grid-cols-3 gap-px">
       <button
         v-for="(src, i) in photos"
         :key="src"
-        class="group overflow-hidden rounded-2xl"
+        type="button"
+        class="group relative aspect-3/4 overflow-hidden bg-ink"
         :aria-label="`Открыть страницу меню ${i + 1}`"
         @click="current = i"
       >
-        <UiPhoto :src="src" :alt="`Меню, страница ${i + 1}`" class="aspect-3/4 transition-transform duration-700 ease-liquid group-hover:scale-[1.03]" />
+        <UiPhoto :src="src" :alt="menuAlt(i)" class="absolute! inset-0" />
+        <!-- затемнение при наведении, как в галерее -->
+        <span class="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-150 group-hover:bg-black/40 group-focus-visible:bg-black/40" />
       </button>
     </div>
     <UiEmpty v-else icon="utensils" title="Меню пока не загружено" :text="`Заведение ещё не добавило меню ${tab === 'bar' ? 'бара' : 'кухни'}`" />
 
-    <UiModal v-model="open" :title="`${tab === 'bar' ? 'Бар' : 'Кухня'} · ${(current ?? 0) + 1} / ${photos.length}`" wide>
-      <!-- целиком, без обрезки: фото меню бывают любых пропорций -->
-      <img v-if="current !== null" :src="photos[current]!" :alt="`Меню, страница ${current + 1}`" class="mx-auto max-h-[70vh] w-auto rounded-3xl object-contain">
-
-      <div class="mt-4 flex justify-between">
-        <button class="btn-icon" :disabled="!current" aria-label="Предыдущая страница" @click="step(-1)"><UiIcon name="chevron-left" :size="20" /></button>
-        <button class="btn-icon" :disabled="current === photos.length - 1" aria-label="Следующая страница" @click="step(1)"><UiIcon name="chevron-right" :size="20" /></button>
-      </div>
-    </UiModal>
+    <!-- contain: страницы меню бывают любых пропорций - показываем целиком, без обрезки -->
+    <UiLightbox v-model="current" :photos="photos" :alt="menuAlt" contain />
   </div>
 </template>

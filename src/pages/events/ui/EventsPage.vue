@@ -7,7 +7,6 @@ import { CitySelect } from "@features/select-city";
 import { type GenreId, genres } from "@shared/config";
 import { addDays, dayNumber, formatPrice, formatWeekdayLong, isWeekend, monthShort, plural, todayISO } from "@shared/lib";
 import { UiEmpty, UiIcon, UiPills } from "@shared/ui";
-import { EventStories } from "@widgets/event-stories";
 
 useHead({ title: "Афиша - Joined" });
 
@@ -61,17 +60,6 @@ const grouped = computed(() => {
   return [...map.entries()];
 });
 
-// Истории: клик по событию открывает его афиши (листаются только внутри этого события).
-// Открытое событие - в ?event=: по такой ссылке (в т.ч. старые /events/:id) истории открываются сразу
-const storyId = ref<string | null>(typeof route.query.event === "string" ? route.query.event : null);
-watch(storyId, (id) => navigateTo({ query: { ...route.query, event: id ?? undefined } }, { replace: true }));
-// с модификаторами (новая вкладка и т.п.) ссылка работает как обычно
-const openStory = (e: MouseEvent, id: string) => {
-  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-  e.preventDefault();
-  storyId.value = id;
-};
-
 // Длинная афиша: дни подгружаются порциями, а длинный день свёрнут до первых событий
 const DAYS_STEP = 7;
 const PER_DAY = 5;
@@ -87,13 +75,17 @@ watch([genre, period, cityId, q], () => {
 
 <template>
   <div>
-    <section class="container-x pt-12 pb-12 text-center sm:pt-20">
-      <h1 class="h-display text-[17vw] sm:text-8xl lg:text-[9rem]">Афиша</h1>
-      <p class="mt-4 text-white/80">Концерты и вечеринки твоего города</p>
-      <!-- Строка поиска, как на странице мест: поле + город -->
-      <div class="search-bar relative z-30 mx-auto mt-8 flex max-w-2xl flex-col gap-1 p-2 sm:flex-row">
-        <label class="flex flex-1 items-center gap-3 px-3">
-          <UiIcon name="search" class="text-white/60" :size="18" />
+    <!-- Шапка в стиле самой афиши: компактный заголовок, поиск линией, текстовые фильтры с подписями -->
+    <section class="container-x pt-10 pb-8 sm:pt-16 sm:pb-10">
+      <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-2">
+        <h1 class="h-display text-6xl sm:text-7xl">Афиша</h1>
+        <p class="text-xs tracking-widest text-muted uppercase sm:pb-2">Концерты и вечеринки твоего города</p>
+      </div>
+
+      <!-- Строка поиска, как на странице мест: стеклянная плашка, поле + город -->
+      <div class="search-bar relative z-30 mt-6 flex flex-col gap-1 p-2 sm:flex-row">
+        <label class="flex min-w-0 flex-1 items-center gap-3 px-3">
+          <UiIcon name="search" class="shrink-0 text-white/60" :size="18" />
           <input
             v-model="q"
             type="search"
@@ -104,8 +96,13 @@ watch([genre, period, cityId, q], () => {
         </label>
         <CitySelect class="[&>button]:h-full [&>button]:w-full" />
       </div>
-      <div class="mt-6"><UiPills v-model="genre" :options="genres" center /></div>
-      <div class="mt-3"><UiPills v-model="period" :options="periods" all-label="Любая дата" center /></div>
+
+      <dl class="mt-5 grid gap-y-3 sm:grid-cols-[4.5rem_minmax(0,1fr)] sm:gap-x-6">
+        <dt class="text-[0.65rem] tracking-widest text-soft uppercase sm:pt-1.5">Жанр</dt>
+        <dd><UiPills v-model="genre" :options="genres" variant="text" /></dd>
+        <dt class="text-[0.65rem] tracking-widest text-soft uppercase max-sm:mt-2 sm:pt-1.5">Дата</dt>
+        <dd><UiPills v-model="period" :options="periods" all-label="Любая" variant="text" /></dd>
+      </dl>
     </section>
 
     <section class="container-x">
@@ -116,20 +113,20 @@ watch([genre, period, cityId, q], () => {
         </div>
 
         <div v-for="[date, items] in visible" :key="date" class="grid gap-4 border-t border-line py-5 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-8">
-          <h2 class="h-display text-[16vw] leading-[0.85] uppercase sm:text-8xl lg:text-9xl" :class="isWeekend(date) ? 'text-sand' : ''">
+          <h2 class="h-display text-[16vw] leading-[0.85] uppercase sm:text-8xl md:text-7xl lg:text-9xl" :class="isWeekend(date) ? 'text-sand' : ''">
             {{ monthShort(date) }} {{ dayNumber(date) }}
           </h2>
 
           <div class="space-y-4 md:pt-2">
             <p class="text-xs tracking-widest uppercase" :class="isWeekend(date) ? 'text-accent-text' : 'text-muted'">{{ formatWeekdayLong(date) }}</p>
-            <!-- клик - афиша в историях; ссылка с ?event= - для новой вкладки -->
-            <a v-for="e in expanded.has(date) ? items : items.slice(0, PER_DAY)" :key="e.id" :href="`/events?event=${e.id}`" class="group flex items-baseline justify-between gap-4" @click="openStory($event, e.id)">
+            <!-- события пока не открываются - только строка с названием, местом и ценой -->
+            <div v-for="e in expanded.has(date) ? items : items.slice(0, PER_DAY)" :key="e.id" class="flex items-baseline justify-between gap-4">
               <div class="min-w-0">
-                <p class="font-medium uppercase transition-colors group-hover:text-sand">{{ e.title }}</p>
+                <p class="font-medium uppercase">{{ e.title }}</p>
                 <p class="mt-0.5 text-xs tracking-wider text-muted uppercase">{{ getVenue(e.venue)?.name }} · {{ e.time }}</p>
               </div>
               <span class="shrink-0 text-sm tabular-nums">от {{ formatPrice(minPrice(e)) }}</span>
-            </a>
+            </div>
             <button v-if="!expanded.has(date) && items.length > PER_DAY" class="text-xs tracking-widest text-accent-text uppercase transition-colors hover:text-sand" @click="expand(date)">
               Ещё {{ items.length - PER_DAY }} {{ plural(items.length - PER_DAY, ["событие", "события", "событий"]) }}
             </button>
@@ -140,7 +137,7 @@ watch([genre, period, cityId, q], () => {
           <button class="btn-dark" @click="daysShown += DAYS_STEP">Показать ещё</button>
         </div>
       </div>
-      <UiEmpty v-else icon="calendar" title="Событий не найдено" text="Попробуйте изменить запрос, жанр, дату или город.">
+      <UiEmpty v-else icon="calendar" title="Событий не найдено" text="">
         <button
           class="btn-dark"
           @click="
@@ -154,7 +151,5 @@ watch([genre, period, cityId, q], () => {
       </UiEmpty>
     </section>
 
-    <!-- все события, а не только выборка: по ссылке может прийти событие другого города или даты -->
-    <EventStories v-model="storyId" :events="events" />
   </div>
 </template>

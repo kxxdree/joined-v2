@@ -6,12 +6,13 @@ const nav = [
   { to: "/", label: "Главная" },
   { to: "/venues", label: "Места" },
   { to: "/events", label: "Афиша" },
-  { to: "/artists", label: "Артисты" },
+  // { to: "/artists", label: "Артисты" }, // раздел артистов временно скрыт
   { to: "/about", label: "О нас" },
 ];
 const partners = [
-  { to: "/register?role=venue", label: "Для заведений" },
-  { to: "/register?role=artist", label: "Для музыкантов" },
+  // заведения подключаем вручную: пишут нам, в ответ - ссылка на регистрацию (/register?role=venue)
+  { to: "mailto:hello@joined.ru?subject=Подключить заведение", label: "Для заведений" },
+  // { to: "/register?role=artist", label: "Для музыкантов" }, // раздел артистов временно скрыт
   { to: "/rules", label: "Условия сервиса" },
   { to: "/rules#privacy", label: "Конфиденциальность" },
 ];
@@ -25,7 +26,7 @@ const socials = [
 <template>
   <footer class="relative mt-32 overflow-hidden px-3 pb-3 sm:px-6 sm:pb-6">
     <div class="glass mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] [--lg-tint:rgb(255_255_255/0.02)] [--lg-blur:12px]">
-      <div class="grid gap-10 p-6 sm:p-10 md:grid-cols-[1.2fr_auto_auto_1.3fr] md:gap-14 lg:p-14">
+      <div class="grid grid-cols-1 gap-10 p-6 sm:p-10 lg:grid-cols-[1.2fr_auto_auto_1.3fr] lg:gap-14 lg:p-14">
         <div>
           <UiLogo />
           <p class="mt-4 max-w-xs text-sm text-soft">Места, сцены и музыка в одном месте</p>
@@ -33,7 +34,7 @@ const socials = [
             <a v-for="s in socials" :key="s.icon" href="#" :aria-label="s.label" class="btn-icon size-10"><UiIcon :name="s.icon" :size="18" /></a>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-10 md:contents">
+        <div class="grid min-w-0 grid-cols-1 gap-10 sm:grid-cols-2 lg:contents">
           <div>
             <h3 class="mb-5 text-sm text-white/50">Навигация</h3>
             <ul class="space-y-3 text-sm">

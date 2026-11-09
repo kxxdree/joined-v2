@@ -58,7 +58,7 @@ const todayIdx = weekdayIndex();
           <div class="pointer-events-none absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-ink" />
 
           <div class="absolute inset-0 grid place-items-center px-4">
-            <h1 class="h-display text-center text-[13vw] font-bold lowercase sm:text-8xl lg:text-9xl">{{ v.name }}</h1>
+            <h1 class="h-display text-center text-[8.5vw] font-bold lowercase xl:text-9xl">{{ v.name }}</h1>
           </div>
         </div>
 
@@ -111,7 +111,7 @@ const todayIdx = weekdayIndex();
 
     <section class="container-x pt-10">
       <div v-if="tab === 'schedule'">
-        <h2 class="h-display mb-8 text-4xl sm:text-5xl">Музыкальный календарь</h2>
+        <h2 class="h-display mb-8 text-4xl sm:text-5xl">Мероприятия</h2>
         <EventCalendar :events="venueEvents" :title="v.name" @open="storyId = $event" />
       </div>
 

@@ -34,12 +34,12 @@ const stats = [
       <div class="container-x my-auto flex flex-col items-center py-14">
         <h1 class="flex items-center gap-4 sm:gap-6">
           <span class="text-4xl font-medium tracking-[-0.04em] sm:text-6xl">Joined</span>
-          <span class="font-mono text-[10px] leading-snug tracking-[0.14em] text-white/85 uppercase sm:text-xs">Места и музыка<br />твоего города</span>
+          <span class="text-[10px] leading-snug font-semibold tracking-[0.08em] text-white/85 uppercase sm:text-xs">Места и музыка<br />твоего города</span>
         </h1>
 
         <!-- Поиск-фраза тем же моноширинным шрифтом: «Ищу [жанр] в городе [город] →».
              Жанр и город - подчёркнутые слова, выбор в стеклянных модалках; стрелка ведёт на «Бары и сцены» -->
-        <form class="mt-8 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-2 font-mono text-[11px] tracking-[0.14em] text-white/80 uppercase [text-shadow:0_1px_12px_rgb(0_0_0/0.7)] sm:text-xs" @submit.prevent="search">
+        <form class="mt-8 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-2 text-[11px] font-semibold tracking-[0.08em] text-white/80 uppercase [text-shadow:0_1px_12px_rgb(0_0_0/0.7)] sm:text-xs" @submit.prevent="search">
           <span>Ищу</span>
           <UiSelect v-model="genre" :options="genres" all-label="Любой жанр" label="Жанр" inline modal :class="[phraseWord, '[&>button]:w-auto']" />
           <span>в городе</span>

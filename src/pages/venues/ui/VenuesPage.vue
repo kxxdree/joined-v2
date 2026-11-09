@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useCurrentCity } from "@entities/city";
-import { events } from "@entities/event";
 import { VenueCard, venues } from "@entities/venue";
 import { FavoriteButton } from "@features/favorites";
 import { applyVenueFilters, countExtra, emptyFilters, VenueFilters, type VenueFilterState } from "@features/filter-venues";
@@ -22,7 +21,6 @@ const filters = ref<VenueFilterState>({
 const results = computed(() =>
   applyVenueFilters(
     venues.filter((v) => v.city === cityId.value),
-    events,
     filters.value,
   ),
 );
@@ -45,17 +43,20 @@ const reset = () => {
 
 <template>
   <div>
-    <section class="container-x pt-12 pb-10 text-center sm:pt-20">
-      <h1 class="h-display text-[14vw] sm:text-8xl lg:text-[8.5rem]">Бары и сцены</h1>
-      <p class="mt-4 text-white/80">{{ results.length }} {{ plural(results.length, ["место", "места", "мест"]) }} {{ city.where }}</p>
+    <!-- Шапка как на афише: компактный заголовок, стеклянная строка поиска, текстовые фильтры с подписью -->
+    <section class="container-x pt-10 pb-8 sm:pt-16 sm:pb-10">
+      <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-2">
+        <h1 class="h-display text-6xl sm:text-7xl">Бары и сцены</h1>
+        <p class="text-xs tracking-widest text-muted uppercase tabular-nums sm:pb-2">{{ results.length }} {{ plural(results.length, ["место", "места", "мест"]) }} {{ city.where }}</p>
+      </div>
 
-      <div class="search-bar relative z-30 mx-auto mt-8 flex max-w-2xl flex-col gap-1 p-2 sm:flex-row">
+      <div class="search-bar relative z-30 mt-6 flex flex-col gap-1 p-2 sm:flex-row">
         <label class="flex flex-1 items-center gap-3 px-3">
           <UiIcon name="search" class="text-white/60" :size="18" />
           <input
             v-model="filters.q"
             type="search"
-            placeholder="Название, улица или метро"
+            placeholder="Название заведения"
             class="w-full bg-transparent py-2.5 text-sm placeholder:text-white/50"
             aria-label="Поиск по заведениям"
           />
@@ -68,7 +69,10 @@ const reset = () => {
           </button>
         </div>
       </div>
-      <div class="mt-6"><UiPills v-model="filters.genres" :options="genres" multiple center /></div>
+      <dl class="mt-5 grid gap-y-3 sm:grid-cols-[4.5rem_minmax(0,1fr)] sm:gap-x-6">
+        <dt class="text-[0.65rem] tracking-widest text-soft uppercase sm:pt-1.5">Жанр</dt>
+        <dd><UiPills v-model="filters.genres" :options="genres" multiple variant="text" /></dd>
+      </dl>
     </section>
 
     <section class="container-x">
