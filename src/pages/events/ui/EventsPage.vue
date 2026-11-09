@@ -75,13 +75,17 @@ watch([genre, period, cityId, q], () => {
 
 <template>
   <div>
-    <section class="container-x pt-12 pb-12 text-center sm:pt-20">
-      <h1 class="h-display text-[17vw] sm:text-8xl lg:text-[9rem]">Афиша</h1>
-      <p class="mt-4 text-white/80">Концерты и вечеринки твоего города</p>
-      <!-- Строка поиска, как на странице мест: поле + город -->
-      <div class="search-bar relative z-30 mx-auto mt-8 flex max-w-2xl flex-col gap-1 p-2 sm:flex-row">
-        <label class="flex flex-1 items-center gap-3 px-3">
-          <UiIcon name="search" class="text-white/60" :size="18" />
+    <!-- Шапка в стиле самой афиши: компактный заголовок, поиск линией, текстовые фильтры с подписями -->
+    <section class="container-x pt-10 pb-8 sm:pt-16 sm:pb-10">
+      <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-2">
+        <h1 class="h-display text-6xl sm:text-7xl">Афиша</h1>
+        <p class="text-xs tracking-widest text-muted uppercase sm:pb-2">Концерты и вечеринки твоего города</p>
+      </div>
+
+      <!-- Строка поиска, как на странице мест: стеклянная плашка, поле + город -->
+      <div class="search-bar relative z-30 mt-6 flex flex-col gap-1 p-2 sm:flex-row">
+        <label class="flex min-w-0 flex-1 items-center gap-3 px-3">
+          <UiIcon name="search" class="shrink-0 text-white/60" :size="18" />
           <input
             v-model="q"
             type="search"
@@ -92,8 +96,13 @@ watch([genre, period, cityId, q], () => {
         </label>
         <CitySelect class="[&>button]:h-full [&>button]:w-full" />
       </div>
-      <div class="mt-6"><UiPills v-model="genre" :options="genres" center /></div>
-      <div class="mt-3"><UiPills v-model="period" :options="periods" all-label="Любая дата" center /></div>
+
+      <dl class="mt-5 grid gap-y-3 sm:grid-cols-[4.5rem_minmax(0,1fr)] sm:gap-x-6">
+        <dt class="text-[0.65rem] tracking-widest text-soft uppercase sm:pt-1.5">Жанр</dt>
+        <dd><UiPills v-model="genre" :options="genres" variant="text" /></dd>
+        <dt class="text-[0.65rem] tracking-widest text-soft uppercase max-sm:mt-2 sm:pt-1.5">Дата</dt>
+        <dd><UiPills v-model="period" :options="periods" all-label="Любая" variant="text" /></dd>
+      </dl>
     </section>
 
     <section class="container-x">
