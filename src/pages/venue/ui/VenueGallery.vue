@@ -64,7 +64,7 @@ onBeforeUnmount(() => { if (current.value !== null) close() })
       </button>
     </div>
 
-    <!-- Просмотр как в Instagram: фото 3:4, свайп со снапом, круглые стрелки поверх фото, точки снизу -->
+    <!-- Просмотр как в Instagram: фото 3:4, свайп со снапом, круглые стрелки поверх фото, счётчик сверху -->
     <Teleport to="body">
       <Transition enter-active-class="transition-opacity duration-200" enter-from-class="opacity-0" leave-active-class="transition-opacity duration-150" leave-to-class="opacity-0">
         <div v-if="current !== null" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/85" role="dialog" aria-modal="true" aria-label="Галерея" @click.self="close">
@@ -102,9 +102,9 @@ onBeforeUnmount(() => { if (current.value !== null) close() })
               <UiIcon name="chevron-right" :size="16" />
             </button>
 
-            <div v-if="photos.length > 1" class="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center gap-1">
-              <span v-for="(_, i) in photos" :key="i" class="size-1.5 rounded-full transition-colors" :class="i === current ? 'bg-white' : 'bg-white/40'" />
-            </div>
+            <span v-if="photos.length > 1" class="pointer-events-none absolute top-3 right-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white tabular-nums">
+              {{ current + 1 }}/{{ photos.length }}
+            </span>
           </div>
         </div>
       </Transition>
