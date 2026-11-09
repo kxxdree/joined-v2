@@ -128,7 +128,7 @@ watch([genre, period, cityId, q], () => {
           <button class="btn-dark" @click="daysShown += DAYS_STEP">Показать ещё</button>
         </div>
       </div>
-      <UiEmpty v-else icon="calendar" title="Событий не найдено" text="Попробуйте изменить запрос, жанр, дату или город.">
+      <UiEmpty v-else icon="calendar" title="Событий не найдено" text="">
         <button
           class="btn-dark"
           @click="
