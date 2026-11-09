@@ -6,12 +6,13 @@ const nav = [
   { to: "/", label: "Главная" },
   { to: "/venues", label: "Места" },
   { to: "/events", label: "Афиша" },
-  { to: "/artists", label: "Артисты" },
+  // { to: "/artists", label: "Артисты" }, // раздел артистов временно скрыт
   { to: "/about", label: "О нас" },
 ];
 const partners = [
-  { to: "/register?role=venue", label: "Для заведений" },
-  { to: "/register?role=artist", label: "Для музыкантов" },
+  // заведения подключаем вручную: пишут нам, в ответ - ссылка на регистрацию (/register?role=venue)
+  { to: "mailto:hello@joined.ru?subject=Подключить заведение", label: "Для заведений" },
+  // { to: "/register?role=artist", label: "Для музыкантов" }, // раздел артистов временно скрыт
   { to: "/rules", label: "Условия сервиса" },
   { to: "/rules#privacy", label: "Конфиденциальность" },
 ];

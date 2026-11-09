@@ -11,7 +11,7 @@ const links = [
   { to: '/', label: 'Главная' },
   { to: '/venues', label: 'Места' },
   { to: '/events', label: 'Афиша' },
-  { to: '/artists', label: 'Артисты' },
+  // { to: '/artists', label: 'Артисты' }, // раздел артистов временно скрыт
 ]
 
 const cabinet = computed(() => {

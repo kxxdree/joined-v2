@@ -7,14 +7,13 @@ type PublicRole = Exclude<Role, 'admin'>
 const route = useRoute()
 const { login } = useSession()
 
-const roles: { id: PublicRole; name: string }[] = [
-  { id: 'user', name: 'Слушатель' },
-  { id: 'venue', name: 'Заведение' },
-  { id: 'artist', name: 'Музыкант' },
-]
+// Публично - только регистрация слушателя. Заведение регистрируется по прямой ссылке /register?role=venue
+// (позже - персональная ссылка-приглашение с кодом). Музыканты временно закрыты вместе с разделом артистов
+const linkRoles: PublicRole[] = ['venue']
+const linkRole = linkRoles.find(r => r === route.query.role)
 
 const form = reactive({
-  role: (roles.find(r => r.id === route.query.role)?.id ?? 'user') as PublicRole,
+  role: (linkRole ?? 'user') as PublicRole,
   name: '',
   email: '',
   password: '',
@@ -35,10 +34,8 @@ const submit = () => {
 
 <template>
   <div>
-    <!-- Тип аккаунта: общий сегментный переключатель -->
-    <div class="segmented mb-5 w-full [&>button]:px-1 [&>button]:text-xs min-[360px]:[&>button]:text-sm" role="group" aria-label="Тип аккаунта">
-      <button v-for="r in roles" :key="r.id" type="button" :aria-pressed="form.role === r.id" @click="form.role = r.id">{{ r.name }}</button>
-    </div>
+    <!-- Переключателя типа нет: по ссылке для заведений - пометка, что это регистрация заведения -->
+    <p v-if="form.role === 'venue'" class="mb-5 text-sm text-accent-text">Регистрация заведения</p>
 
     <form class="grid gap-2.5" novalidate @submit.prevent="submit">
       <input v-model="form.name" autocomplete="name" class="field" :placeholder="nameLabel" :aria-label="nameLabel">

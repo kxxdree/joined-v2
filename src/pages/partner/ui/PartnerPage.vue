@@ -143,7 +143,8 @@ const setStatus = (id: string, status: Exclude<BookingStatus, 'new'>) => {
         <p class="text-xs font-medium tracking-[0.2em] text-accent-text uppercase">{{ isVenue ? 'Владелец заведения' : 'Музыкальная группа' }}</p>
         <h1 class="h-display mt-2 text-4xl sm:text-6xl">{{ profile.name }}</h1>
       </div>
-      <NuxtLink :to="isVenue ? `/venues/${venue.slug}` : `/artists/${artist.slug}`" class="btn-dark">
+      <!-- у группы публичной страницы пока нет: раздел артистов временно скрыт -->
+      <NuxtLink v-if="isVenue" :to="`/venues/${venue.slug}`" class="btn-dark">
         <UiIcon name="eye" :size="18" /> Публичная страница
       </NuxtLink>
     </div>

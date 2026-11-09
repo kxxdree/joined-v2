@@ -100,7 +100,8 @@ const favArtists = computed(() => artists.filter(a => favs.value.artists.include
               <span>Нажмите ♥ на карточке бара, чтобы сохранить его здесь.</span>
             </p>
           </div>
-          <div>
+          <!-- избранные артисты: раздел артистов временно скрыт -->
+          <div v-if="false">
             <h2 class="mb-4 text-2xl font-medium">Артисты</h2>
             <div v-if="favArtists.length" class="grid gap-3">
               <div v-for="a in favArtists" :key="a.slug" class="card flex items-center gap-4 p-2 pr-4">
