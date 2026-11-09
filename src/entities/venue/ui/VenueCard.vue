@@ -22,7 +22,7 @@ defineProps<{ venue: Venue }>()
     <div class="flex flex-1 flex-col justify-end p-5">
       <div class="grid min-w-0 gap-0.5 text-[11px] leading-tight font-semibold tracking-wider uppercase">
         <span class="text-soft">{{ formatName(venue.format) }}</span>
-        <span class="truncate text-muted">{{ venue.metro ? `м. ${venue.metro}` : venue.address }}</span>
+        <span class="truncate text-muted">{{ venue.address }}</span>
         <span class="mt-2 flex flex-wrap gap-x-2">
           <span v-for="g in venue.genres.slice(0, 2)" :key="g">{{ genreName(g) }}</span>
         </span>
