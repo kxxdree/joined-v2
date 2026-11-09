@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { LoginForm } from '@features/auth'
-import background from '@shared/assets/images/background-login.jpg'
+import background from '@shared/assets/images/background-auth.jpg'
 import AuthShell from './AuthShell.vue'
 
 useHead({ title: 'Вход - Joined' })

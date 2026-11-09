@@ -19,7 +19,8 @@ const modes = [
   >
     <!-- фото: кадр по лицу, лёгкое затемнение под карточку и плавный переход в цвет страницы снизу -->
     <div v-if="background" class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
-      <img :src="background" alt="" fetchpriority="high" decoding="async" class="absolute inset-0 h-full w-full object-cover object-[50%_30%]">
+      <!-- в файле сверху и снизу чёрные полосы (до 10% высоты): кадр по центру и увеличен в 1,28 раза - полосы уходят за край при любой форме экрана -->
+      <img :src="background" alt="" fetchpriority="high" decoding="async" class="absolute inset-0 h-full w-full scale-[1.28] object-cover">
       <div class="absolute inset-0 bg-ink/40" />
       <div class="absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-b from-transparent to-ink" />
     </div>
