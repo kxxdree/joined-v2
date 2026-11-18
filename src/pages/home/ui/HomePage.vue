@@ -150,6 +150,14 @@ useHead({ title: "JOINED — места и музыка твоего город�
   margin-top: 1.5rem;
 }
 
+.home-actions .btn-dark {
+  background: #303033;
+}
+
+.home-actions .btn-dark:hover {
+  background: #404044;
+}
+
 .home-categories {
   display: flex;
   flex-direction: column;
