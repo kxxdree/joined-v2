@@ -112,15 +112,15 @@ useHead({ title: "JOINED — места и музыка твоего город�
 }
 
 .home-intro {
-  max-width: 27rem;
+  max-width: 32rem;
   padding-right: 2rem;
 }
 
 .home-description {
-  font-size: clamp(1.1rem, 1.5vw, 1.3rem);
+  font-size: clamp(1.1rem, 1.8vw, 1.5rem);
   line-height: 1.6;
   color: rgb(255 255 255 / 0.72);
-  text-wrap: pretty;
+  white-space: nowrap;
 }
 
 .home-actions {
@@ -213,6 +213,10 @@ useHead({ title: "JOINED — места и музыка твоего город�
 
   .home-intro {
     padding-right: 0;
+  }
+
+  .home-description {
+    font-size: clamp(0.875rem, 4.5vw, 1.5rem);
   }
 
   .home-categories {
