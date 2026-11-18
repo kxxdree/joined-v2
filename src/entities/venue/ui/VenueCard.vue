@@ -20,7 +20,7 @@ withDefaults(defineProps<{ venue: Venue; variant?: 'poster' | 'guide' }>(), { va
     <div class="pt-5 sm:pt-6">
       <p class="mb-2 text-xs font-medium tracking-widest text-muted uppercase">{{ formatName(venue.format) }}</p>
       <h3 class="font-display text-2xl leading-tight font-semibold tracking-[-0.03em] sm:text-3xl lg:text-[2rem]">
-        <NuxtLink :to="`/venues/${venue.slug}`" class="transition-colors hover:text-sand focus-visible:text-sand">{{ venue.name }}</NuxtLink>
+        <NuxtLink :to="`/venues/${venue.slug}`" class="transition-colors group-hover:text-sand group-focus-within:text-sand">{{ venue.name }}</NuxtLink>
       </h3>
       <p class="mt-2 text-sm leading-relaxed text-muted sm:text-base">{{ venue.address }}</p>
       <ul v-if="venue.genres.length" class="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-soft" aria-label="Музыкальные жанры">
@@ -54,15 +54,3 @@ withDefaults(defineProps<{ venue: Venue; variant?: 'poster' | 'guide' }>(), { va
   </NuxtLink>
 </template>
 
-<style scoped>
-@media (prefers-reduced-motion: no-preference) {
-  .venue-guide :deep(img) {
-    transition: transform 500ms var(--ease-liquid);
-  }
-
-  .venue-guide:hover :deep(img),
-  .venue-guide:focus-within :deep(img) {
-    transform: scale(1.03);
-  }
-}
-</style>
