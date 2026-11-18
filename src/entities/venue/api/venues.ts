@@ -403,4 +403,56 @@ export const venues: Venue[] = [
   },
 ]
 
+// Дополнительные вымышленные площадки для проверки каталога и порционной выдачи.
+// Общие поля берём из пяти московских демопрофилей разных форматов.
+const moscowTemplates = venues.filter(v => v.city === 'moscow')
+const moscowDemoNames = [
+  { slug: 'medny-svet', name: 'Медный свет' },
+  { slug: 'perron-live', name: 'Перрон Live' },
+  { slug: 'vyshe-goroda', name: 'Выше города' },
+  { slug: 'stary-yakor', name: 'Старый якорь' },
+  { slug: 'tihaya-nota', name: 'Тихая нота' },
+  { slug: 'poluton', name: 'Полутон' },
+  { slug: 'tok-hall', name: 'Ток Hall' },
+  { slug: 'amber-room', name: 'Amber Room' },
+  { slug: 'severny-pab', name: 'Северный паб' },
+  { slug: 'vinyl-salon', name: 'Виниловый салон' },
+  { slug: 'posle-vosmi', name: 'После восьми' },
+  { slug: 'ceh-sound', name: 'Цех Sound' },
+  { slug: 'oblaka-lounge', name: 'Облака Lounge' },
+  { slug: 'dub-i-hmel', name: 'Дуб и хмель' },
+  { slug: 'komnata-royalya', name: 'Комната рояля' },
+  { slug: 'barhatny-vecher', name: 'Бархатный вечер' },
+  { slug: 'signal-stage', name: 'Сигнал Stage' },
+  { slug: 'panorama-nochi', name: 'Панорама ночи' },
+  { slug: 'trety-tost', name: 'Третий тост' },
+  { slug: 'belye-klavishi', name: 'Белые клавиши' },
+  { slug: 'iskra-bar', name: 'Искра Бар' },
+  { slug: 'ritm-hall', name: 'Ритм Hall' },
+  { slug: 'myagky-svet', name: 'Мягкий свет' },
+  { slug: 'hmel-i-med', name: 'Хмель и мёд' },
+  { slug: 'notny-dvor', name: 'Нотный двор' },
+  { slug: 'siniy-chas', name: 'Синий час' },
+  { slug: 'volna-live', name: 'Волна Live' },
+  { slug: 'teply-vozduh', name: 'Тёплый воздух' },
+  { slug: 'penny-lane-pub', name: 'Penny Lane Pub' },
+  { slug: 'lampa-i-vino', name: 'Лампа и вино' },
+  { slug: 'nochnaya-smena', name: 'Ночная смена' },
+]
+
+venues.push(...moscowDemoNames.map(({ slug, name }, i): Venue => {
+  const template = moscowTemplates[i % moscowTemplates.length]!
+  const seed = 300 + i * 12
+  return {
+    ...template,
+    slug,
+    name,
+    description: `Демонстрационная площадка «${name}». ${template.description}`,
+    popularity: 180 + (i * 73) % 1000,
+    photo: ph(['bar,interior', 'concert,stage', 'lounge,neon', 'pub,beer', 'jazz,piano'][i % 5]!, i + 30),
+    gallery: gallery(seed),
+    menu: menuPhotos(seed),
+  }
+}))
+
 export const getVenue = (slug: string) => venues.find(v => v.slug === slug)
