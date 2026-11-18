@@ -46,9 +46,9 @@ watch(open, (v) => {
       :class="scrolled ? 'bg-ink/60 backdrop-blur-xl' : ''"
     >
       <!-- Название без иконки, обычными буквами - как «Joined©» на главной -->
-      <NuxtLink to="/" class="text-xl font-medium tracking-[-0.04em] transition-opacity duration-300 hover:opacity-70" aria-label="Joined - на главную">Joined</NuxtLink>
+      <NuxtLink to="/" class="text-2xl font-medium tracking-[-0.04em] transition-opacity duration-300 hover:opacity-70" aria-label="Joined - на главную">Joined</NuxtLink>
 
-      <nav class="hidden items-center gap-7 text-sm md:flex" aria-label="Основная навигация">
+      <nav class="hidden items-center gap-7 text-base md:flex" aria-label="Основная навигация">
         <NuxtLink
           v-for="l in [...links, ...(cabinet ? [cabinet] : [])]"
           :key="l.to"

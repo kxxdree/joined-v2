@@ -53,9 +53,11 @@ onBeforeUnmount(() => document.removeEventListener('click', onDoc))
 <template>
   <div ref="root" class="relative">
     <button type="button" :class="inline ? 'flex h-full items-center gap-2 px-3 text-sm whitespace-nowrap transition-colors hover:text-sand' : 'pill'" :aria-expanded="open" @click="toggle">
-      <UiIcon name="pin" :size="16" class="text-accent-text" />
-      {{ city.name }}
-      <UiIcon name="chevron-down" :size="16" class="text-muted transition-transform duration-300" :class="{ 'rotate-180': open }" />
+      <slot>
+        <UiIcon name="pin" :size="16" class="text-accent-text" />
+        {{ city.name }}
+        <UiIcon name="chevron-down" :size="16" class="text-muted transition-transform duration-300" :class="{ 'rotate-180': open }" />
+      </slot>
     </button>
     <Transition
       enter-active-class="transition duration-300 ease-[var(--ease-liquid)]"

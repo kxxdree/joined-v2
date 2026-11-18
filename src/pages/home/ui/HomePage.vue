@@ -1,74 +1,254 @@
-<script setup lang="ts">
-import { artists } from "@entities/artist";
-import { events } from "@entities/event";
-import { venues } from "@entities/venue";
+﻿<script setup lang="ts">
 import { CitySelect } from "@features/select-city";
-import { type GenreId, genres } from "@shared/config";
-import { UiBackdrop, UiIcon, UiSelect } from "@shared/ui";
+import backgroundArtists from "@shared/assets/images/background-artists.jpg";
+import backgroundTexture from "@shared/assets/images/background-texture-paper.jpg";
 
-useHead({ title: "JOINED" });
-
-const genre = ref<GenreId | "">("");
-
-const search = () => navigateTo({ path: "/venues", query: { genre: genre.value || undefined } });
-
-// кнопки-триггеры селектов превращаются в подчёркнутые слова фразы: шрифт, размер и регистр - от фразы, без иконок и отступов;
-// overflow-visible у текста внутри - иначе обрезка (truncate) срезает подчёркивание
-// (модалки выбора телепортированы в body, на них [&_svg]:hidden не действует)
-const phraseWord =
-  "[&>button]:h-auto [&>button]:gap-0 [&>button]:p-0 [&>button]:text-[length:inherit] [&>button]:text-white [&>button]:uppercase [&_span]:overflow-visible [&>button]:underline [&>button]:decoration-white/40 [&>button]:underline-offset-[5px] [&>button:hover]:decoration-white [&_svg]:hidden";
-
-const stats = [
-  { value: venues.length * 37, label: "баров и площадок" },
-  { value: events.length * 61, label: "событий в месяц" },
-  { value: artists.length * 54, label: "музыкантов и групп" },
-];
+useHead({ title: "JOINED — места и музыка твоего города" });
 </script>
 
 <template>
-  <div>
-    <!-- HERO: на всю высоту вьюпорта, заезжает под sticky-хедер (h-16 + pt-3 / sm:pt-4) -->
-    <section class="relative isolate -mt-19 flex min-h-dvh flex-col pt-19 sm:-mt-20 sm:pt-20">
-      <UiBackdrop />
-      <!-- Минималистичный логотип-подпись по центру фото: название + мелкая моноширинная подпись в две строки -->
-      <div class="container-x my-auto flex flex-col items-center py-14">
-        <h1 class="flex items-center gap-4 sm:gap-6">
-          <span class="text-4xl font-medium tracking-[-0.04em] sm:text-6xl">Joined</span>
-          <span class="text-[10px] leading-snug font-semibold tracking-[0.08em] text-white/85 uppercase sm:text-xs">Места и музыка<br />твоего города</span>
-        </h1>
+  <section class="home-hero" aria-labelledby="home-title">
+    <div class="home-texture" aria-hidden="true">
+      <img :src="backgroundTexture" alt="" decoding="async" class="absolute inset-0 h-full w-full object-cover" />
+    </div>
+    <div class="home-visual" aria-hidden="true">
+      <img :src="backgroundArtists" alt="" fetchpriority="high" decoding="async" class="absolute inset-0 h-full w-full object-cover" />
+    </div>
 
-        <!-- Поиск-фраза тем же моноширинным шрифтом: «Ищу [жанр] в городе [город] →».
-             Жанр и город - подчёркнутые слова, выбор в стеклянных модалках; стрелка ведёт на «Бары и сцены» -->
-        <form class="mt-8 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-2 text-[11px] font-semibold tracking-[0.08em] text-white/80 uppercase [text-shadow:0_1px_12px_rgb(0_0_0/0.7)] sm:text-xs" @submit.prevent="search">
-          <span>Ищу</span>
-          <UiSelect v-model="genre" :options="genres" all-label="Любой жанр" label="Жанр" inline modal :class="[phraseWord, '[&>button]:w-auto']" />
-          <span>в городе</span>
-          <CitySelect inline modal :class="phraseWord" />
-          <button type="submit" class="ml-1 grid size-8 place-items-center rounded-full bg-white text-ink transition-colors hover:bg-white/85" aria-label="Найти места">
-            <UiIcon name="arrow-right" :size="16" />
-          </button>
-        </form>
+    <div class="home-content">
+      <div class="home-heading">
+        <h1 id="home-title" class="home-title">JOINED</h1>
       </div>
 
-      <!-- Большого футера на главной нет - обязательное (условия, 18+) тонкой строкой внизу первого экрана -->
-      <footer class="container-x flex flex-wrap items-center justify-between gap-x-6 gap-y-2 pb-5 text-xs text-white/60 sm:pb-6">
-        <span>© {{ new Date().getFullYear() }} Joined. Места и музыка</span>
-        <nav class="flex flex-wrap items-center gap-x-5 gap-y-2">
-          <NuxtLink to="/rules" class="transition-colors hover:text-sand">Условия сервиса</NuxtLink>
-          <NuxtLink to="/rules#privacy" class="transition-colors hover:text-sand">Конфиденциальность</NuxtLink>
-          <span>18+</span>
-        </nav>
-      </footer>
-    </section>
-
-    <!-- СТАТИСТИКА (временно скрыта) -->
-    <section v-if="false" class="container-x mt-28">
-      <div class="glass grid grid-cols-3 divide-x divide-line rounded-4xl">
-        <div v-for="s in stats" :key="s.label" class="p-4 text-center sm:p-10">
-          <div class="h-display text-3xl sm:text-7xl">{{ s.value }}+</div>
-          <div class="mt-2 text-xs text-white/70 sm:text-sm">{{ s.label }}</div>
+      <div class="home-details">
+        <div class="home-intro">
+          <div class="home-description">
+            Места и музыка
+            <CitySelect inline modal class="home-city inline-block align-baseline">твоего города</CitySelect>
+          </div>
+          <div class="home-actions">
+            <NuxtLink to="/venues" class="btn-primary min-h-14 min-w-36 px-7 py-3.5 text-base">
+              Начать
+            </NuxtLink>
+            <NuxtLink to="/events" class="btn-dark min-h-14 min-w-36 px-7 py-3.5 text-base">
+              Афиша
+            </NuxtLink>
+          </div>
         </div>
       </div>
-    </section>
-  </div>
+    </div>
+
+    <footer class="home-footer">
+      <span>© {{ new Date().getFullYear() }} Joined</span>
+      <nav class="flex flex-wrap items-center gap-x-5 gap-y-2" aria-label="Правовая информация">
+        <NuxtLink to="/rules">Условия сервиса</NuxtLink>
+        <NuxtLink to="/rules#privacy">Конфиденциальность</NuxtLink>
+        <span>18+</span>
+      </nav>
+    </footer>
+  </section>
 </template>
+
+<style scoped>
+.home-hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-height: 100svh;
+  flex-direction: column;
+  margin-top: -4.75rem;
+  padding-top: 4.75rem;
+  background: #141315;
+}
+
+.home-texture,
+.home-visual {
+  position: absolute;
+  z-index: -1;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.home-texture {
+  inset: 0 43% 0 0;
+}
+
+.home-visual {
+  inset: 0 0 0 57%;
+}
+
+.home-content,
+.home-footer {
+  width: 100%;
+  max-width: 100rem;
+  margin-inline: auto;
+  padding-inline: clamp(1.5rem, 4.5vw, 5rem);
+}
+
+.home-content {
+  margin-block: auto;
+  padding-block: clamp(5rem, 14vh, 10rem) 4rem;
+}
+
+.home-eyebrow {
+  margin-bottom: 0.9rem;
+  font-size: clamp(0.8rem, 1.7vw, 1.4rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.home-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6.4vw, 6.6rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.065em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.home-details {
+  display: grid;
+  grid-template-columns: 57fr 43fr;
+  align-items: end;
+  margin-top: clamp(2rem, 4.5vh, 3rem);
+}
+
+.home-intro {
+  max-width: 32rem;
+  padding-right: 2rem;
+}
+
+.home-description {
+  font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+  line-height: 1.6;
+  color: rgb(255 255 255 / 0.72);
+  white-space: nowrap;
+}
+
+.home-city :deep(button) {
+  height: auto;
+  padding: 0;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgb(255 255 255 / 0.45);
+  text-underline-offset: 0.2em;
+}
+
+.home-city :deep(button:hover) {
+  color: var(--color-sand);
+  text-decoration-color: currentColor;
+}
+
+.home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.home-actions .btn-dark {
+  background: #222225;
+}
+
+.home-actions .btn-dark:hover {
+  background: #303033;
+}
+
+.home-categories {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+  padding-bottom: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.home-categories a {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  transition: color 180ms;
+}
+
+.home-categories span {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: rgb(255 255 255 / 0.45);
+}
+
+.home-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  padding-block: 1.5rem;
+  font-size: 0.75rem;
+  color: rgb(255 255 255 / 0.55);
+}
+
+.home-footer a {
+  transition: color 180ms;
+}
+
+.home-categories a:hover,
+.home-footer a:hover {
+  color: var(--color-sand);
+}
+
+@media (min-width: 640px) {
+  .home-hero {
+    margin-top: -5rem;
+    padding-top: 5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .home-texture {
+    display: none;
+  }
+
+  .home-visual {
+    inset: 0;
+  }
+
+  .home-visual::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background: linear-gradient(180deg, rgb(20 19 21 / 0.2), rgb(20 19 21 / 0.65));
+  }
+
+  .home-content {
+    padding-block: 5rem 3rem;
+  }
+
+  .home-title {
+    font-size: clamp(2.4rem, 9.8vw, 4.6rem);
+    text-align: left;
+  }
+
+  .home-details {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    margin-top: 2rem;
+  }
+
+  .home-intro {
+    padding-right: 0;
+  }
+
+  .home-description {
+    font-size: clamp(0.875rem, 4.5vw, 1.5rem);
+  }
+
+  .home-categories {
+    align-items: flex-start;
+  }
+}
+</style>
