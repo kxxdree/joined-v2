@@ -103,8 +103,8 @@ const reset = () => {
 
     <!-- Результаты: сетка карточек -->
     <section class="container-x">
-      <div v-if="results.length" class="grid sm:grid-cols-2 lg:grid-cols-3">
-        <VenueCard v-for="v in results" :key="v.slug" :venue="v">
+      <div v-if="results.length" class="grid gap-x-6 gap-y-10 md:grid-cols-2 lg:gap-x-8 lg:gap-y-14">
+        <VenueCard v-for="v in results" :key="v.slug" :venue="v" variant="guide">
           <template #actions><FavoriteButton kind="venues" :id="v.slug" /></template>
         </VenueCard>
       </div>

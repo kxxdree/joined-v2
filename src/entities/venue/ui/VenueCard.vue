@@ -5,12 +5,35 @@ import { formatName } from '../model/dictionaries'
 import type { Venue } from '../model/types'
 
 /** Слот actions - для кнопок фич (например, «в избранное») поверх фото */
-defineProps<{ venue: Venue }>()
+withDefaults(defineProps<{ venue: Venue; variant?: 'poster' | 'guide' }>(), { variant: 'poster' })
 </script>
 
 <template>
-  <!-- Карточка-постер, как у событий: фото с крупным названием + плашка с адресом и жанрами -->
-  <NuxtLink :to="`/venues/${venue.slug}`" class="card group flex flex-col overflow-hidden rounded-none">
+  <article v-if="variant === 'guide'" class="venue-guide group min-w-0">
+    <div class="relative">
+      <NuxtLink :to="`/venues/${venue.slug}`" class="block overflow-hidden rounded-lg" :aria-label="venue.name">
+        <UiPhoto :src="venue.photo" :alt="venue.name" class="aspect-16/10" />
+      </NuxtLink>
+      <div class="absolute top-3 right-3 sm:top-4 sm:right-4"><slot name="actions" /></div>
+    </div>
+
+    <div class="pt-5 sm:pt-6">
+      <p class="mb-2 text-xs font-medium tracking-widest text-muted uppercase">{{ formatName(venue.format) }}</p>
+      <h3 class="font-display text-2xl leading-tight font-semibold tracking-[-0.03em] sm:text-3xl lg:text-[2rem]">
+        <NuxtLink :to="`/venues/${venue.slug}`" class="transition-colors hover:text-sand focus-visible:text-sand">{{ venue.name }}</NuxtLink>
+      </h3>
+      <p class="mt-2 text-sm leading-relaxed text-muted sm:text-base">{{ venue.address }}</p>
+      <ul v-if="venue.genres.length" class="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-soft" aria-label="Музыкальные жанры">
+        <li v-for="g in venue.genres.slice(0, 2)" :key="g" class="flex items-center gap-2">
+          <span class="size-1 rounded-full bg-accent" aria-hidden="true" />
+          {{ genreName(g) }}
+        </li>
+      </ul>
+    </div>
+  </article>
+
+  <!-- Компактная карточка-постер для других разделов. -->
+  <NuxtLink v-else :to="`/venues/${venue.slug}`" class="card group flex flex-col overflow-hidden rounded-none">
     <UiPhoto :src="venue.photo" :alt="venue.name" class="aspect-5/4">
       <div class="absolute inset-0 bg-linear-to-t from-black/75 via-black/15 to-transparent" />
       <div class="absolute top-3 right-3"><slot name="actions" /></div>
@@ -30,3 +53,16 @@ defineProps<{ venue: Venue }>()
     </div>
   </NuxtLink>
 </template>
+
+<style scoped>
+@media (prefers-reduced-motion: no-preference) {
+  .venue-guide :deep(img) {
+    transition: transform 500ms var(--ease-liquid);
+  }
+
+  .venue-guide:hover :deep(img),
+  .venue-guide:focus-within :deep(img) {
+    transform: scale(1.03);
+  }
+}
+</style>
