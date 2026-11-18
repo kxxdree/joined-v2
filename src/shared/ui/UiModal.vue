@@ -30,7 +30,10 @@ const release = () => {
 watch(open, (v) => {
   if (!import.meta.client) return;
   if (v) {
-    if (!stack.length) document.body.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`;
+    if (!stack.length) {
+      const stableGutter = (getComputedStyle(document.documentElement).scrollbarGutter ?? "").includes("stable");
+      document.body.style.paddingRight = stableGutter ? "" : `${window.innerWidth - document.documentElement.clientWidth}px`;
+    }
     stack.push(id);
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);

@@ -88,6 +88,8 @@
 @layer base {
   html {
     color-scheme: dark;
+    /* Сохраняем ширину страницы при переходах между короткими и длинными экранами. */
+    scrollbar-gutter: stable;
     -webkit-tap-highlight-color: transparent;
   }
 

@@ -79,7 +79,7 @@ watch([genre, period, cityId, q], () => {
     <section class="container-x pt-10 pb-8 sm:pt-16 sm:pb-10">
       <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-2">
         <h1 class="h-display text-6xl sm:text-7xl">Афиша</h1>
-        <p class="text-xs tracking-widest text-muted uppercase sm:pb-2">Концерты и вечеринки твоего города</p>
+        <!-- <p class="text-xs tracking-widest text-muted uppercase sm:pb-2">Концерты и вечеринки твоего города</p> -->
       </div>
 
       <!-- Строка поиска, как на странице мест: стеклянная плашка, поле + город -->
@@ -107,7 +107,7 @@ watch([genre, period, cityId, q], () => {
 
     <section class="container-x">
       <!-- Афиша-постер: крупная дата слева, события дня справа -->
-      <div v-if="grouped.length" class="card p-5 sm:p-10">
+      <div v-if="grouped.length" class="events-poster card p-5 sm:p-10">
         <div class="mb-6 flex items-start justify-between gap-4 text-xs tracking-widest uppercase sm:mb-8">
           <span class="text-soft">Афиша<br />{{ city.name }}</span>
         </div>
@@ -153,3 +153,10 @@ watch([genre, period, cityId, q], () => {
 
   </div>
 </template>
+
+<style scoped>
+.events-poster {
+  --lg-tint: rgb(22 19 22 / 0.2);
+  --lg-blur: 8px;
+}
+</style>

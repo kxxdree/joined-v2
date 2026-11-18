@@ -6,24 +6,65 @@ import { applyVenueFilters, countExtra, emptyFilters, VenueFilters, type VenueFi
 import { CitySelect } from "@features/select-city";
 import { type GenreId, genres } from "@shared/config";
 import { plural } from "@shared/lib";
-import { UiEmpty, UiIcon, UiModal, UiPills } from "@shared/ui";
+import { UiEmpty, UiIcon, UiModal, UiPills, UiSelect } from "@shared/ui";
 
 useHead({ title: "Бары и площадки - Joined" });
 
 const route = useRoute();
-const { cityId, city } = useCurrentCity();
+const { cityId } = useCurrentCity();
 
-const filters = ref<VenueFilterState>({
+const pageSize = 24;
+const filters = useState<VenueFilterState>("venues-filters", () => ({
   ...emptyFilters(),
   q: String(route.query.q ?? ""),
   genres: route.query.genre ? [route.query.genre as GenreId] : [],
-});
-const results = computed(() =>
-  applyVenueFilters(
+}));
+const visibleCount = useState("venues-visible-count", () => pageSize);
+const sort = useState<"popular" | "name" | "">("venues-sort", () => "popular");
+const sortOptions = [
+  { id: "popular" as const, name: "Сначала популярные" },
+  { id: "name" as const, name: "По названию" },
+];
+const filterContext = useState("venues-filter-context", () => ({
+  city: cityId.value,
+  query: JSON.stringify([route.query.q ?? "", route.query.genre ?? ""]),
+}));
+
+// Состояние переживает переход в карточку. Новые параметры URL и город начинают выдачу заново.
+watch(
+  () => [cityId.value, route.query.q, route.query.genre],
+  () => {
+    if (route.path !== "/venues") return;
+    const query = JSON.stringify([route.query.q ?? "", route.query.genre ?? ""]);
+    if (query !== filterContext.value.query) {
+      filters.value = {
+        ...emptyFilters(),
+        q: String(route.query.q ?? ""),
+        genres: route.query.genre ? [route.query.genre as GenreId] : [],
+      };
+    }
+    if (query !== filterContext.value.query || cityId.value !== filterContext.value.city) {
+      visibleCount.value = pageSize;
+    }
+    filterContext.value = { city: cityId.value, query };
+  },
+  { immediate: true },
+);
+
+watch([filters, sort], () => { visibleCount.value = pageSize; }, { deep: true, flush: "sync" });
+
+const results = computed(() => {
+  const filtered = applyVenueFilters(
     venues.filter((v) => v.city === cityId.value),
     filters.value,
-  ),
-);
+  );
+  return sort.value === "name"
+    ? filtered.sort((a, b) => a.name.localeCompare(b.name, "ru") || a.slug.localeCompare(b.slug))
+    : filtered;
+});
+const visibleResults = computed(() => results.value.slice(0, visibleCount.value));
+const hasMore = computed(() => visibleResults.value.length < results.value.length);
+const showMore = () => { visibleCount.value = Math.min(visibleCount.value + pageSize, results.value.length); };
 const extraCount = computed(() => countExtra(filters.value));
 
 const panelOpen = ref(false);
@@ -36,6 +77,7 @@ const toggleFilters = () => {
 // сброс сразу закрывает фильтры - и панель на десктопе, и лист на мобайле
 const reset = () => {
   filters.value = emptyFilters();
+  visibleCount.value = pageSize;
   panelOpen.value = false;
   sheetOpen.value = false;
 };
@@ -45,10 +87,7 @@ const reset = () => {
   <div>
     <!-- Шапка как на афише: компактный заголовок, стеклянная строка поиска, текстовые фильтры с подписью -->
     <section class="container-x pt-10 pb-8 sm:pt-16 sm:pb-10">
-      <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-2">
-        <h1 class="h-display text-6xl sm:text-7xl">Бары и сцены</h1>
-        <p class="text-xs tracking-widest text-muted uppercase tabular-nums sm:pb-2">{{ results.length }} {{ plural(results.length, ["место", "места", "мест"]) }} {{ city.where }}</p>
-      </div>
+      <h1 class="h-display text-6xl sm:text-7xl">Бары и сцены</h1>
 
       <div class="search-bar relative z-30 mt-6 flex flex-col gap-1 p-2 sm:flex-row">
         <label class="flex flex-1 items-center gap-3 px-3">
@@ -103,14 +142,38 @@ const reset = () => {
 
     <!-- Результаты: сетка карточек -->
     <section class="container-x">
-      <div v-if="results.length" class="grid sm:grid-cols-2 lg:grid-cols-3">
-        <VenueCard v-for="v in results" :key="v.slug" :venue="v">
-          <template #actions><FavoriteButton kind="venues" :id="v.slug" /></template>
-        </VenueCard>
-      </div>
+      <template v-if="results.length">
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <p class="text-sm text-muted">Найдено {{ results.length }} {{ plural(results.length, ["место", "места", "мест"]) }}</p>
+          <UiSelect v-model="sort" :options="sortOptions" :all-label="false" label="Сортировка заведений" class="venues-sort w-full sm:w-60" />
+        </div>
+        <div id="venues-results" class="grid gap-x-6 gap-y-10 md:grid-cols-2 lg:gap-x-8 lg:gap-y-14">
+          <VenueCard v-for="v in visibleResults" :key="v.slug" :venue="v" variant="guide">
+            <template #actions><FavoriteButton kind="venues" :id="v.slug" /></template>
+          </VenueCard>
+        </div>
+        <div class="mt-10 flex flex-col items-center gap-4 sm:mt-14">
+          <p class="text-sm text-muted tabular-nums" role="status">Показано {{ visibleResults.length }} из {{ results.length }}</p>
+          <button v-if="hasMore" type="button" class="venues-more btn-dark min-h-14 w-full px-8 text-base sm:w-auto" aria-controls="venues-results" @click="showMore">
+            Показать ещё
+          </button>
+        </div>
+      </template>
       <UiEmpty v-else icon="glass" title="Ничего не нашлось">
         <button class="btn-dark" @click="reset">Сбросить фильтры</button>
       </UiEmpty>
     </section>
   </div>
 </template>
+
+<style scoped>
+.venues-sort :deep(> button),
+.venues-more {
+  background: #222225;
+}
+
+.venues-sort :deep(> button:hover),
+.venues-more:hover {
+  background: #303033;
+}
+</style>
