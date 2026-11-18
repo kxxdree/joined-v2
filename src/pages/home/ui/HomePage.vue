@@ -151,11 +151,11 @@ useHead({ title: "JOINED — места и музыка твоего город�
 }
 
 .home-actions .btn-dark {
-  background: #303033;
+  background: #222225;
 }
 
 .home-actions .btn-dark:hover {
-  background: #404044;
+  background: #303033;
 }
 
 .home-categories {
