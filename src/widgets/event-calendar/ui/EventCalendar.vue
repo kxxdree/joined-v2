@@ -64,6 +64,6 @@ const artistNames = (e: EventItem) =>
         </div>
       </div>
     </div>
-    <UiEmpty v-else icon="calendar" title="Выступлений пока нет" text="В эти даты бар работает в обычном режиме" />
+    <UiEmpty v-else icon="calendar" title="Мероприятий пока нет" text="В эти даты заведение работает в обычном режиме" />
   </div>
 </template>
