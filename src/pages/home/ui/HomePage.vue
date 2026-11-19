@@ -4,7 +4,7 @@ import { CitySelect } from "@features/select-city";
 import backgroundArtists from "@shared/assets/images/background-artists.jpg";
 import backgroundTexture from "@shared/assets/images/background-texture-paper.jpg";
 
-useHead({ title: "JOINED — места и музыка твоего города" });
+useHead({ title: "Joined" });
 const { city } = useCurrentCity();
 </script>
 

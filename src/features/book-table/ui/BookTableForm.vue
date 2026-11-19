@@ -21,8 +21,7 @@ const start = () => {
 };
 const onPaid = () => {
   add({ venue: props.venue.slug, date: form.date, time: form.time, guests: form.guests, deposit: deposit.value, comment: form.comment });
-  push("Столик забронирован! Детали - в личном кабинете");
-  navigateTo("/account?tab=bookings");
+  push("Столик забронирован!");
 };
 </script>
 
