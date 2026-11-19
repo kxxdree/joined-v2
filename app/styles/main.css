@@ -283,6 +283,14 @@
     @apply bg-white/15;
   }
 
+  .btn-load-more {
+    @apply min-h-14 w-full px-8 text-base sm:w-auto;
+    background: #222225;
+  }
+  .btn-load-more:hover:not(:disabled) {
+    background: #303033;
+  }
+
   /* акцентная: сплошной оранжевый */
   .btn-primary {
     @apply bg-accent;
