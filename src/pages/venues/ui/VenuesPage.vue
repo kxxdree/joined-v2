@@ -167,12 +167,22 @@ const reset = () => {
 </template>
 
 <style scoped>
-.venues-sort :deep(> button),
+.venues-sort :deep(> button) {
+  height: 2.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  background: #4a4a4a;
+}
+
+.venues-sort :deep(> button:hover) {
+  background: #555;
+}
+
 .venues-more {
   background: #222225;
 }
 
-.venues-sort :deep(> button:hover),
 .venues-more:hover {
   background: #303033;
 }

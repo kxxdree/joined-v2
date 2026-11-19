@@ -279,8 +279,7 @@
     @apply relative inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white select-none disabled:cursor-not-allowed disabled:opacity-50;
     transition: background 0.2s, color 0.2s;
   }
-  .btn-dark:hover:not(:disabled),
-  .pill:hover {
+  .btn-dark:hover:not(:disabled) {
     @apply bg-white/15;
   }
 
@@ -299,9 +298,14 @@
     @apply bg-white/10;
   }
 
-  /* фильтр-пилюля: выбранная - белая заливка */
+  /* Фильтры: размытие фона как у кнопок лайка и «Поделиться»; выбранная - белая заливка */
   .pill {
     @apply font-medium;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+  .pill:hover {
+    @apply bg-white/20;
   }
   .pill-active,
   .pill-active:hover {
