@@ -19,16 +19,6 @@ const submit = () => {
   go()
 }
 
-const demo: { role: Role; label: string; email: string; name: string }[] = [
-  { role: 'user', label: 'Гость', email: 'alex@joined.ru', name: 'Алекс' },
-  { role: 'venue', label: 'Бар', email: 'bar@redvelvet.ru', name: 'Red Velvet' },
-  { role: 'artist', label: 'Группа', email: 'band@orangesunset.ru', name: 'Orange Sunset' },
-  { role: 'admin', label: 'Админ', email: 'admin@joined.ru', name: 'Админ' },
-]
-const demoLogin = (d: typeof demo[number]) => {
-  login({ email: d.email, name: d.name, role: d.role })
-  go()
-}
 </script>
 
 <template>
@@ -40,11 +30,5 @@ const demoLogin = (d: typeof demo[number]) => {
       <button class="btn-primary mt-4 h-12" type="submit">Войти</button>
     </form>
 
-    <div class="my-7 flex items-center gap-4 text-xs text-white/50">
-      <div class="h-px flex-1 bg-white/10" /> или демо-вход <div class="h-px flex-1 bg-white/10" />
-    </div>
-    <div class="grid grid-cols-2 gap-2.5">
-      <button v-for="d in demo" :key="d.role" type="button" class="btn-dark h-12" @click="demoLogin(d)">{{ d.label }}</button>
-    </div>
   </div>
 </template>
