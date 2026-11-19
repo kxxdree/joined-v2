@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { getArtist } from "@entities/artist";
 import { useCurrentCity } from "@entities/city";
-import { byDateTime, type EventItem, events, isUpcoming, minPrice } from "@entities/event";
+import { byDateTime, type EventItem, events, getEvent, isUpcoming, minPrice } from "@entities/event";
 import { getVenue } from "@entities/venue";
 import { CitySelect } from "@features/select-city";
 import { type GenreId, genres } from "@shared/config";
 import { addDays, dayNumber, formatPrice, formatWeekdayLong, isWeekend, monthShort, plural, todayISO } from "@shared/lib";
 import { UiEmpty, UiIcon, UiPills } from "@shared/ui";
+import { EventStories } from "@widgets/event-stories";
 
 useHead({ title: "Афиша - Joined" });
 
@@ -14,6 +15,37 @@ const route = useRoute();
 const { cityId, city } = useCurrentCity();
 const genre = ref<GenreId | "">((route.query.genre as GenreId) ?? "");
 const q = ref("");
+
+// Общие события заведений: один список для афиши и просмотра фотографий.
+const cityEvents = computed(() => events
+  .filter((e) => isUpcoming(e) && getVenue(e.venue)?.city === cityId.value)
+  .sort(byDateTime));
+
+const storyId = computed<string | null>({
+  get: () => {
+    const event = typeof route.query.event === "string" ? getEvent(route.query.event) : undefined;
+    return event && isUpcoming(event) && getVenue(event.venue) ? event.id : null;
+  },
+  set: (id) => {
+    navigateTo({ query: { ...route.query, event: id ?? undefined } }, { replace: true });
+  },
+});
+
+// Прямая ссылка на выступление открывает его даже при другом сохранённом городе.
+watch(storyId, (id) => {
+  const venue = id ? getVenue(getEvent(id)!.venue) : undefined;
+  if (venue) cityId.value = venue.city;
+}, { immediate: true });
+
+watch(cityId, (id) => {
+  if (storyId.value && getVenue(getEvent(storyId.value)!.venue)?.city !== id) storyId.value = null;
+});
+
+const openEvent = (event: MouseEvent, id: string) => {
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+  event.preventDefault();
+  storyId.value = id;
+};
 
 // поиск по названию события, заведению и артистам лайнапа
 const matches = (e: EventItem, needle: string) =>
@@ -49,12 +81,10 @@ const inPeriod = (date: string) => {
 
 const grouped = computed(() => {
   const needle = q.value.trim().toLowerCase();
-  const list = events
-    .filter((e) => isUpcoming(e) && getVenue(e.venue)?.city === cityId.value)
+  const list = cityEvents.value
     .filter((e) => !genre.value || e.genres.includes(genre.value))
     .filter((e) => inPeriod(e.date))
-    .filter((e) => !needle || matches(e, needle))
-    .sort(byDateTime);
+    .filter((e) => !needle || matches(e, needle));
   const map = new Map<string, EventItem[]>();
   for (const e of list) map.set(e.date, [...(map.get(e.date) ?? []), e]);
   return [...map.entries()];
@@ -119,14 +149,19 @@ watch([genre, period, cityId, q], () => {
 
           <div class="space-y-4 md:pt-2">
             <p class="text-xs tracking-widest uppercase" :class="isWeekend(date) ? 'text-accent-text' : 'text-muted'">{{ formatWeekdayLong(date) }}</p>
-            <!-- события пока не открываются - только строка с названием, местом и ценой -->
-            <div v-for="e in expanded.has(date) ? items : items.slice(0, PER_DAY)" :key="e.id" class="flex items-baseline justify-between gap-4">
+            <a
+              v-for="e in expanded.has(date) ? items : items.slice(0, PER_DAY)"
+              :key="e.id"
+              :href="`/events?event=${encodeURIComponent(e.id)}`"
+              class="group flex items-baseline justify-between gap-4"
+              @click="openEvent($event, e.id)"
+            >
               <div class="min-w-0">
-                <p class="font-medium uppercase">{{ e.title }}</p>
+                <p class="font-medium uppercase transition-colors group-hover:text-sand">{{ e.title }}</p>
                 <p class="mt-0.5 text-xs tracking-wider text-muted uppercase">{{ getVenue(e.venue)?.name }} · {{ e.time }}</p>
               </div>
               <span class="shrink-0 text-sm tabular-nums">от {{ formatPrice(minPrice(e)) }}</span>
-            </div>
+            </a>
             <button v-if="!expanded.has(date) && items.length > PER_DAY" class="text-xs tracking-widest text-accent-text uppercase transition-colors hover:text-sand" @click="expand(date)">
               Ещё {{ items.length - PER_DAY }} {{ plural(items.length - PER_DAY, ["событие", "события", "событий"]) }}
             </button>
@@ -151,6 +186,7 @@ watch([genre, period, cityId, q], () => {
       </UiEmpty>
     </section>
 
+    <EventStories v-model="storyId" :events="cityEvents" />
   </div>
 </template>
 
