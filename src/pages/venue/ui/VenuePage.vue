@@ -50,20 +50,17 @@ const todayIdx = weekdayIndex();
     <section class="container-x pt-6">
       <NuxtLink to="/venues" class="btn-ghost mb-5 pl-3"><UiIcon name="chevron-left" :size="16" /> Все заведения</NuxtLink>
 
-      <!-- Обложка: постер с названием по центру, как у артиста; описание - под фото -->
+      <!-- Обложка; название и описание - в блоке под фото -->
       <article class="rim relative overflow-hidden rounded-4xl bg-ink">
         <div class="relative aspect-4/5 sm:aspect-video lg:aspect-21/9">
           <UiPhoto :src="v.photo" :alt="v.name" class="absolute inset-0 h-full w-full" />
           <div class="pointer-events-none absolute inset-0 bg-black/30" />
           <div class="pointer-events-none absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-ink" />
-
-          <div class="absolute inset-0 grid place-items-center px-4">
-            <h1 class="h-display text-center text-[8.5vw] font-bold lowercase xl:text-9xl">{{ v.name }}</h1>
-          </div>
         </div>
 
         <!-- Описание под фото, на чёрном - чтобы не сливалось с изображением -->
         <div class="p-6 sm:px-10 sm:pb-10 lg:px-14">
+          <h1 class="h-display mb-4 text-4xl font-bold wrap-break-word lowercase sm:text-6xl lg:text-7xl">{{ v.name }}</h1>
           <p class="max-w-2xl text-white/85 sm:text-lg">{{ v.short }}</p>
           <p class="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold tracking-wider uppercase">
             <span class="text-accent-text">{{ formatName(v.format) }}</span>
