@@ -154,7 +154,7 @@ const reset = () => {
         </div>
         <div class="mt-10 flex flex-col items-center gap-4 sm:mt-14">
           <p class="text-sm text-muted tabular-nums" role="status">Показано {{ visibleResults.length }} из {{ results.length }}</p>
-          <button v-if="hasMore" type="button" class="venues-more btn-dark min-h-14 w-full px-8 text-base sm:w-auto" aria-controls="venues-results" @click="showMore">
+          <button v-if="hasMore" type="button" class="btn-dark btn-load-more" aria-controls="venues-results" @click="showMore">
             Показать ещё
           </button>
         </div>
@@ -167,13 +167,16 @@ const reset = () => {
 </template>
 
 <style scoped>
-.venues-sort :deep(> button),
-.venues-more {
-  background: #222225;
+.venues-sort :deep(> button) {
+  height: 2.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  background: #4a4a4a;
 }
 
-.venues-sort :deep(> button:hover),
-.venues-more:hover {
-  background: #303033;
+.venues-sort :deep(> button:hover) {
+  background: #555;
 }
+
 </style>

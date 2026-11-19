@@ -134,7 +134,7 @@ watch([genre, period, cityId, q], () => {
         </div>
 
         <div v-if="daysShown < grouped.length" class="border-t border-line pt-6 text-center">
-          <button class="btn-dark" @click="daysShown += DAYS_STEP">Показать ещё</button>
+          <button type="button" class="btn-dark btn-load-more" @click="daysShown += DAYS_STEP">Показать ещё</button>
         </div>
       </div>
       <UiEmpty v-else icon="calendar" title="Событий не найдено" text="">

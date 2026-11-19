@@ -1,9 +1,11 @@
 ﻿<script setup lang="ts">
+import { useCurrentCity } from "@entities/city";
 import { CitySelect } from "@features/select-city";
 import backgroundArtists from "@shared/assets/images/background-artists.jpg";
 import backgroundTexture from "@shared/assets/images/background-texture-paper.jpg";
 
 useHead({ title: "JOINED — места и музыка твоего города" });
+const { city } = useCurrentCity();
 </script>
 
 <template>
@@ -26,6 +28,7 @@ useHead({ title: "JOINED — места и музыка твоего город�
             Места и музыка
             <CitySelect inline modal class="home-city inline-block align-baseline">твоего города</CitySelect>
           </div>
+          <p class="home-selected-city" aria-live="polite">{{ city.name }}</p>
           <div class="home-actions">
             <NuxtLink to="/venues" class="btn-primary min-h-14 min-w-36 px-7 py-3.5 text-base">
               Начать
@@ -141,6 +144,14 @@ useHead({ title: "JOINED — места и музыка твоего город�
 .home-city :deep(button:hover) {
   color: var(--color-sand);
   text-decoration-color: currentColor;
+}
+
+.home-selected-city {
+  margin-top: 0.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .home-actions {
