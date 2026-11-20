@@ -59,7 +59,6 @@ const openEvent = (mouse: MouseEvent, id: string) => {
 
           <div class="poster-footer">
             <span>{{ formatWeekday(event.date) }} · {{ event.time }}</span>
-            <span class="poster-open">Смотреть афишу</span>
           </div>
         </div>
       </a>
@@ -157,13 +156,6 @@ const openEvent = (mouse: MouseEvent, id: string) => {
   gap: 0.6rem;
   font-size: 0.875rem;
   font-weight: 500;
-}
-
-.poster-open {
-  color: var(--color-sand);
-  font-size: 0.75rem;
-  text-decoration: underline;
-  text-underline-offset: 0.3em;
 }
 
 .event-poster:hover,
