@@ -7,7 +7,7 @@ import { ShareButton } from "@features/share";
 import { genreName } from "@shared/config";
 import { weekdayIndex } from "@shared/lib";
 import { UiIcon, UiPhoto } from "@shared/ui";
-import { EventCalendar } from "@widgets/event-calendar";
+import { EventPosters } from "@widgets/event-posters";
 import { EventStories } from "@widgets/event-stories";
 import VenueAbout from "./VenueAbout.vue";
 import VenueGallery from "./VenueGallery.vue";
@@ -109,7 +109,7 @@ const todayIdx = weekdayIndex();
     <section class="container-x pt-10">
       <div v-if="tab === 'schedule'">
         <h2 class="h-display mb-8 text-4xl sm:text-5xl">Мероприятия</h2>
-        <EventCalendar :events="venueEvents" :title="v.name" @open="storyId = $event" />
+        <EventPosters :events="venueEvents" @open="storyId = $event" />
       </div>
 
       <VenueAbout v-else-if="tab === 'about'" :venue="v" />
