@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { type EventItem } from '@entities/event'
+import { getArtist } from '@entities/artist'
+import { EventTextPoster, type EventItem } from '@entities/event'
 import { UiIcon } from '@shared/ui'
 
 /**
- * Афиши события как истории в Instagram: кадр = афиша (нет афиш - обложка события),
+ * Афиши события как истории в Instagram: кадр = афиша (нет афиш - текстовый постер),
  * листание вручную и только внутри одного события, после последней - закрытие.
  * v-model - id открытого события; null - закрыто
  */
@@ -20,6 +21,10 @@ const frames = computed<Frame[]>(() => {
 
 const pos = ref(0)
 const frame = computed(() => frames.value[pos.value])
+const failedPosters = ref<Record<string, boolean>>({})
+const artistNames = computed(() =>
+  (frame.value?.event.artists ?? []).map(id => getArtist(id)?.name).filter((name): name is string => !!name),
+)
 const close = () => (openId.value = null)
 
 const go = (p: number) => {
@@ -79,8 +84,11 @@ onBeforeUnmount(() => {
         <div class="relative aspect-9/16 w-[min(100vw,calc(100dvh*9/16))] overflow-hidden bg-ink select-none sm:w-[min(31.5rem,calc(92dvh*9/16))] sm:rounded-3xl">
           <!-- тап-зоны - по всей площади кадра -->
           <div class="absolute inset-0 cursor-pointer" @click="onTap">
+            <EventTextPoster v-if="!frame.poster || failedPosters[frame.src]" :event="frame.event" :artist-names="artistNames" />
+            <template v-else>
             <img :key="`bg-${pos}`" :src="frame.src" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full scale-110 object-cover opacity-50 blur-2xl" draggable="false">
-            <img :key="`fg-${pos}`" :src="frame.src" :alt="frame.poster ? `Афиша: ${frame.event.title}` : frame.event.title" class="relative h-full w-full object-contain" draggable="false">
+            <img :key="`fg-${pos}`" :src="frame.src" :alt="`Афиша: ${frame.event.title}`" class="relative h-full w-full object-contain" draggable="false" @error="failedPosters[frame.src] = true">
+            </template>
           </div>
 
           <div class="pointer-events-none absolute inset-x-0 top-0 flex justify-end p-3 pt-[max(0.75rem,env(safe-area-inset-top))]">

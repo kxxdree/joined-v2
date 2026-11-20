@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { getArtist } from '@entities/artist'
-import { byDateTime, type EventItem } from '@entities/event'
-import { genreName } from '@shared/config'
-import { addDays, formatDate, formatDay, todayISO } from '@shared/lib'
-import { UiEmpty, UiPhoto, UiPills } from '@shared/ui'
+import { byDateTime, EventTextPoster, type EventItem } from '@entities/event'
+import { addDays, formatDate, todayISO } from '@shared/lib'
+import { UiEmpty, UiPills } from '@shared/ui'
 
 const props = defineProps<{ events: EventItem[] }>()
 const emit = defineEmits<{ open: [id: string] }>()
+const failedPosters = ref<Record<string, boolean>>({})
+const uploadedPoster = (event: EventItem) => {
+  const src = event.posters?.[0]
+  return src && !failedPosters.value[src] ? src : undefined
+}
 
 const periods = [
   { id: 'week', name: 'Неделя' },
@@ -42,20 +46,16 @@ const openEvent = (mouse: MouseEvent, id: string) => {
         :aria-label="`${event.title}, ${formatDate(event.date)}, ${event.time}. Открыть афишу`"
         @click="openEvent($event, event.id)"
       >
-        <UiPhoto :src="event.photo" alt="" class="poster-photo" />
-        <div class="poster-shade" aria-hidden="true" />
-
-        <div class="poster-content">
-          <div class="poster-main">
-            <h3 class="poster-title">{{ event.title }}</h3>
-            <p class="poster-date"><time :datetime="`${event.date}T${event.time}`">{{ formatDay(event.date) }}</time></p>
-            <p class="poster-time">{{ event.time }}</p>
-            <ul v-if="event.artists.length" class="poster-artists">
-              <li v-for="name in artistNames(event)" :key="name">{{ name }}</li>
-            </ul>
-            <p v-else class="poster-genres">{{ event.genres.map(genreName).join(' / ') }}</p>
-          </div>
-        </div>
+        <img
+          v-if="uploadedPoster(event)"
+          :src="uploadedPoster(event)"
+          :alt="`Афиша: ${event.title}`"
+          loading="lazy"
+          decoding="async"
+          class="uploaded-poster"
+          @error="failedPosters[event.posters![0]!] = true"
+        >
+        <EventTextPoster v-else :event="event" :artist-names="artistNames(event)" />
       </a>
     </div>
     <UiEmpty v-else icon="calendar" title="Мероприятий пока нет" text="В эти даты заведение работает в обычном режиме" />
@@ -81,75 +81,15 @@ const openEvent = (mouse: MouseEvent, id: string) => {
   transition: border-color 220ms, transform 220ms;
 }
 
-.poster-photo,
-.poster-shade {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-}
-
-.poster-photo {
-  transition: transform 600ms var(--ease-liquid);
-}
-
-.poster-shade {
-  background: linear-gradient(180deg, rgb(10 8 10 / 0.4), rgb(10 8 10 / 0.62) 40%, rgb(10 8 10 / 0.48) 70%, rgb(10 8 10 / 0.85));
-}
-
-.poster-content {
-  display: flex;
+.uploaded-poster {
   width: 100%;
-  min-width: 0;
-  flex-direction: column;
-  justify-content: center;
-  padding: 1.5rem 1.1rem;
-  text-align: center;
-  text-transform: uppercase;
-  text-shadow: 0 2px 16px rgb(0 0 0 / 0.45);
-}
-
-.poster-main {
-  padding-block: 2rem;
-}
-
-.poster-title {
-  font-family: var(--font-display);
-  font-size: clamp(1.15rem, 2.1vw, 1.6rem);
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.035em;
-  overflow-wrap: anywhere;
-}
-
-.poster-date {
-  margin-top: 1.25rem;
-  color: var(--color-white);
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.poster-artists,
-.poster-genres {
-  margin-top: 1rem;
-  font-size: 0.875rem;
-  font-weight: 700;
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
-
-.poster-time {
-  margin-top: 0.35rem;
-  font-size: 1.125rem;
-  font-weight: 500;
+  height: 100%;
+  object-fit: contain;
 }
 
 .event-poster:hover,
 .event-poster:focus-visible {
   border-color: var(--color-accent-text);
-}
-
-.event-poster:hover .poster-photo {
-  transform: scale(1.04);
 }
 
 @media (min-width: 768px) {
@@ -170,18 +110,10 @@ const openEvent = (mouse: MouseEvent, id: string) => {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .poster-content {
-    padding: 1.75rem;
-  }
-
-  .poster-title {
-    font-size: 1.75rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .event-poster,
-  .poster-photo {
+  .event-poster {
     transition: none;
   }
 }
