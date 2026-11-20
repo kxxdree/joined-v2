@@ -2,10 +2,10 @@
 import { getArtist } from '@entities/artist'
 import { byDateTime, type EventItem } from '@entities/event'
 import { genreName } from '@shared/config'
-import { addDays, formatDate, formatDay, formatWeekday, todayISO } from '@shared/lib'
+import { addDays, formatDate, formatDay, todayISO } from '@shared/lib'
 import { UiEmpty, UiPhoto, UiPills } from '@shared/ui'
 
-const props = defineProps<{ events: EventItem[]; title: string }>()
+const props = defineProps<{ events: EventItem[] }>()
 const emit = defineEmits<{ open: [id: string] }>()
 
 const periods = [
@@ -46,19 +46,14 @@ const openEvent = (mouse: MouseEvent, id: string) => {
         <div class="poster-shade" aria-hidden="true" />
 
         <div class="poster-content">
-          <p class="poster-venue">{{ title }}</p>
-
           <div class="poster-main">
             <h3 class="poster-title">{{ event.title }}</h3>
             <p class="poster-date"><time :datetime="`${event.date}T${event.time}`">{{ formatDay(event.date) }}</time></p>
+            <p class="poster-time">{{ event.time }}</p>
             <ul v-if="event.artists.length" class="poster-artists">
               <li v-for="name in artistNames(event)" :key="name">{{ name }}</li>
             </ul>
             <p v-else class="poster-genres">{{ event.genres.map(genreName).join(' / ') }}</p>
-          </div>
-
-          <div class="poster-footer">
-            <span>{{ formatWeekday(event.date) }} · {{ event.time }}</span>
           </div>
         </div>
       </a>
@@ -106,18 +101,11 @@ const openEvent = (mouse: MouseEvent, id: string) => {
   width: 100%;
   min-width: 0;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   padding: 1.5rem 1.1rem;
   text-align: center;
   text-transform: uppercase;
   text-shadow: 0 2px 16px rgb(0 0 0 / 0.45);
-}
-
-.poster-venue {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  overflow-wrap: anywhere;
 }
 
 .poster-main {
@@ -135,7 +123,7 @@ const openEvent = (mouse: MouseEvent, id: string) => {
 
 .poster-date {
   margin-top: 1.25rem;
-  color: var(--color-sand);
+  color: var(--color-white);
   font-size: 1rem;
   font-weight: 700;
 }
@@ -149,12 +137,9 @@ const openEvent = (mouse: MouseEvent, id: string) => {
   overflow-wrap: anywhere;
 }
 
-.poster-footer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
-  font-size: 0.875rem;
+.poster-time {
+  margin-top: 0.35rem;
+  font-size: 1.125rem;
   font-weight: 500;
 }
 

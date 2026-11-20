@@ -109,7 +109,7 @@ const todayIdx = weekdayIndex();
     <section class="container-x pt-10">
       <div v-if="tab === 'schedule'">
         <h2 class="h-display mb-8 text-4xl sm:text-5xl">Мероприятия</h2>
-        <EventPosters :events="venueEvents" :title="v.name" @open="storyId = $event" />
+        <EventPosters :events="venueEvents" @open="storyId = $event" />
       </div>
 
       <VenueAbout v-else-if="tab === 'about'" :venue="v" />
