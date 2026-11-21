@@ -135,7 +135,7 @@ const reset = () => {
         <VenueFilters v-model="filters" />
         <div class="mt-8 grid grid-cols-2 gap-2">
           <button class="btn-dark py-3.5" @click="reset">Сбросить</button>
-          <button class="btn-primary py-3.5" @click="sheetOpen = false">Показать {{ results.length }}</button>
+          <button class="btn-primary py-3.5" @click="sheetOpen = false">Показать</button>
         </div>
       </UiModal>
     </section>

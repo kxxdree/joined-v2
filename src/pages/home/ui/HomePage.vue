@@ -14,7 +14,7 @@ const { city } = useCurrentCity();
       <img :src="backgroundTexture" alt="" decoding="async" class="absolute inset-0 h-full w-full object-cover" />
     </div>
     <div class="absolute inset-0 -z-1 isolate overflow-hidden after:absolute after:inset-0 after:bg-[linear-gradient(180deg,rgb(20_19_21/0.2),rgb(20_19_21/0.65))] md:left-[57%] md:after:hidden" aria-hidden="true">
-      <img :src="backgroundArtists" alt="" fetchpriority="high" decoding="async" class="absolute inset-0 h-full w-full object-cover" />
+      <img :src="backgroundArtists" alt="" fetchpriority="high" decoding="async" class="absolute inset-0 h-full w-full object-cover object-[15%_center] md:object-center" />
     </div>
 
     <div class="mx-auto my-auto w-full max-w-[100rem] px-[clamp(1.5rem,4.5vw,5rem)] pt-20 pb-12 md:pt-[clamp(5rem,14vh,10rem)] md:pb-16">
