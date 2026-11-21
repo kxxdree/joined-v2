@@ -29,6 +29,7 @@ const tabs = [
   { id: "rules", name: "Правила" },
 ] as const;
 type TabId = (typeof tabs)[number]["id"];
+const tabTrack = ref<HTMLElement>();
 const tab = ref<TabId>(tabs.find((t) => t.id === route.query.tab)?.id ?? "schedule");
 watch(tab, (t) => {
   if (route.query.tab !== t) navigateTo({ query: { ...route.query, tab: t } }, { replace: true });
@@ -36,6 +37,21 @@ watch(tab, (t) => {
 watch(() => route.query.tab, (value) => {
   tab.value = tabs.find((t) => t.id === value)?.id ?? "schedule";
 });
+const onTabKeydown = async (event: KeyboardEvent, index: number) => {
+  const directions: Record<string, number> = { ArrowRight: (index + 1) % tabs.length, ArrowLeft: (index - 1 + tabs.length) % tabs.length, Home: 0, End: tabs.length - 1 };
+  const next = directions[event.key];
+  if (next === undefined) return;
+  event.preventDefault();
+  tab.value = tabs[next]!.id;
+  await nextTick();
+  tabTrack.value?.querySelector<HTMLButtonElement>('[aria-selected="true"]')?.focus({ preventScroll: true });
+};
+watch(tab, async () => {
+  await nextTick();
+  const track = tabTrack.value;
+  const selected = track?.querySelector<HTMLElement>('[aria-selected="true"]');
+  if (track && selected) track.scrollTo({ left: selected.offsetLeft - (track.clientWidth - selected.offsetWidth) / 2, behavior: "smooth" });
+}, { immediate: true });
 
 // «Забронировать»: открыть вкладку и доскроллить до условий (отступ сверху - scroll-mt под липкие шапку и вкладки)
 const bookingBlock = ref<HTMLElement>();
@@ -94,16 +110,22 @@ const todayIdx = weekdayIndex();
       </div>
     </section>
 
-    <!-- Вкладки: стеклянная плавающая лента -->
-    <nav class="sticky top-22 z-30 mt-8 px-3 sm:top-24 sm:px-6">
-      <div class="glass lg-refract mx-auto max-w-7xl rounded-full p-1.5 [--lg-refract-blur:16px]">
-        <div class="scroll-x py-0">
+    <nav class="container-x sticky top-22 z-30 mt-6 sm:top-24" aria-label="Разделы заведения">
+      <div class="card overflow-hidden rounded-2xl">
+        <div ref="tabTrack" role="tablist" aria-label="Разделы заведения" class="relative flex gap-1 overflow-x-auto overscroll-x-contain p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
-            v-for="t in tabs"
+            v-for="(t, index) in tabs"
+            :id="`venue-tab-${t.id}`"
             :key="t.id"
-            class="pill"
-            :class="tab === t.id ? 'pill-active' : 'bg-transparent shadow-none backdrop-blur-none before:hidden'"
+            type="button"
+            role="tab"
+            :aria-selected="tab === t.id"
+            aria-controls="venue-tab-panel"
+            :tabindex="tab === t.id ? 0 : -1"
+            class="relative flex min-h-12 shrink-0 items-center justify-center rounded-xl px-5 py-3 text-sm font-semibold whitespace-nowrap transition-colors duration-200 focus-visible:outline-offset-[-3px] motion-reduce:transition-none sm:flex-1 sm:px-4"
+            :class="tab === t.id ? 'bg-white/6 text-white' : 'text-white/55 hover:bg-white/4 hover:text-white'"
             @click="tab = t.id"
+            @keydown="onTabKeydown($event, index)"
           >
             {{ t.name }}
           </button>
@@ -111,7 +133,7 @@ const todayIdx = weekdayIndex();
       </div>
     </nav>
 
-    <section class="container-x pt-10">
+    <section id="venue-tab-panel" role="tabpanel" :aria-labelledby="`venue-tab-${tab}`" class="container-x pt-8">
       <div v-if="tab === 'schedule'">
         <h2 class="h-display mb-8 text-4xl sm:text-5xl">Мероприятия</h2>
         <EventPosters :events="venueEvents" @open="storyId = $event" />
