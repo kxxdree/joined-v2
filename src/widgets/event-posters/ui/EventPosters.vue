@@ -42,7 +42,7 @@ const openEvent = (mouse: MouseEvent, id: string) => {
         v-for="event in visibleEvents"
         :key="event.id"
         :href="`/events?event=${event.id}`"
-        class="event-poster"
+        class="event-poster group"
         :aria-label="`${event.title}, ${formatDate(event.date)}, ${event.time}. Открыть афишу`"
         @click="openEvent($event, event.id)"
       >
@@ -56,6 +56,7 @@ const openEvent = (mouse: MouseEvent, id: string) => {
           @error="failedPosters[event.posters![0]!] = true"
         >
         <EventTextPoster v-else :event="event" :artist-names="artistNames(event)" />
+        <span class="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-150 group-hover:bg-black/40 group-focus-visible:bg-black/40" aria-hidden="true" />
       </a>
     </div>
     <UiEmpty v-else icon="calendar" title="Мероприятий пока нет" text="В эти даты заведение работает в обычном режиме" />
@@ -78,18 +79,12 @@ const openEvent = (mouse: MouseEvent, id: string) => {
   border: 1px solid var(--color-line);
   border-radius: 0.5rem;
   background: var(--color-ink);
-  transition: border-color 220ms, transform 220ms;
 }
 
 .uploaded-poster {
   width: 100%;
   height: 100%;
   object-fit: contain;
-}
-
-.event-poster:hover,
-.event-poster:focus-visible {
-  border-color: var(--color-accent-text);
 }
 
 @media (min-width: 768px) {
@@ -112,9 +107,4 @@ const openEvent = (mouse: MouseEvent, id: string) => {
 
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .event-poster {
-    transition: none;
-  }
-}
 </style>
