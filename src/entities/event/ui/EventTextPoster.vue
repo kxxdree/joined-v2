@@ -5,7 +5,7 @@ import { formatDay } from '@shared/lib'
 import { UiPhoto } from '@shared/ui'
 import type { EventItem } from '../model/types'
 
-defineProps<{ event: EventItem; artistNames: string[] }>()
+defineProps<{ event: EventItem; artistNames: string[]; expanded?: boolean }>()
 </script>
 
 <template>
@@ -15,13 +15,13 @@ defineProps<{ event: EventItem; artistNames: string[] }>()
 
     <div class="poster-content">
     <div class="poster-main">
-      <h3 class="poster-title">{{ event.title }}</h3>
-      <p class="poster-date"><time :datetime="`${event.date}T${event.time}`">{{ formatDay(event.date) }}</time></p>
-      <p class="poster-time">{{ event.time }}</p>
-      <ul v-if="event.artists.length" class="poster-artists">
+      <h3 class="poster-title" :class="expanded ? 'text-[clamp(1.75rem,4vw,2rem)]' : 'text-[clamp(1.15rem,2.1vw,1.6rem)] max-[479px]:text-[1.75rem]'">{{ event.title }}</h3>
+      <p class="poster-date" :class="expanded ? 'text-lg' : 'text-base'"><time :datetime="`${event.date}T${event.time}`">{{ formatDay(event.date) }}</time></p>
+      <p class="poster-time" :class="expanded ? 'text-xl' : 'text-lg'">{{ event.time }}</p>
+      <ul v-if="event.artists.length" class="poster-artists" :class="expanded ? 'text-base' : 'text-sm'">
         <li v-for="name in artistNames" :key="name">{{ name }}</li>
       </ul>
-      <p v-else class="poster-genres">{{ event.genres.map(genreName).join(' / ') }}</p>
+      <p v-else class="poster-genres" :class="expanded ? 'text-base' : 'text-sm'">{{ event.genres.map(genreName).join(' / ') }}</p>
     </div>
     </div>
   </div>
@@ -71,7 +71,6 @@ defineProps<{ event: EventItem; artistNames: string[] }>()
 
 .poster-title {
   font-family: var(--font-display);
-  font-size: clamp(1.15rem, 2.1vw, 1.6rem);
   font-weight: 800;
   line-height: 1.15;
   letter-spacing: -0.035em;
@@ -81,14 +80,12 @@ defineProps<{ event: EventItem; artistNames: string[] }>()
 .poster-date {
   margin-top: 1.25rem;
   color: var(--color-white);
-  font-size: 1rem;
   font-weight: 700;
 }
 
 .poster-artists,
 .poster-genres {
   margin-top: 1rem;
-  font-size: 0.875rem;
   font-weight: 700;
   line-height: 1.6;
   overflow-wrap: anywhere;
@@ -96,13 +93,11 @@ defineProps<{ event: EventItem; artistNames: string[] }>()
 
 .poster-time {
   margin-top: 0.35rem;
-  font-size: 1.125rem;
   font-weight: 500;
 }
 
 
 @media (max-width: 479px) {
   .poster-content { padding: 1.75rem; }
-  .poster-title { font-size: 1.75rem; }
 }
 </style>

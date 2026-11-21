@@ -48,7 +48,7 @@ const todayIdx = weekdayIndex();
 <template>
   <div>
     <section class="container-x pt-6">
-      <NuxtLink to="/venues" class="btn-ghost mb-5 pl-3"><UiIcon name="chevron-left" :size="16" /> Все заведения</NuxtLink>
+      <NuxtLink to="/venues" class="btn-dark mb-5 bg-[#222225] pl-3 hover:bg-[#303033]"><UiIcon name="chevron-left" :size="16" /> Все заведения</NuxtLink>
 
       <!-- Обложка; название и описание - в блоке под фото -->
       <article class="rim relative overflow-hidden rounded-4xl bg-ink">
