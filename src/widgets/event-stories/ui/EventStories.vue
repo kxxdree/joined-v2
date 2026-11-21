@@ -152,9 +152,6 @@ onBeforeUnmount(() => { if (import.meta.client) unlock() })
             <span v-if="images.length > 1" class="absolute top-4 right-4 rounded-full border border-white/10 bg-black/65 px-3 py-1.5 text-xs font-semibold tabular-nums backdrop-blur-md">{{ photoIndex + 1 }} / {{ images.length }}</span>
             <button v-if="photoIndex > 0" type="button" class="btn-icon absolute top-1/2 left-3 size-9 -translate-y-1/2 rounded-full bg-black/65 hover:bg-black/85" aria-label="Предыдущее фото" @click="goPhoto(photoIndex - 1)"><UiIcon name="chevron-left" :size="20" /></button>
             <button v-if="photoIndex < images.length - 1" type="button" class="btn-icon absolute top-1/2 right-3 size-9 -translate-y-1/2 rounded-full bg-black/65 hover:bg-black/85" aria-label="Следующее фото" @click="goPhoto(photoIndex + 1)"><UiIcon name="chevron-right" :size="20" /></button>
-            <div v-if="images.length > 1" class="absolute inset-x-0 bottom-0 flex justify-center bg-linear-to-t from-black/65 to-transparent px-4 pt-8 pb-3" aria-label="Выбор фотографии">
-              <button v-for="(_, index) in images" :key="index" type="button" class="grid size-7 place-items-center" :aria-label="`Фото ${index + 1}`" :aria-current="index === photoIndex ? 'true' : undefined" @click="goPhoto(index)"><span class="h-1.5 rounded-full transition-all duration-200 motion-reduce:transition-none" :class="index === photoIndex ? 'w-5 bg-accent' : 'w-1.5 bg-white/45'" /></button>
-            </div>
           </div>
 
           <aside ref="details" class="flex min-h-0 flex-col touch-pan-y lg:overflow-y-auto" @pointerdown="onPointerDown" @pointerup="onPointerUp($event, false)" @pointercancel="gesture = undefined">
