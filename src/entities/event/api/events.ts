@@ -90,7 +90,7 @@ function fillVenueSchedules() {
           description: `${title} в «${venue.name}». ${venue.format === 'club' ? 'DJ-сеты резидентов, танцпол и музыка до утра.' : 'Музыкальный вечер, любимые композиции и специальная программа.'}`,
           photo: image,
           // Последнее событие площадки оставляем с текстовой афишей.
-          posters: i === count - 1 ? undefined : [image],
+          posters: i === count - 1 ? undefined : Array.from({ length: 2 + (seed + i) % 2 }, (_, index) => demoPosters[(seed + i + index) % demoPosters.length]!),
           tickets: [std(500 + (seed % 7) * 200, 60 + seed % 8 * 20)],
         })
       }

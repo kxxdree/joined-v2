@@ -2,7 +2,7 @@
 import { getArtist } from '@entities/artist'
 import { byDateTime, EventTextPoster, type EventItem } from '@entities/event'
 import { addDays, formatDate, todayISO } from '@shared/lib'
-import { UiEmpty, UiPills } from '@shared/ui'
+import { UiEmpty, UiIcon, UiPills } from '@shared/ui'
 
 const props = defineProps<{ events: EventItem[] }>()
 const emit = defineEmits<{ open: [id: string] }>()
@@ -57,6 +57,7 @@ const openEvent = (mouse: MouseEvent, id: string) => {
         >
         <EventTextPoster v-else :event="event" :artist-names="artistNames(event)" />
         <span class="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-150 group-hover:bg-black/40 group-focus-visible:bg-black/40" aria-hidden="true" />
+        <span v-if="event.posters && event.posters.length > 1" class="pointer-events-none absolute top-3 right-3 flex items-center gap-1.5 rounded-full bg-black/65 px-2.5 py-1.5 text-xs font-semibold backdrop-blur-md" aria-hidden="true"><UiIcon name="image" :size="14" />{{ event.posters.length }}</span>
       </a>
     </div>
     <UiEmpty v-else icon="calendar" title="Мероприятий пока нет" text="В эти даты заведение работает в обычном режиме" />

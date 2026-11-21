@@ -30,7 +30,12 @@ const tabs = [
 ] as const;
 type TabId = (typeof tabs)[number]["id"];
 const tab = ref<TabId>(tabs.find((t) => t.id === route.query.tab)?.id ?? "schedule");
-watch(tab, (t) => navigateTo({ query: { ...route.query, tab: t } }, { replace: true }));
+watch(tab, (t) => {
+  if (route.query.tab !== t) navigateTo({ query: { ...route.query, tab: t } }, { replace: true });
+});
+watch(() => route.query.tab, (value) => {
+  tab.value = tabs.find((t) => t.id === value)?.id ?? "schedule";
+});
 
 // «Забронировать»: открыть вкладку и доскроллить до условий (отступ сверху - scroll-mt под липкие шапку и вкладки)
 const bookingBlock = ref<HTMLElement>();
