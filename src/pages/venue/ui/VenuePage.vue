@@ -110,7 +110,7 @@ const todayIdx = weekdayIndex();
       </div>
     </section>
 
-    <nav class="container-x sticky top-22 z-30 mt-6 sm:top-24" aria-label="Разделы заведения">
+    <nav class="container-x mt-6" aria-label="Разделы заведения">
       <div class="card overflow-hidden rounded-2xl">
         <div ref="tabTrack" role="tablist" aria-label="Разделы заведения" class="relative flex gap-1 overflow-x-auto overscroll-x-contain p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
