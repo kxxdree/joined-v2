@@ -30,7 +30,12 @@ const tabs = [
 ] as const;
 type TabId = (typeof tabs)[number]["id"];
 const tab = ref<TabId>(tabs.find((t) => t.id === route.query.tab)?.id ?? "schedule");
-watch(tab, (t) => navigateTo({ query: { ...route.query, tab: t } }, { replace: true }));
+watch(tab, (t) => {
+  if (route.query.tab !== t) navigateTo({ query: { ...route.query, tab: t } }, { replace: true });
+});
+watch(() => route.query.tab, (value) => {
+  tab.value = tabs.find((t) => t.id === value)?.id ?? "schedule";
+});
 
 // «Забронировать»: открыть вкладку и доскроллить до условий (отступ сверху - scroll-mt под липкие шапку и вкладки)
 const bookingBlock = ref<HTMLElement>();
@@ -48,7 +53,7 @@ const todayIdx = weekdayIndex();
 <template>
   <div>
     <section class="container-x pt-6">
-      <NuxtLink to="/venues" class="btn-ghost mb-5 pl-3"><UiIcon name="chevron-left" :size="16" /> Все заведения</NuxtLink>
+      <NuxtLink to="/venues" class="btn-dark mb-5 bg-[#222225] pl-3 hover:bg-[#303033]"><UiIcon name="chevron-left" :size="16" /> Все заведения</NuxtLink>
 
       <!-- Обложка; название и описание - в блоке под фото -->
       <article class="rim relative overflow-hidden rounded-4xl bg-ink">

@@ -9,31 +9,31 @@ const { city } = useCurrentCity();
 </script>
 
 <template>
-  <section class="home-hero" aria-labelledby="home-title">
-    <div class="home-texture" aria-hidden="true">
+  <section class="relative isolate -mt-19 flex min-h-svh flex-col bg-[#141315] pt-19 sm:-mt-20 sm:pt-20" aria-labelledby="home-title">
+    <div class="absolute inset-y-0 right-[43%] left-0 -z-1 isolate hidden overflow-hidden md:block" aria-hidden="true">
       <img :src="backgroundTexture" alt="" decoding="async" class="absolute inset-0 h-full w-full object-cover" />
     </div>
-    <div class="home-visual" aria-hidden="true">
+    <div class="absolute inset-0 -z-1 isolate overflow-hidden after:absolute after:inset-0 after:bg-[linear-gradient(180deg,rgb(20_19_21/0.2),rgb(20_19_21/0.65))] md:left-[57%] md:after:hidden" aria-hidden="true">
       <img :src="backgroundArtists" alt="" fetchpriority="high" decoding="async" class="absolute inset-0 h-full w-full object-cover" />
     </div>
 
-    <div class="home-content">
-      <div class="home-heading">
-        <h1 id="home-title" class="home-title">JOINED</h1>
+    <div class="mx-auto my-auto w-full max-w-[100rem] px-[clamp(1.5rem,4.5vw,5rem)] pt-20 pb-12 md:pt-[clamp(5rem,14vh,10rem)] md:pb-16">
+      <div>
+        <h1 id="home-title" class="font-display text-[clamp(2.4rem,9.8vw,4.6rem)] leading-[1.05] font-bold tracking-[-0.065em] uppercase md:text-[clamp(2rem,6.4vw,6.6rem)] md:text-center">JOINED</h1>
       </div>
 
-      <div class="home-details">
-        <div class="home-intro">
-          <div class="home-description">
+      <div class="mt-8 grid grid-cols-1 items-end gap-12 md:mt-[clamp(2rem,4.5vh,3rem)] md:grid-cols-[57fr_43fr] md:gap-0">
+        <div class="max-w-lg md:pr-8">
+          <div class="text-[clamp(0.875rem,4.5vw,1.5rem)] leading-[1.6] whitespace-nowrap text-white/72 md:text-[clamp(1.1rem,1.8vw,1.5rem)]">
             Места и музыка
-            <CitySelect inline modal class="home-city inline-block align-baseline">твоего города</CitySelect>
+            <CitySelect inline modal class="inline-block align-baseline [&>button]:h-auto [&>button]:p-0 [&>button]:text-[length:inherit] [&>button]:leading-[inherit] [&>button]:text-inherit [&>button]:underline [&>button]:decoration-white/45 [&>button]:underline-offset-[0.2em] [&>button:hover]:text-sand [&>button:hover]:decoration-current">твоего города</CitySelect>
           </div>
-          <p class="home-selected-city" aria-live="polite">{{ city.name }}</p>
-          <div class="home-actions">
+          <p class="mt-2 font-display text-[clamp(1.5rem,3vw,2.5rem)] leading-[1.2] wrap:anywhere" aria-live="polite">{{ city.name }}</p>
+          <div class="mt-6 flex flex-wrap gap-3">
             <NuxtLink to="/venues" class="btn-primary min-h-14 min-w-36 px-7 py-3.5 text-base">
               Начать
             </NuxtLink>
-            <NuxtLink to="/events" class="btn-dark min-h-14 min-w-36 px-7 py-3.5 text-base">
+            <NuxtLink to="/events" class="btn-dark min-h-14 min-w-36 px-7 py-3.5 text-base bg-[#222225] hover:bg-[#303033]">
               Афиша
             </NuxtLink>
           </div>
@@ -41,7 +41,7 @@ const { city } = useCurrentCity();
       </div>
     </div>
 
-    <footer class="home-footer">
+    <footer class="mx-auto flex w-full max-w-[100rem] flex-wrap justify-between gap-x-8 gap-y-4 px-[clamp(1.5rem,4.5vw,5rem)] py-6 text-xs text-white/55 [&_a]:transition-colors [&_a]:duration-180 [&_a:hover]:text-sand">
       <span>© {{ new Date().getFullYear() }} Joined</span>
       <nav class="flex flex-wrap items-center gap-x-5 gap-y-2" aria-label="Правовая информация">
         <NuxtLink to="/rules">Условия сервиса</NuxtLink>
@@ -51,215 +51,3 @@ const { city } = useCurrentCity();
     </footer>
   </section>
 </template>
-
-<style scoped>
-.home-hero {
-  position: relative;
-  isolation: isolate;
-  display: flex;
-  min-height: 100svh;
-  flex-direction: column;
-  margin-top: -4.75rem;
-  padding-top: 4.75rem;
-  background: #141315;
-}
-
-.home-texture,
-.home-visual {
-  position: absolute;
-  z-index: -1;
-  isolation: isolate;
-  overflow: hidden;
-}
-
-.home-texture {
-  inset: 0 43% 0 0;
-}
-
-.home-visual {
-  inset: 0 0 0 57%;
-}
-
-.home-content,
-.home-footer {
-  width: 100%;
-  max-width: 100rem;
-  margin-inline: auto;
-  padding-inline: clamp(1.5rem, 4.5vw, 5rem);
-}
-
-.home-content {
-  margin-block: auto;
-  padding-block: clamp(5rem, 14vh, 10rem) 4rem;
-}
-
-.home-eyebrow {
-  margin-bottom: 0.9rem;
-  font-size: clamp(0.8rem, 1.7vw, 1.4rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-}
-
-.home-title {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 6.4vw, 6.6rem);
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.065em;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-.home-details {
-  display: grid;
-  grid-template-columns: 57fr 43fr;
-  align-items: end;
-  margin-top: clamp(2rem, 4.5vh, 3rem);
-}
-
-.home-intro {
-  max-width: 32rem;
-  padding-right: 2rem;
-}
-
-.home-description {
-  font-size: clamp(1.1rem, 1.8vw, 1.5rem);
-  line-height: 1.6;
-  color: rgb(255 255 255 / 0.72);
-  white-space: nowrap;
-}
-
-.home-city :deep(button) {
-  height: auto;
-  padding: 0;
-  font-size: inherit;
-  line-height: inherit;
-  color: inherit;
-  text-decoration: underline;
-  text-decoration-color: rgb(255 255 255 / 0.45);
-  text-underline-offset: 0.2em;
-}
-
-.home-city :deep(button:hover) {
-  color: var(--color-sand);
-  text-decoration-color: currentColor;
-}
-
-.home-selected-city {
-  margin-top: 0.5rem;
-  font-family: var(--font-display);
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-}
-
-.home-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-}
-
-.home-actions .btn-dark {
-  background: #222225;
-}
-
-.home-actions .btn-dark:hover {
-  background: #303033;
-}
-
-.home-categories {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.6rem;
-  padding-bottom: 0.25rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.home-categories a {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-  transition: color 180ms;
-}
-
-.home-categories span {
-  font-size: 0.7rem;
-  font-weight: 400;
-  color: rgb(255 255 255 / 0.45);
-}
-
-.home-footer {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 1rem 2rem;
-  padding-block: 1.5rem;
-  font-size: 0.75rem;
-  color: rgb(255 255 255 / 0.55);
-}
-
-.home-footer a {
-  transition: color 180ms;
-}
-
-.home-categories a:hover,
-.home-footer a:hover {
-  color: var(--color-sand);
-}
-
-@media (min-width: 640px) {
-  .home-hero {
-    margin-top: -5rem;
-    padding-top: 5rem;
-  }
-}
-
-@media (max-width: 767px) {
-  .home-texture {
-    display: none;
-  }
-
-  .home-visual {
-    inset: 0;
-  }
-
-  .home-visual::after {
-    position: absolute;
-    inset: 0;
-    content: "";
-    background: linear-gradient(180deg, rgb(20 19 21 / 0.2), rgb(20 19 21 / 0.65));
-  }
-
-  .home-content {
-    padding-block: 5rem 3rem;
-  }
-
-  .home-title {
-    font-size: clamp(2.4rem, 9.8vw, 4.6rem);
-    text-align: left;
-  }
-
-  .home-details {
-    grid-template-columns: 1fr;
-    gap: 3rem;
-    margin-top: 2rem;
-  }
-
-  .home-intro {
-    padding-right: 0;
-  }
-
-  .home-description {
-    font-size: clamp(0.875rem, 4.5vw, 1.5rem);
-  }
-
-  .home-categories {
-    align-items: flex-start;
-  }
-}
-</style>

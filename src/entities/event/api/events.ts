@@ -1,5 +1,6 @@
 import { isoDay as day, ph } from '@shared/lib'
 import lineupPoster from '@shared/assets/images/lineup-poster.jpg'
+import { venues } from '@entities/venue/@x/event'
 import type { EventItem } from '../model/types'
 
 const std = (price: number, left = 120) => ({ id: 'standard' as const, name: 'Стандарт', desc: 'Входной билет, танцпол / свободная рассадка', price, left })
@@ -8,6 +9,8 @@ const table = (price: number, left = 8) => ({ id: 'table' as const, name: 'Ст�
 // Афиши - готовые вертикальные картинки для соцсетей (9:16); в демо - реальная афиша и заглушки
 const LINEUP_POSTER = '/posters/lineup.jpg'
 const poster = (keywords: string, lock: number) => ph(keywords, lock, 720, 1280)
+// Загруженные афиши используются повторно как иллюстрации демо-событий.
+const demoPosters = Array.from({ length: 5 }, (_, i) => `/posters/lineup-${i + 1}.jpg`)
 
 export const events: EventItem[] = [
   { id: 'e1', title: 'Jazz Night: Blue Note Trio', venue: 'red-velvet', artists: ['blue-note-trio'], genres: ['jazz'], date: day(0), time: '21:00', description: 'Три сета джазовых стандартов и новых композиций. Начало в 21:00, второй сет - в 22:30, джем-сейшн после полуночи.', photo: ph('jazz,piano', 401), posters: [LINEUP_POSTER, poster('jazz,piano', 601), poster('concert,stage', 602)], tickets: [std(800), vip(2500), table(8000)] },
@@ -43,6 +46,58 @@ export const events: EventItem[] = [
   ...moscowFiller(),
 ]
 
+fillVenueSchedules()
+
+// Ближайшие события с афишами у 90% площадок каждого города.
+// Существующие события сохраняем; оставшиеся 10% нужны для пустого состояния.
+function fillVenueSchedules() {
+  const scheduled = new Set(events.filter(event => event.date >= day(0)).map(event => event.venue))
+  const shows: Record<EventItem['genres'][number], string[]> = {
+    classical: ['Вечер при свечах', 'Неоклассика: фортепианный концерт', 'Камерный струнный вечер'],
+    electronic: ['Ночь резидентов', 'Midnight Rave Party', 'Deep House: закатный сет'],
+    pop: ['Pop Hits Party', 'Disco Weekend', 'Танцы до утра'],
+    rock: ['Рок-каверы: лучшие хиты', 'Гитарный вечер', 'Rock Live Session'],
+    jazz: ['Jazz Night', 'Джазовый квартет', 'Swing & Cocktails'],
+    live: ['Живая сцена', 'Акустический вечер', 'Вечер живой музыки'],
+    hiphop: ['Hip-Hop Night', 'Биты и рифмы', 'Urban Sounds'],
+    indie: ['Indie Showcase', 'Новая инди-сцена', 'Акустика: тёплый звук'],
+    blues: ['Blues Evening', 'Блюзовый джем', 'Rhythm & Blues'],
+    open: ['Открытый микрофон', 'Свободная сцена', 'Музыкальный джем'],
+  }
+
+  for (const city of new Set(venues.map(venue => venue.city))) {
+    const localVenues = venues.filter(venue => venue.city === city)
+    const missing = Math.max(0, Math.ceil(localVenues.length * 0.9) - localVenues.filter(venue => scheduled.has(venue.slug)).length)
+    const candidates = localVenues.filter(venue => !scheduled.has(venue.slug))
+    // Равномерно выбираем площадки по каталогу, чтобы покрыть разные форматы.
+    const selected = candidates.filter((_, index) => Math.floor((index + 1) * missing / candidates.length) > Math.floor(index * missing / candidates.length))
+
+    for (const venue of selected) {
+      const seed = venues.indexOf(venue)
+      const count = 2 + seed % 3
+      for (let i = 0; i < count; i++) {
+        const genre = venue.genres[i % venue.genres.length] ?? 'live'
+        const title = shows[genre][(seed + i) % shows[genre].length]!
+        const image = demoPosters[(seed + i) % demoPosters.length]!
+        events.push({
+          id: `venue-${venue.slug}-${i + 1}`,
+          title,
+          venue: venue.slug,
+          artists: [],
+          genres: [genre],
+          date: day(1 + seed % 5 + i * 6),
+          time: venue.format === 'club' ? '23:00' : ['19:00', '20:00', '21:00'][(seed + i) % 3]!,
+          description: `${title} в «${venue.name}». ${venue.format === 'club' ? 'DJ-сеты резидентов, танцпол и музыка до утра.' : 'Музыкальный вечер, любимые композиции и специальная программа.'}`,
+          photo: image,
+          // Последнее событие площадки оставляем с текстовой афишей.
+          posters: i === count - 1 ? undefined : Array.from({ length: 2 + (seed + i) % 2 }, (_, index) => demoPosters[(seed + i + index) % demoPosters.length]!),
+          tickets: [std(500 + (seed % 7) * 200, 60 + seed % 8 * 20)],
+        })
+      }
+    }
+  }
+}
+
 // Демо: плотная московская афиша (8–14 событий в день на 3 недели), чтобы проверить большие списки
 function moscowFiller(): EventItem[] {
   const venues = ['red-velvet', 'garage-hall', 'neon-lounge', 'dubliner', 'philharmonia-bar']
@@ -69,6 +124,7 @@ function moscowFiller(): EventItem[] {
         time: times[(i * 3 + d) % times.length]!,
         description: 'Демо-событие для проверки длинной афиши.',
         photo: ph(`${genres[0]},concert`, 500 + n),
+        posters: n % 3 === 0 ? undefined : [demoPosters[n % demoPosters.length]!],
         tickets: [std(500 + ((n * 300) % 2500))],
       })
     }
