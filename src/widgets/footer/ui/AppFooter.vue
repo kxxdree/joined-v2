@@ -1,18 +1,14 @@
 <script setup lang="ts">
-import { NewsletterForm } from "@features/newsletter";
-import { UiIcon, UiLogo } from "@shared/ui";
+import { UiIcon } from "@shared/ui";
 
-const nav = [
+const links = [
   { to: "/", label: "Главная" },
   { to: "/venues", label: "Места" },
   { to: "/events", label: "Афиша" },
-  // { to: "/artists", label: "Артисты" }, // раздел артистов временно скрыт
   { to: "/about", label: "О нас" },
-];
-const partners = [
-  // заведения подключаем вручную: пишут нам, в ответ - ссылка на регистрацию (/register?role=venue)
   { to: "mailto:hello@joined.ru?subject=Подключить заведение", label: "Для заведений" },
-  // { to: "/register?role=artist", label: "Для музыкантов" }, // раздел артистов временно скрыт
+];
+const legal = [
   { to: "/rules", label: "Условия сервиса" },
   { to: "/rules#privacy", label: "Конфиденциальность" },
 ];
@@ -24,49 +20,37 @@ const socials = [
 </script>
 
 <template>
-  <footer class="relative mt-32 overflow-hidden px-3 pb-3 sm:px-6 sm:pb-6">
-    <div class="glass mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] [--lg-tint:rgb(255_255_255/0.02)] [--lg-blur:12px]">
-      <div class="grid grid-cols-1 gap-10 p-6 sm:p-10 lg:grid-cols-[1.2fr_auto_auto_1.3fr] lg:gap-14 lg:p-14">
-        <div>
-          <UiLogo />
-          <p class="mt-4 max-w-xs text-sm text-soft">Места, сцены и музыка в одном месте</p>
-          <div class="mt-6 flex items-center gap-2">
-            <a v-for="s in socials" :key="s.icon" href="#" :aria-label="s.label" class="btn-icon size-10"><UiIcon :name="s.icon" :size="18" /></a>
+  <footer class="relative mt-24 px-3 pb-3 sm:mt-32 sm:px-6 sm:pb-6">
+    <div class="relative isolate mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-[#1a1718] [container-type:inline-size] sm:rounded-[2.5rem]">
+      <div class="pointer-events-none absolute inset-0 -z-1 bg-[radial-gradient(ellipse_at_85%_120%,rgb(255_196_163/0.95)_0%,rgb(255_109_41/0.55)_30%,rgb(255_109_41/0.08)_55%,transparent_75%)]" aria-hidden="true" />
+
+      <div class="flex flex-col justify-between gap-9 px-6 pt-8 sm:flex-row sm:gap-12 sm:px-10 sm:pt-10 lg:px-12 lg:pt-12">
+        <nav aria-label="Навигация в подвале">
+          <ul class="space-y-2.5 text-lg leading-relaxed sm:text-xl">
+            <li v-for="link in links" :key="link.to">
+              <NuxtLink :to="link.to" class="inline-block transition-colors hover:text-sand">{{ link.label }}</NuxtLink>
+            </li>
+          </ul>
+        </nav>
+
+        <div class="flex flex-col items-start gap-4 sm:items-end sm:text-right">
+          <div class="-ml-2 flex items-center gap-1 sm:-mr-2 sm:ml-0">
+            <a v-for="social in socials" :key="social.icon" href="#" :aria-label="social.label" class="grid size-10 place-items-center text-white/90 transition-colors hover:text-sand"><UiIcon :name="social.icon" :size="22" /></a>
           </div>
-        </div>
-        <div class="grid min-w-0 grid-cols-1 gap-10 sm:grid-cols-2 lg:contents">
-          <div>
-            <h3 class="mb-5 text-sm text-white/50">Навигация</h3>
-            <ul class="space-y-3 text-sm">
-              <li v-for="l in nav" :key="l.label">
-                <NuxtLink :to="l.to" class="transition-colors hover:text-sand">{{ l.label }}</NuxtLink>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 class="mb-5 text-sm text-white/50">Партнёрам</h3>
-            <ul class="space-y-3 text-sm">
-              <li v-for="l in partners" :key="l.label">
-                <NuxtLink :to="l.to" class="transition-colors hover:text-sand">{{ l.label }}</NuxtLink>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div>
-          <h3 class="mb-5 text-sm text-white/50">Рассылка</h3>
-          <p class="mb-5 text-xl leading-snug font-medium">Афиша недели</p>
-          <NewsletterForm />
+          <a href="mailto:hello@joined.ru" class="text-sm text-soft transition-colors hover:text-sand sm:text-base">hello@joined.ru</a>
+          <p class="max-w-64 text-sm leading-relaxed text-white/60">Места, сцены и музыка<br>в одном месте</p>
         </div>
       </div>
 
-      <!-- Гигантский стеклянный вордмарк -->
-      <div class="pointer-events-none relative -mt-4 select-none overflow-hidden text-center" aria-hidden="true">
-        <span class=" block translate-y-[18%] text-[27vw] leading-[0.8] font-semibold tracking-[-0.07em] opacity-90 lg:text-[21rem]">JOINED</span>
+      <div class="relative mt-10 flex flex-col justify-between gap-4 px-6 text-[11px] leading-relaxed text-white/55 sm:mt-12 sm:flex-row sm:items-end sm:gap-8 sm:px-10 lg:px-12">
+        <nav class="flex flex-wrap gap-x-5 gap-y-2" aria-label="Правовая информация">
+          <NuxtLink v-for="link in legal" :key="link.to" :to="link.to" class="transition-colors hover:text-white">{{ link.label }}</NuxtLink>
+        </nav>
+        <span>© {{ new Date().getFullYear() }} Joined · 18+</span>
       </div>
 
-      <div class="relative flex flex-wrap justify-between gap-2 border-t border-line px-6 py-5 text-xs text-white/60 sm:px-10 lg:px-14">
-        <span>© {{ new Date().getFullYear() }} Joined. Места и живая музыка</span>
-        <span>18+</span>
+      <div class="pointer-events-none mt-8 overflow-hidden px-4 pb-4 text-center select-none sm:mt-10 sm:px-8 sm:pb-5" aria-hidden="true">
+        <span class="block bg-linear-to-b from-white/5 via-sand/25 to-sand/65 bg-clip-text font-display text-[18cqw] leading-[0.9] font-medium tracking-[-0.075em] text-transparent">JOINED</span>
       </div>
     </div>
   </footer>
