@@ -133,13 +133,13 @@ onBeforeUnmount(() => { if (import.meta.client) unlock() })
         <button v-if="eventIndex < orderedEvents.length - 1" type="button" class="btn-icon absolute top-1/2 right-3 hidden size-11 -translate-y-1/2 bg-[#222225] hover:bg-[#303033] sm:grid lg:right-5" aria-label="Следующая афиша" @click="goEvent(1)"><UiIcon name="chevron-right" :size="24" /></button>
 
         <article class="relative flex max-h-[calc(100dvh-6rem)] w-full max-w-6xl flex-col overflow-y-auto rounded-3xl border border-white/10 bg-[#1c191c] shadow-2xl lg:grid lg:max-h-[86dvh] lg:grid-cols-[minmax(0,1fr)_22rem] lg:overflow-hidden">
-          <header class="flex items-center gap-3 border-b border-white/10 px-5 py-4 lg:hidden">
+          <header class="hidden items-center gap-3 border-b border-white/10 px-5 py-4 sm:flex lg:hidden">
             <UiIcon name="calendar" class="text-accent-text" />
             <NuxtLink v-if="venue" :to="`/venues/${venue.slug}`" class="min-w-0 truncate pr-10 font-semibold hover:text-sand" @click="close">{{ venue.name }}</NuxtLink>
             <span v-else class="font-semibold">Joined / Афиша</span>
           </header>
 
-          <div class="relative isolate aspect-4/5 max-h-[58dvh] w-full shrink-0 touch-pan-y overflow-hidden bg-ink select-none lg:aspect-auto lg:h-[min(82dvh,48rem)] lg:max-h-none" aria-roledescription="карусель" aria-label="Фотографии афиши" @pointerdown="onPointerDown" @pointerup="onPointerUp($event, true)" @pointercancel="gesture = undefined" @dragstart.prevent>
+          <div class="relative isolate h-[calc(100dvh-6rem)] w-full shrink-0 touch-pan-y overflow-hidden bg-ink select-none sm:aspect-4/5 sm:h-auto sm:max-h-[58dvh] lg:aspect-auto lg:h-[min(82dvh,48rem)] lg:max-h-none" aria-roledescription="карусель" aria-label="Фотографии афиши" @pointerdown="onPointerDown" @pointerup="onPointerUp($event, true)" @pointercancel="gesture = undefined" @dragstart.prevent>
             <Transition mode="out-in" enter-active-class="transition-opacity duration-150 motion-reduce:transition-none" enter-from-class="opacity-0" leave-active-class="transition-opacity duration-100 motion-reduce:transition-none" leave-to-class="opacity-0">
               <div :key="`${event.id}-${photoIndex}`" class="absolute inset-0">
                 <EventTextPoster v-if="!image || failedPosters[image]" :event="event" :artist-names="artistNames" expanded />
