@@ -171,7 +171,7 @@ onBeforeUnmount(() => { if (import.meta.client) unlock() })
                 </template>
               </div>
             </div>
-            <span v-if="images.length > 1" class="absolute top-4 right-4 rounded-full border border-white/10 bg-black/65 px-3 py-1.5 text-xs font-semibold tabular-nums backdrop-blur-md">{{ photoIndex + 1 }} / {{ images.length }}</span>
+            <span v-if="images.length > 1" class="pointer-events-none absolute top-4 left-4 rounded-full border border-white/10 bg-black/65 px-3 py-1.5 text-xs font-semibold tabular-nums backdrop-blur-md">{{ photoIndex + 1 }} / {{ images.length }}</span>
             <button v-if="photoIndex > 0" type="button" class="btn-icon absolute top-1/2 left-3 size-9 -translate-y-1/2 rounded-full bg-black/65 hover:bg-black/85" aria-label="Предыдущее фото" @click="goPhoto(photoIndex - 1)"><UiIcon name="chevron-left" :size="20" /></button>
             <button v-if="photoIndex < images.length - 1" type="button" class="btn-icon absolute top-1/2 right-3 size-9 -translate-y-1/2 rounded-full bg-black/65 hover:bg-black/85" aria-label="Следующее фото" @click="goPhoto(photoIndex + 1)"><UiIcon name="chevron-right" :size="20" /></button>
           </div>
