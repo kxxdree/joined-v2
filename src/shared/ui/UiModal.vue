@@ -61,6 +61,7 @@ onBeforeUnmount(() => {
         <div
           role="dialog"
           aria-modal="true"
+          :aria-label="title"
           class="glass-strong lg-refract max-h-[92vh] w-full overflow-y-auto rounded-t-[2rem] p-5 transition-transform duration-300 [--lg-refract-blur:30px] sm:rounded-[2rem] sm:p-8"
           :class="[wide ? 'sm:max-w-3xl' : 'sm:max-w-lg', { 'glass-modal': glass }, panelClass]"
         >
