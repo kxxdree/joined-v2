@@ -3,6 +3,7 @@ import { cityName } from "@entities/city";
 import { events, isUpcoming } from "@entities/event";
 import { formatName, getVenue } from "@entities/venue";
 import { FavoriteButton } from "@features/favorites";
+import { BookingRequest } from "@features/book-table";
 import { ShareButton } from "@features/share";
 import { genreName } from "@shared/config";
 import { weekdayIndex } from "@shared/lib";
@@ -34,11 +35,19 @@ const tab = ref<TabId>(tabs.find((t) => t.id === route.query.tab)?.id ?? "schedu
 watch(tab, (t) => {
   if (route.query.tab !== t) navigateTo({ query: { ...route.query, tab: t } }, { replace: true });
 });
-watch(() => route.query.tab, (value) => {
-  tab.value = tabs.find((t) => t.id === value)?.id ?? "schedule";
-});
+watch(
+  () => route.query.tab,
+  (value) => {
+    tab.value = tabs.find((t) => t.id === value)?.id ?? "schedule";
+  },
+);
 const onTabKeydown = async (event: KeyboardEvent, index: number) => {
-  const directions: Record<string, number> = { ArrowRight: (index + 1) % tabs.length, ArrowLeft: (index - 1 + tabs.length) % tabs.length, Home: 0, End: tabs.length - 1 };
+  const directions: Record<string, number> = {
+    ArrowRight: (index + 1) % tabs.length,
+    ArrowLeft: (index - 1 + tabs.length) % tabs.length,
+    Home: 0,
+    End: tabs.length - 1,
+  };
   const next = directions[event.key];
   if (next === undefined) return;
   event.preventDefault();
@@ -46,12 +55,16 @@ const onTabKeydown = async (event: KeyboardEvent, index: number) => {
   await nextTick();
   tabTrack.value?.querySelector<HTMLButtonElement>('[aria-selected="true"]')?.focus({ preventScroll: true });
 };
-watch(tab, async () => {
-  await nextTick();
-  const track = tabTrack.value;
-  const selected = track?.querySelector<HTMLElement>('[aria-selected="true"]');
-  if (track && selected) track.scrollTo({ left: selected.offsetLeft - (track.clientWidth - selected.offsetWidth) / 2, behavior: "smooth" });
-}, { immediate: true });
+watch(
+  tab,
+  async () => {
+    await nextTick();
+    const track = tabTrack.value;
+    const selected = track?.querySelector<HTMLElement>('[aria-selected="true"]');
+    if (track && selected) track.scrollTo({ left: selected.offsetLeft - (track.clientWidth - selected.offsetWidth) / 2, behavior: "smooth" });
+  },
+  { immediate: true },
+);
 
 // «Забронировать»: открыть вкладку и доскроллить до условий (отступ сверху - scroll-mt под липкие шапку и вкладки)
 const bookingBlock = ref<HTMLElement>();
@@ -99,11 +112,15 @@ const todayIdx = weekdayIndex();
           </div>
           <a :href="`https://yandex.ru/maps/?pt=${v.lng},${v.lat}&z=16&l=map`" target="_blank" rel="noopener" class="group col-span-2 sm:col-span-1">
             <p class="text-xs text-muted">Адрес</p>
-            <p class="mt-1 text-xl font-medium underline decoration-white/30 underline-offset-4 transition-colors group-hover:text-sand group-hover:decoration-current">{{ cityName(v.city) }}, {{ v.address }}</p>
+            <p
+              class="mt-1 text-xl font-medium underline decoration-white/30 underline-offset-4 transition-colors group-hover:text-sand group-hover:decoration-current"
+            >
+              {{ cityName(v.city) }}, {{ v.address }}
+            </p>
           </a>
         </div>
         <div class="card flex items-center gap-2 p-3">
-          <button class="btn-primary flex-1 py-3.5" @click="openBooking"><UiIcon name="calendar" :size="18" /> Забронировать</button>
+          <button class="btn-primary flex-1 py-3.5" @click="openBooking">Забронировать</button>
           <FavoriteButton kind="venues" :id="v.slug" class="size-12" />
           <ShareButton :title="v.name" />
         </div>
@@ -112,7 +129,12 @@ const todayIdx = weekdayIndex();
 
     <nav class="container-x mt-6" aria-label="Разделы заведения">
       <div class="card overflow-hidden rounded-2xl">
-        <div ref="tabTrack" role="tablist" aria-label="Разделы заведения" class="relative flex gap-1 overflow-x-auto overscroll-x-contain p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div
+          ref="tabTrack"
+          role="tablist"
+          aria-label="Разделы заведения"
+          class="relative flex gap-1 overflow-x-auto overscroll-x-contain p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
           <button
             v-for="(t, index) in tabs"
             :id="`venue-tab-${t.id}`"
@@ -143,7 +165,7 @@ const todayIdx = weekdayIndex();
       <VenueMenu v-else-if="tab === 'menu'" :venue="v" />
       <VenueGallery v-else-if="tab === 'gallery'" :photos="v.gallery" />
 
-      <!-- Бронирование: условия в стиле меню + контакты для брони -->
+      <!-- Бронирование: условия и заявка на обратный звонок -->
       <div v-else-if="tab === 'booking'" ref="bookingBlock" class="card scroll-mt-40 p-6 sm:scroll-mt-44 sm:p-10">
         <h2 class="h-display mb-6 text-4xl sm:text-5xl">Условия бронирования</h2>
         <ul>
@@ -154,11 +176,8 @@ const todayIdx = weekdayIndex();
           <li v-for="c in v.booking.conditions" :key="c" class="border-b border-line py-3.5 text-base last:border-b-0">{{ c }}</li>
         </ul>
 
-        <div class="mt-8 flex flex-col gap-2 sm:flex-row">
-          <a :href="`https://t.me/${v.telegram.replace('@', '')}`" target="_blank" rel="noopener" class="btn-primary py-3.5">
-            <UiIcon name="telegram" :size="18" /> Написать в Telegram
-          </a>
-          <a :href="`tel:${v.phone.replace(/[^\d+]/g, '')}`" class="btn-dark py-3.5"><UiIcon name="phone" :size="18" /> {{ v.phone }}</a>
+        <div class="mt-8">
+          <BookingRequest :venue="v" />
         </div>
       </div>
 
