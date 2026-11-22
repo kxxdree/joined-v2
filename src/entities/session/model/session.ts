@@ -5,6 +5,7 @@ export type Role = 'user' | 'venue' | 'artist' | 'admin'
 export interface User {
   name: string
   email: string
+  phone?: string
   role: Role
 }
 

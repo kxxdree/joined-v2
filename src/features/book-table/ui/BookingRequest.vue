@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useSession } from '@entities/session'
 import type { Venue } from '@entities/venue'
-import { UiModal } from '@shared/ui'
+import { UiModal, UiRussianPhoneInput } from '@shared/ui'
+import { isRussianPhone } from '@shared/lib'
 
 defineProps<{ venue: Venue; hideTrigger?: boolean }>()
 const { user } = useSession()
@@ -11,56 +12,6 @@ const nameInput = ref<HTMLInputElement>()
 const form = reactive({ name: '', phone: '' })
 let previousFocus: HTMLElement | null = null
 
-const formatPhone = (value: string) => {
-  if (/^\s*\+/.test(value) && !/^\s*\+7/.test(value)) return ''
-  let digits = value.replace(/\D/g, '')
-  if (value.trim().startsWith('+7') || ([1, 11].includes(digits.length) && /^[78]/.test(digits))) digits = digits.slice(1)
-  digits = digits.slice(0, 10)
-  if (!digits) return value ? '+7' : ''
-  let result = `+7 (${digits.slice(0, 3)}`
-  if (digits.length >= 3) result += ') '
-  result += digits.slice(3, 6)
-  if (digits.length > 6) result += `-${digits.slice(6, 8)}`
-  if (digits.length > 8) result += `-${digits.slice(8, 10)}`
-  return result
-}
-
-const updatePhone = (input: HTMLInputElement, value: string, cursor: number) => {
-  let digitsBeforeCursor = value.slice(0, cursor).replace(/\D/g, '').length
-  const digits = value.replace(/\D/g, '')
-  if (digits && !value.trim().startsWith('+7') && !([1, 11].includes(digits.length) && /^[78]/.test(digits))) digitsBeforeCursor++
-  form.phone = formatPhone(value)
-  input.value = form.phone
-  let position = 0
-  let count = 0
-  while (position < input.value.length && count < digitsBeforeCursor) {
-    if (/\d/.test(input.value[position]!)) count++
-    position++
-  }
-  input.setSelectionRange(position, position)
-}
-
-const onPhoneInput = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  updatePhone(input, input.value, input.selectionStart ?? input.value.length)
-}
-
-// При удалении скобок и пробелов удаляем соседнюю цифру, чтобы маска не мешала редактированию.
-const onPhoneBeforeInput = (event: Event) => {
-  const inputEvent = event as InputEvent
-  if (!['deleteContentBackward', 'deleteContentForward'].includes(inputEvent.inputType)) return
-  const input = event.target as HTMLInputElement
-  const cursor = input.selectionStart ?? 0
-  if (cursor !== input.selectionEnd) return
-  const backward = inputEvent.inputType === 'deleteContentBackward'
-  let index = backward ? cursor - 1 : cursor
-  if (index < 2 || index >= input.value.length || /\d/.test(input.value[index]!)) return
-  event.preventDefault()
-  while (index >= 2 && index < input.value.length && !/\d/.test(input.value[index]!)) index += backward ? -1 : 1
-  if (index < 2 || index >= input.value.length) return
-  updatePhone(input, input.value.slice(0, index) + input.value.slice(index + 1), backward ? index : cursor)
-}
-
 const start = () => {
   open.value = true
 }
@@ -68,7 +19,7 @@ const start = () => {
 watch(open, async (value) => {
   if (value) {
     form.name = user.value?.name ?? ''
-    form.phone = ''
+    form.phone = user.value?.phone ?? ''
     error.value = ''
     previousFocus = document.activeElement as HTMLElement | null
     await nextTick()
@@ -96,13 +47,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 const submit = () => {
   error.value = ''
   const name = form.name.trim()
-  const digits = form.phone.replace(/\D/g, '')
   if (name.length < 2) {
     error.value = 'Введите имя - не менее двух символов.'
     nameInput.value?.focus()
     return
   }
-  if (!/^7[3489]\d{9}$/.test(digits)) {
+  if (!isRussianPhone(form.phone)) {
     error.value = 'Проверьте номер телефона'
     return
   }
@@ -127,7 +77,7 @@ const submit = () => {
       </label>
       <label>
         <span class="label">Номер телефона</span>
-        <input :value="form.phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (999) 123-45-67" class="field" required :aria-invalid="!!error || undefined" aria-describedby="booking-request-description booking-request-error" @input="onPhoneInput" @beforeinput="onPhoneBeforeInput">
+        <UiRussianPhoneInput v-model="form.phone" name="phone" class="field" required :aria-invalid="!!error || undefined" aria-describedby="booking-request-description booking-request-error" />
       </label>
       <p v-if="error" id="booking-request-error" role="alert" class="text-sm text-accent-text">{{ error }}</p>
       <button type="submit" class="btn-primary w-full py-3.5">Оставить заявку</button>

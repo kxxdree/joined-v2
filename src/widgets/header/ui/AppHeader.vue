@@ -51,7 +51,10 @@ watch(open, (v) => {
         >
           {{ l.label }}
         </NuxtLink>
-        <button v-if="user" class="text-white/70 transition-colors hover:text-white" @click="logout()">Выйти</button>
+        <template v-if="user">
+          <NuxtLink to="/profile" class="transition-colors" :class="isActive('/profile') ? 'text-white' : 'text-white/70 hover:text-white'">Профиль</NuxtLink>
+          <button class="text-white/70 transition-colors hover:text-white" @click="logout()">Выйти</button>
+        </template>
         <NuxtLink
           v-else
           to="/login"
@@ -93,6 +96,7 @@ watch(open, (v) => {
 
           <div class="mt-6 flex flex-col gap-2 px-1 pb-1">
             <template v-if="user">
+              <NuxtLink to="/profile" class="btn-primary py-4">Профиль</NuxtLink>
               <button class="btn-dark py-4" @click="logout()">Выйти</button>
             </template>
             <template v-else>
