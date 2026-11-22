@@ -14,7 +14,7 @@ const event = computed(() => orderedEvents.value[eventIndex.value])
 const venue = computed(() => event.value ? getVenue(event.value.venue) : undefined)
 const images = computed(() => event.value?.posters?.length ? event.value.posters : [''])
 const photoIndex = ref(0)
-const image = computed(() => images.value[photoIndex.value] ?? '')
+const photoTrack = ref<HTMLElement>()
 const failedPosters = ref<Record<string, boolean>>({})
 const onImageError = (e: Event) => {
   const src = (e.target as HTMLImageElement).getAttribute('src')
@@ -32,9 +32,27 @@ const goEvent = (direction: number) => {
   if (next) openId.value = next.id
 }
 const goPhoto = (index: number) => {
-  photoIndex.value = Math.max(0, Math.min(index, images.value.length - 1))
+  const track = photoTrack.value
+  if (!track) return
+  const next = Math.max(0, Math.min(index, images.value.length - 1))
+  track.scrollTo({
+    left: next * track.clientWidth,
+    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+  })
 }
-// На границе карусели свайп и клавиши переходят к соседнему мероприятию.
+const onPhotoScroll = () => {
+  const track = photoTrack.value
+  if (track?.clientWidth) photoIndex.value = Math.max(0, Math.min(Math.round(track.scrollLeft / track.clientWidth), images.value.length - 1))
+}
+watch(photoTrack, (track, _previous, onCleanup) => {
+  if (!track) return
+  const observer = new ResizeObserver(() => {
+    track.scrollTo({ left: photoIndex.value * track.clientWidth, behavior: 'instant' })
+  })
+  observer.observe(track)
+  onCleanup(() => observer.disconnect())
+}, { flush: 'post' })
+// На границе карусели клавиши переходят к соседнему мероприятию.
 const step = (direction: number) => {
   const next = photoIndex.value + direction
   if (next >= 0 && next < images.value.length) goPhoto(next)
@@ -52,7 +70,7 @@ const onPointerDown = (e: PointerEvent) => {
   gesture = { id: e.pointerId, x: e.clientX, y: e.clientY }
   ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
 }
-const onPointerUp = (e: PointerEvent, photos: boolean) => {
+const onPointerUp = (e: PointerEvent) => {
   const start = gesture
   gesture = undefined
   if (!start || start.id !== e.pointerId) return
@@ -60,8 +78,7 @@ const onPointerUp = (e: PointerEvent, photos: boolean) => {
   const dy = e.clientY - start.y
   if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy) * 1.4) return
   const direction = dx < 0 ? 1 : -1
-  if (photos) step(direction)
-  else goEvent(direction)
+  goEvent(direction)
 }
 
 const share = async () => {
@@ -139,22 +156,27 @@ onBeforeUnmount(() => { if (import.meta.client) unlock() })
             <span v-else class="font-semibold">Joined / Афиша</span>
           </header>
 
-          <div class="relative isolate h-[calc(100dvh-6rem)] w-full shrink-0 touch-pan-y overflow-hidden bg-ink select-none sm:aspect-4/5 sm:h-auto sm:max-h-[58dvh] lg:aspect-auto lg:h-[min(82dvh,48rem)] lg:max-h-none" aria-roledescription="карусель" aria-label="Фотографии афиши" @pointerdown="onPointerDown" @pointerup="onPointerUp($event, true)" @pointercancel="gesture = undefined" @dragstart.prevent>
-            <Transition mode="out-in" enter-active-class="transition-opacity duration-150 motion-reduce:transition-none" enter-from-class="opacity-0" leave-active-class="transition-opacity duration-100 motion-reduce:transition-none" leave-to-class="opacity-0">
-              <div :key="`${event.id}-${photoIndex}`" class="absolute inset-0">
-                <EventTextPoster v-if="!image || failedPosters[image]" :event="event" :artist-names="artistNames" expanded />
+          <div class="relative isolate h-[calc(100dvh-6rem)] w-full min-w-0 shrink-0 overflow-hidden bg-ink select-none sm:aspect-4/5 sm:h-auto sm:max-h-[58dvh] lg:aspect-auto lg:h-[min(82dvh,48rem)] lg:max-h-none" aria-roledescription="карусель" aria-label="Фотографии афиши" @dragstart.prevent>
+            <div
+              :key="event.id"
+              ref="photoTrack"
+              class="absolute inset-0 flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              @scroll.passive="onPhotoScroll"
+            >
+              <div v-for="(src, index) in images" :key="index" class="relative h-full w-full shrink-0 snap-center snap-always overflow-hidden">
+                <EventTextPoster v-if="!src || failedPosters[src]" :event="event" :artist-names="artistNames" expanded />
                 <template v-else>
-                  <img :src="image" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full scale-110 object-cover opacity-35 blur-2xl" draggable="false">
-                  <img :src="image" :alt="`${event.title} — фото ${photoIndex + 1} из ${images.length}`" class="relative h-full w-full object-contain" draggable="false" @error="onImageError">
+                  <img :src="src" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full scale-110 object-cover opacity-35 blur-2xl" draggable="false" loading="lazy">
+                  <img :src="src" :alt="`${event.title} — фото ${index + 1} из ${images.length}`" class="relative h-full w-full object-contain" draggable="false" loading="lazy" @error="onImageError">
                 </template>
               </div>
-            </Transition>
+            </div>
             <span v-if="images.length > 1" class="absolute top-4 right-4 rounded-full border border-white/10 bg-black/65 px-3 py-1.5 text-xs font-semibold tabular-nums backdrop-blur-md">{{ photoIndex + 1 }} / {{ images.length }}</span>
             <button v-if="photoIndex > 0" type="button" class="btn-icon absolute top-1/2 left-3 size-9 -translate-y-1/2 rounded-full bg-black/65 hover:bg-black/85" aria-label="Предыдущее фото" @click="goPhoto(photoIndex - 1)"><UiIcon name="chevron-left" :size="20" /></button>
             <button v-if="photoIndex < images.length - 1" type="button" class="btn-icon absolute top-1/2 right-3 size-9 -translate-y-1/2 rounded-full bg-black/65 hover:bg-black/85" aria-label="Следующее фото" @click="goPhoto(photoIndex + 1)"><UiIcon name="chevron-right" :size="20" /></button>
           </div>
 
-          <aside ref="details" class="flex min-h-0 flex-col touch-pan-y lg:overflow-y-auto" @pointerdown="onPointerDown" @pointerup="onPointerUp($event, false)" @pointercancel="gesture = undefined">
+          <aside ref="details" class="flex min-h-0 flex-col touch-pan-y lg:overflow-y-auto" @pointerdown="onPointerDown" @pointerup="onPointerUp" @pointercancel="gesture = undefined">
             <header class="hidden items-center gap-3 border-b border-white/10 px-6 py-5 lg:flex">
               <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-accent/15 text-accent-text"><UiIcon name="music" /></span>
               <div class="min-w-0"><NuxtLink v-if="venue" :to="`/venues/${venue.slug}`" class="block truncate font-semibold hover:text-sand" @click="close">{{ venue.name }}</NuxtLink></div>
