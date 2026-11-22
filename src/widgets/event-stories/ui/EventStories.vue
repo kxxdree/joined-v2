@@ -189,7 +189,7 @@ onBeforeUnmount(() => { if (import.meta.client) unlock() })
               <p v-if="venue" class="flex items-start gap-2 text-xs leading-relaxed text-muted"><UiIcon name="pin" :size="16" />{{ venue.address }}</p>
             </div>
             <footer class="space-y-4 border-t border-white/10 p-5 lg:p-6">
-              <div class="flex items-center justify-between gap-4"><p class="text-sm text-soft">Билеты <span class="ml-1 font-semibold text-white">от {{ formatPrice(minPrice(event)) }}</span></p><button type="button" class="btn-icon size-10 bg-[#282429] hover:bg-[#353036]" aria-label="Поделиться мероприятием" @click="share"><UiIcon name="share" :size="18" /></button></div>
+              <div class="flex items-center justify-between gap-4"><p class="text-sm text-soft">Вход <span class="ml-1 font-semibold text-white">от {{ formatPrice(minPrice(event)) }}</span></p><button type="button" class="btn-icon size-10 bg-[#282429] hover:bg-[#353036]" aria-label="Поделиться мероприятием" @click="share"><UiIcon name="share" :size="18" /></button></div>
               <NuxtLink v-if="venue" :to="`/venues/${venue.slug}?tab=booking`" class="btn-primary w-full py-3.5" @click="close">Забронировать</NuxtLink>
             </footer>
           </aside>
