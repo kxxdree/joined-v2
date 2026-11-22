@@ -3,9 +3,9 @@ import { useSession } from '@entities/session'
 import type { Venue } from '@entities/venue'
 import { UiModal } from '@shared/ui'
 
-defineProps<{ venue: Venue }>()
+defineProps<{ venue: Venue; hideTrigger?: boolean }>()
 const { user } = useSession()
-const open = ref(false)
+const open = defineModel<boolean>('open', { default: false })
 const error = ref('')
 const nameInput = ref<HTMLInputElement>()
 const form = reactive({ name: '', phone: '' })
@@ -62,14 +62,14 @@ const onPhoneBeforeInput = (event: Event) => {
 }
 
 const start = () => {
-  form.name = user.value?.name ?? ''
-  form.phone = ''
-  error.value = ''
   open.value = true
 }
 
 watch(open, async (value) => {
   if (value) {
+    form.name = user.value?.name ?? ''
+    form.phone = ''
+    error.value = ''
     previousFocus = document.activeElement as HTMLElement | null
     await nextTick()
     nameInput.value?.focus({ preventScroll: true })
@@ -111,7 +111,7 @@ const submit = () => {
 </script>
 
 <template>
-  <button type="button" class="btn-primary w-full px-5 py-3.5 sm:w-auto" @click="start">
+  <button v-if="!hideTrigger" type="button" class="btn-primary w-full px-5 py-3.5 sm:w-auto" @click="start">
     <span>Оставить заявку на бронирование</span>
   </button>
 

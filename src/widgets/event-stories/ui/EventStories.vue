@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { getArtist } from '@entities/artist'
 import { byDateTime, EventTextPoster, minPrice, type EventItem } from '@entities/event'
-import { getVenue } from '@entities/venue'
+import { getVenue, type Venue } from '@entities/venue'
+import { BookingRequest } from '@features/book-table'
 import { genreName } from '@shared/config'
 import { formatDate, formatPrice, useToast } from '@shared/lib'
 import { UiIcon } from '@shared/ui'
@@ -26,6 +27,16 @@ const dialog = ref<HTMLElement>()
 const closeButton = ref<HTMLButtonElement>()
 const details = ref<HTMLElement>()
 const close = () => { openId.value = null }
+const bookingVenue = shallowRef<Venue>()
+const bookingOpen = ref(false)
+const openBooking = async () => {
+  if (!venue.value) return
+  bookingVenue.value = venue.value
+  close()
+  // Сначала освобождаем фокус и блокировку прокрутки афиши, затем открываем заявку.
+  await nextTick()
+  bookingOpen.value = true
+}
 
 const goEvent = (direction: number) => {
   const next = orderedEvents.value[eventIndex.value + direction]
@@ -151,7 +162,6 @@ onBeforeUnmount(() => { if (import.meta.client) unlock() })
 
         <article class="relative flex max-h-[calc(100dvh-6rem)] w-full max-w-6xl flex-col overflow-y-auto rounded-3xl border border-white/10 bg-[#1c191c] shadow-2xl lg:grid lg:max-h-[86dvh] lg:grid-cols-[minmax(0,1fr)_22rem] lg:overflow-hidden">
           <header class="hidden items-center gap-3 border-b border-white/10 px-5 py-4 sm:flex lg:hidden">
-            <UiIcon name="calendar" class="text-accent-text" />
             <NuxtLink v-if="venue" :to="`/venues/${venue.slug}`" class="min-w-0 truncate pr-10 font-semibold hover:text-sand" @click="close">{{ venue.name }}</NuxtLink>
             <span v-else class="font-semibold">Joined / Афиша</span>
           </header>
@@ -178,7 +188,6 @@ onBeforeUnmount(() => { if (import.meta.client) unlock() })
 
           <aside ref="details" class="flex min-h-0 flex-col touch-pan-y lg:overflow-y-auto" @pointerdown="onPointerDown" @pointerup="onPointerUp" @pointercancel="gesture = undefined">
             <header class="hidden items-center gap-3 border-b border-white/10 px-6 py-5 lg:flex">
-              <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-accent/15 text-accent-text"><UiIcon name="music" /></span>
               <div class="min-w-0"><NuxtLink v-if="venue" :to="`/venues/${venue.slug}`" class="block truncate font-semibold hover:text-sand" @click="close">{{ venue.name }}</NuxtLink></div>
             </header>
             <div class="flex-1 space-y-5 p-5 lg:p-6">
@@ -189,8 +198,8 @@ onBeforeUnmount(() => { if (import.meta.client) unlock() })
               <p v-if="venue" class="flex items-start gap-2 text-xs leading-relaxed text-muted"><UiIcon name="pin" :size="16" />{{ venue.address }}</p>
             </div>
             <footer class="space-y-4 border-t border-white/10 p-5 lg:p-6">
-              <div class="flex items-center justify-between gap-4"><p class="text-sm text-soft">Вход <span class="ml-1 font-semibold text-white">от {{ formatPrice(minPrice(event)) }}</span></p><button type="button" class="btn-icon size-10 bg-[#282429] hover:bg-[#353036]" aria-label="Поделиться мероприятием" @click="share"><UiIcon name="share" :size="18" /></button></div>
-              <NuxtLink v-if="venue" :to="`/venues/${venue.slug}?tab=booking`" class="btn-primary w-full py-3.5" @click="close">Забронировать</NuxtLink>
+              <div class="flex items-center justify-between gap-4"><p class="text-sm text-soft">Вход<span class="ml-1 font-semibold text-white">от {{ formatPrice(minPrice(event)) }}</span></p><button type="button" class="btn-icon size-10 bg-[#282429] hover:bg-[#353036]" aria-label="Поделиться мероприятием" @click="share"><UiIcon name="share" :size="18" /></button></div>
+              <button v-if="venue" type="button" class="btn-primary w-full py-3.5" @click="openBooking">Забронировать</button>
             </footer>
           </aside>
         </article>
@@ -202,4 +211,5 @@ onBeforeUnmount(() => { if (import.meta.client) unlock() })
       </div>
     </Transition>
   </Teleport>
+  <BookingRequest v-if="bookingVenue" v-model:open="bookingOpen" :venue="bookingVenue" hide-trigger />
 </template>
