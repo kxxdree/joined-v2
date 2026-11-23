@@ -7,14 +7,14 @@ export interface VenueContent {
 }
 
 export const editorSections = [
-  { id: 'overview', name: 'О заведении', icon: 'glass', hint: 'Название, описание и атмосфера' },
-  { id: 'location', name: 'Адрес и контакты', icon: 'pin', hint: 'Как вас найти и связаться' },
-  { id: 'hours', name: 'Часы работы', icon: 'clock', hint: 'График на каждый день' },
-  { id: 'media', name: 'Фотографии', icon: 'image', hint: 'Обложка и галерея' },
-  { id: 'menu', name: 'Меню', icon: 'utensils', hint: 'Бар и кухня в фотографиях' },
-  { id: 'booking', name: 'Бронирование', icon: 'calendar', hint: 'Гости, депозит и условия' },
-  { id: 'events', name: 'Мероприятия', icon: 'music', hint: 'Афиша, артисты и билеты' },
-  { id: 'rules', name: 'Правила', icon: 'shield', hint: 'Что нужно знать гостям' },
+  { id: 'overview', name: 'О заведении' },
+  { id: 'location', name: 'Адрес и контакты' },
+  { id: 'hours', name: 'Часы работы' },
+  { id: 'media', name: 'Фотографии' },
+  { id: 'menu', name: 'Меню' },
+  { id: 'booking', name: 'Бронирование' },
+  { id: 'events', name: 'Мероприятия' },
+  { id: 'rules', name: 'Правила' },
 ] as const
 export type EditorSection = typeof editorSections[number]['id']
 export interface ContentIssue { section: EditorSection; message: string }
@@ -35,7 +35,7 @@ export const validateContent = (content: VenueContent): ContentIssue[] => {
   if (!/^\+?[\d\s()−-]{10,25}$/.test(venue.phone) || venue.phone.replace(/\D/g, '').length < 10) add('location', 'Укажите полный номер телефона.')
   if (!Number.isFinite(venue.lat) || Math.abs(venue.lat) > 90 || !Number.isFinite(venue.lng) || Math.abs(venue.lng) > 180) add('location', 'Проверьте координаты: широта от −90 до 90, долгота от −180 до 180.')
   if (venue.hours.length !== 7 || venue.hours.some(day => !day.day.trim() || !day.time.trim())) add('hours', 'Заполните часы для всех семи дней. Для выходного укажите «Закрыто».')
-  if (!venue.photo || !isImageSource(venue.photo)) add('media', 'Добавьте обложку: загрузите фото или укажите ссылку на изображение.')
+  if (!venue.photo || !isImageSource(venue.photo)) add('media', 'Добавьте обложку: загрузите фото.')
   if (venue.gallery.some(url => !isImageSource(url))) add('media', 'В галерее есть некорректная ссылка на фотографию.')
   if ([...venue.menu.bar, ...venue.menu.kitchen].some(url => !isImageSource(url))) add('menu', 'Проверьте ссылки на страницы меню.')
   if (!isNonNegative(venue.booking.deposit)) add('booking', 'Депозит должен быть числом не меньше нуля.')
