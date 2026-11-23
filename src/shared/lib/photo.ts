@@ -3,7 +3,7 @@
  * На сайте они тонируются в фирменный оранжевый (см. UiPhoto).
  * ph('jazz,piano', 3) → стабильное фото из подходящей категории.
  */
-const pool = {
+const photoIdsByCategory = {
   // интерьеры баров (#9 #10 #11 #14 #26 #35)
   bar: ['1572116469696-31de0f17cc34', '1525268323446-0505b6fe7778', '1543007630-9710e4a00a20', '1508700115892-45ecd05ae2ad', '1574096079513-d8259312b785', '1514320291840-2e0a9bf2a9ae'],
   // напитки и бармены (#0 #12 #22 #23 #24 #25)
@@ -22,9 +22,9 @@ const pool = {
   hiphop: ['1415886541506-6efc5e4b1786', '1487180144351-b8472da7d491', '1468164016595-6108e4c60c8b', '1576525865260-9f0e7cfb02b3'],
 } as const
 
-type Category = keyof typeof pool
+type PhotoCategory = keyof typeof photoIdsByCategory
 
-const keywordMap: Record<string, Category> = {
+const keywordMap: Record<string, PhotoCategory> = {
   bar: 'bar', pub: 'bar', interior: 'bar', bartender: 'bar', lounge: 'bar', neon: 'bar', lights: 'bar',
   cocktail: 'drinks', wine: 'drinks', beer: 'drinks', whiskey: 'drinks', candle: 'drinks',
   concert: 'crowd', crowd: 'crowd', festival: 'crowd', openair: 'crowd', stage: 'crowd', party: 'crowd', disco: 'crowd', halloween: 'crowd',
@@ -35,9 +35,9 @@ const keywordMap: Record<string, Category> = {
   rapper: 'hiphop', hiphop: 'hiphop', microphone: 'hiphop', city: 'hiphop', night: 'hiphop', dark: 'band',
 }
 
-export const ph = (keywords: string, lock: number, w = 900, h = 700) => {
+export const ph = (keywords: string, photoSeed: number, widthPx = 900, heightPx = 700) => {
   const category = keywords.split(/[^a-z]+/).map(k => keywordMap[k]).find(Boolean) ?? 'crowd'
-  const list = pool[category]
-  const id = list[lock % list.length]
-  return `https://images.unsplash.com/photo-${id}?w=${w}&h=${h}&fit=crop&q=70&auto=format`
+  const categoryPhotoIds = photoIdsByCategory[category]
+  const photoId = categoryPhotoIds[photoSeed % categoryPhotoIds.length]
+  return `https://images.unsplash.com/photo-${photoId}?w=${widthPx}&h=${heightPx}&fit=crop&q=70&auto=format`
 }

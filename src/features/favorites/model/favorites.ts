@@ -1,5 +1,5 @@
 import { useSession } from '@entities/session'
-import { usePersisted, useToast } from '@shared/lib'
+import { usePersisted } from '@shared/lib'
 
 export interface Favorites {
   venues: string[]
@@ -11,16 +11,14 @@ export type FavoriteKind = keyof Favorites
 export const useFavorites = () => {
   const favs = usePersisted<Favorites>('joined_favs', () => ({ venues: [], artists: [] }))
   const { requireAuth } = useSession()
-  const { push } = useToast()
 
   const has = (kind: FavoriteKind, id: string) => favs.value[kind].includes(id)
 
   const toggle = (kind: FavoriteKind, id: string) => {
     if (!requireAuth()) return
-    const list = favs.value[kind]
-    const added = !list.includes(id)
-    favs.value = { ...favs.value, [kind]: added ? [...list, id] : list.filter(x => x !== id) }
-    push(added ? 'Добавлено в избранное' : 'Удалено из избранного')
+    const favoriteIds = favs.value[kind]
+    const shouldAdd = !favoriteIds.includes(id)
+    favs.value = { ...favs.value, [kind]: shouldAdd ? [...favoriteIds, id] : favoriteIds.filter(x => x !== id) }
   }
 
   return { favs, has, toggle }

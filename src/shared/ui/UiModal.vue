@@ -30,7 +30,10 @@ const release = () => {
 watch(open, (v) => {
   if (!import.meta.client) return;
   if (v) {
-    if (!stack.length) document.body.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`;
+    if (!stack.length) {
+      const stableGutter = (getComputedStyle(document.documentElement).scrollbarGutter ?? "").includes("stable");
+      document.body.style.paddingRight = stableGutter ? "" : `${window.innerWidth - document.documentElement.clientWidth}px`;
+    }
     stack.push(id);
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
@@ -58,6 +61,7 @@ onBeforeUnmount(() => {
         <div
           role="dialog"
           aria-modal="true"
+          :aria-label="title"
           class="glass-strong lg-refract max-h-[92vh] w-full overflow-y-auto rounded-t-[2rem] p-5 transition-transform duration-300 [--lg-refract-blur:30px] sm:rounded-[2rem] sm:p-8"
           :class="[wide ? 'sm:max-w-3xl' : 'sm:max-w-lg', { 'glass-modal': glass }, panelClass]"
         >

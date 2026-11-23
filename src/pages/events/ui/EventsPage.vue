@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getArtist } from "@entities/artist";
 import { useCurrentCity } from "@entities/city";
-import { byDateTime, type EventItem, events, isUpcoming, minPrice } from "@entities/event";
+import { byDateTime, type EventItem, events, getEvent, isUpcoming, minPrice } from "@entities/event";
 import { getVenue } from "@entities/venue";
 import { CitySelect } from "@features/select-city";
 import { type GenreId, genres } from "@shared/config";
@@ -9,16 +9,41 @@ import { addDays, dayNumber, formatPrice, formatWeekdayLong, isWeekend, monthSho
 import { UiEmpty, UiIcon, UiPills } from "@shared/ui";
 import { EventStories } from "@widgets/event-stories";
 
-useHead({ title: "Афиша - Joined" });
-
 const route = useRoute();
 const { cityId, city } = useCurrentCity();
-const genre = ref<GenreId | "">((route.query.genre as GenreId) ?? "");
-const q = ref("");
+// Общие события заведений: один список для афиши и просмотра фотографий.
+const cityEvents = computed(() => events
+  .filter((e) => isUpcoming(e) && getVenue(e.venue)?.city === cityId.value)
+  .sort(byDateTime));
 
-// поиск по названию события, заведению и артистам лайнапа
-const matches = (e: EventItem, needle: string) =>
-  [e.title, getVenue(e.venue)?.name ?? "", ...e.artists.map((a) => getArtist(a)?.name ?? "")].some((s) => s.toLowerCase().includes(needle));
+const storyId = computed<string | null>({
+  get: () => {
+    const event = typeof route.query.event === "string" ? getEvent(route.query.event) : undefined;
+    return event && isUpcoming(event) && getVenue(event.venue) ? event.id : null;
+  },
+  set: (id) => {
+    navigateTo({ query: { ...route.query, event: id ?? undefined } }, { replace: true });
+  },
+});
+
+// Прямая ссылка на выступление открывает его даже при другом сохранённом городе.
+watch(storyId, (id) => {
+  const venue = id ? getVenue(getEvent(id)!.venue) : undefined;
+  if (venue) cityId.value = venue.city;
+}, { immediate: true });
+
+watch(cityId, (id) => {
+  if (storyId.value && getVenue(getEvent(storyId.value)!.venue)?.city !== id) storyId.value = null;
+});
+
+const openEvent = (event: MouseEvent, id: string) => {
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+  event.preventDefault();
+  storyId.value = id;
+};
+
+const genre = ref<GenreId | "">((route.query.genre as GenreId) ?? "");
+const searchQuery = ref("");
 
 const periods = [
   { id: "today", name: "Сегодня" },
@@ -27,10 +52,14 @@ const periods = [
   { id: "week", name: "Неделя" },
   { id: "month", name: "Месяц" },
 ] as const;
-type Period = (typeof periods)[number]["id"];
-const period = ref<Period | "">("");
+type EventPeriodId = (typeof periods)[number]["id"];
+const period = ref<EventPeriodId | "">("");
 
-const inPeriod = (date: string) => {
+// поиск по названию события, заведению и артистам лайнапа
+const matchesSearchQuery = (e: EventItem, normalizedSearchQuery: string) =>
+  [e.title, getVenue(e.venue)?.name ?? "", ...e.artists.map((a) => getArtist(a)?.name ?? "")].some((s) => s.toLowerCase().includes(normalizedSearchQuery));
+
+const isInSelectedPeriod = (date: string) => {
   const today = todayISO();
   switch (period.value) {
     case "today":
@@ -48,54 +77,47 @@ const inPeriod = (date: string) => {
   }
 };
 
-const grouped = computed(() => {
-  const needle = q.value.trim().toLowerCase();
-  const list = events
-    .filter((e) => isUpcoming(e) && getVenue(e.venue)?.city === cityId.value)
+const eventsByDate = computed(() => {
+  const normalizedSearchQuery = searchQuery.value.trim().toLowerCase();
+  const filteredEvents = cityEvents.value
     .filter((e) => !genre.value || e.genres.includes(genre.value))
-    .filter((e) => inPeriod(e.date))
-    .filter((e) => !needle || matches(e, needle))
-    .sort(byDateTime);
-  const map = new Map<string, EventItem[]>();
-  for (const e of list) map.set(e.date, [...(map.get(e.date) ?? []), e]);
-  return [...map.entries()];
+    .filter((e) => isInSelectedPeriod(e.date))
+    .filter((e) => !normalizedSearchQuery || matchesSearchQuery(e, normalizedSearchQuery));
+  const eventsByDateMap = new Map<string, EventItem[]>();
+  for (const e of filteredEvents) eventsByDateMap.set(e.date, [...(eventsByDateMap.get(e.date) ?? []), e]);
+  return [...eventsByDateMap.entries()];
 });
-
-// Истории: клик по событию открывает его афиши (листаются только внутри этого события).
-// Открытое событие - в ?event=: по такой ссылке (в т.ч. старые /events/:id) истории открываются сразу
-const storyId = ref<string | null>(typeof route.query.event === "string" ? route.query.event : null);
-watch(storyId, (id) => navigateTo({ query: { ...route.query, event: id ?? undefined } }, { replace: true }));
-// с модификаторами (новая вкладка и т.п.) ссылка работает как обычно
-const openStory = (e: MouseEvent, id: string) => {
-  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-  e.preventDefault();
-  storyId.value = id;
-};
 
 // Длинная афиша: дни подгружаются порциями, а длинный день свёрнут до первых событий
 const DAYS_STEP = 7;
 const PER_DAY = 5;
 const daysShown = ref(DAYS_STEP);
-const expanded = ref(new Set<string>());
-const visible = computed(() => grouped.value.slice(0, daysShown.value));
-const expand = (date: string) => (expanded.value = new Set(expanded.value).add(date));
-watch([genre, period, cityId, q], () => {
+const expandedDates = ref(new Set<string>());
+const visibleEventDays = computed(() => eventsByDate.value.slice(0, daysShown.value));
+const expandDate = (date: string) => (expandedDates.value = new Set(expandedDates.value).add(date));
+watch([genre, period, cityId, searchQuery], () => {
   daysShown.value = DAYS_STEP;
-  expanded.value = new Set();
+  expandedDates.value = new Set();
 });
+
+useHead({ title: "Афиша - Joined" });
 </script>
 
 <template>
   <div>
-    <section class="container-x pt-12 pb-12 text-center sm:pt-20">
-      <h1 class="h-display text-[17vw] sm:text-8xl lg:text-[9rem]">Афиша</h1>
-      <p class="mt-4 text-white/80">Концерты и вечеринки твоего города</p>
-      <!-- Строка поиска, как на странице мест: поле + город -->
-      <div class="search-bar relative z-30 mx-auto mt-8 flex max-w-2xl flex-col gap-1 p-2 sm:flex-row">
-        <label class="flex flex-1 items-center gap-3 px-3">
-          <UiIcon name="search" class="text-white/60" :size="18" />
+    <!-- Шапка в стиле самой афиши: компактный заголовок, поиск линией, текстовые фильтры с подписями -->
+    <section class="container-x pt-10 pb-8 sm:pt-16 sm:pb-10">
+      <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-2">
+        <h1 class="h-display text-6xl sm:text-7xl">Афиша</h1>
+        <!-- <p class="text-xs tracking-widest text-muted uppercase sm:pb-2">Концерты и вечеринки твоего города</p> -->
+      </div>
+
+      <!-- Строка поиска, как на странице мест: стеклянная плашка, поле + город -->
+      <div class="search-bar relative z-30 mt-6 flex flex-col gap-1 p-2 sm:flex-row">
+        <label class="flex min-w-0 flex-1 items-center gap-3 px-3">
+          <UiIcon name="search" class="shrink-0 text-white/60" :size="18" />
           <input
-            v-model="q"
+            v-model="searchQuery"
             type="search"
             placeholder="Событие, артист или заведение"
             class="w-full bg-transparent py-2.5 text-sm placeholder:text-white/50"
@@ -104,47 +126,57 @@ watch([genre, period, cityId, q], () => {
         </label>
         <CitySelect class="[&>button]:h-full [&>button]:w-full" />
       </div>
-      <div class="mt-6"><UiPills v-model="genre" :options="genres" center /></div>
-      <div class="mt-3"><UiPills v-model="period" :options="periods" all-label="Любая дата" center /></div>
+
+      <dl class="mt-5 grid gap-y-3 sm:grid-cols-[4.5rem_minmax(0,1fr)] sm:gap-x-6">
+        <dt class="text-[0.65rem] tracking-widest text-soft uppercase sm:pt-1.5">Жанр</dt>
+        <dd><UiPills v-model="genre" :options="genres" variant="text" /></dd>
+        <dt class="text-[0.65rem] tracking-widest text-soft uppercase max-sm:mt-2 sm:pt-1.5">Дата</dt>
+        <dd><UiPills v-model="period" :options="periods" all-label="Любая" variant="text" /></dd>
+      </dl>
     </section>
 
     <section class="container-x">
       <!-- Афиша-постер: крупная дата слева, события дня справа -->
-      <div v-if="grouped.length" class="card p-5 sm:p-10">
+      <div v-if="eventsByDate.length" class="events-poster card p-5 sm:p-10">
         <div class="mb-6 flex items-start justify-between gap-4 text-xs tracking-widest uppercase sm:mb-8">
           <span class="text-soft">Афиша<br />{{ city.name }}</span>
         </div>
 
-        <div v-for="[date, items] in visible" :key="date" class="grid gap-4 border-t border-line py-5 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-8">
-          <h2 class="h-display text-[16vw] leading-[0.85] uppercase sm:text-8xl lg:text-9xl" :class="isWeekend(date) ? 'text-sand' : ''">
+        <div v-for="[date, dayEvents] in visibleEventDays" :key="date" class="grid gap-4 border-t border-line py-5 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-8">
+          <h2 class="h-display text-[13vw] leading-[0.85] uppercase max-sm:whitespace-nowrap sm:text-8xl md:text-7xl lg:text-9xl" :class="isWeekend(date) ? 'text-sand' : ''">
             {{ monthShort(date) }} {{ dayNumber(date) }}
           </h2>
 
           <div class="space-y-4 md:pt-2">
             <p class="text-xs tracking-widest uppercase" :class="isWeekend(date) ? 'text-accent-text' : 'text-muted'">{{ formatWeekdayLong(date) }}</p>
-            <!-- клик - афиша в историях; ссылка с ?event= - для новой вкладки -->
-            <a v-for="e in expanded.has(date) ? items : items.slice(0, PER_DAY)" :key="e.id" :href="`/events?event=${e.id}`" class="group flex items-baseline justify-between gap-4" @click="openStory($event, e.id)">
+            <a
+              v-for="eventItem in expandedDates.has(date) ? dayEvents : dayEvents.slice(0, PER_DAY)"
+              :key="eventItem.id"
+              :href="`/events?event=${encodeURIComponent(eventItem.id)}`"
+              class="group flex items-baseline justify-between gap-4"
+              @click="openEvent($event, eventItem.id)"
+            >
               <div class="min-w-0">
-                <p class="font-medium uppercase transition-colors group-hover:text-sand">{{ e.title }}</p>
-                <p class="mt-0.5 text-xs tracking-wider text-muted uppercase">{{ getVenue(e.venue)?.name }} · {{ e.time }}</p>
+                <p class="font-medium uppercase transition-colors group-hover:text-sand">{{ eventItem.title }}</p>
+                <p class="mt-0.5 text-xs tracking-wider text-muted uppercase">{{ getVenue(eventItem.venue)?.name }} · {{ eventItem.time }}</p>
               </div>
-              <span class="shrink-0 text-sm tabular-nums">от {{ formatPrice(minPrice(e)) }}</span>
+              <span class="shrink-0 text-sm tabular-nums">от {{ formatPrice(minPrice(eventItem)) }}</span>
             </a>
-            <button v-if="!expanded.has(date) && items.length > PER_DAY" class="text-xs tracking-widest text-accent-text uppercase transition-colors hover:text-sand" @click="expand(date)">
-              Ещё {{ items.length - PER_DAY }} {{ plural(items.length - PER_DAY, ["событие", "события", "событий"]) }}
+            <button v-if="!expandedDates.has(date) && dayEvents.length > PER_DAY" class="text-xs tracking-widest text-accent-text uppercase transition-colors hover:text-sand" @click="expandDate(date)">
+              Ещё {{ dayEvents.length - PER_DAY }} {{ plural(dayEvents.length - PER_DAY, ["событие", "события", "событий"]) }}
             </button>
           </div>
         </div>
 
-        <div v-if="daysShown < grouped.length" class="border-t border-line pt-6 text-center">
-          <button class="btn-dark" @click="daysShown += DAYS_STEP">Показать ещё</button>
+        <div v-if="daysShown < eventsByDate.length" class="border-t border-line pt-6 text-center">
+          <button type="button" class="btn-dark btn-load-more" @click="daysShown += DAYS_STEP">Показать ещё</button>
         </div>
       </div>
-      <UiEmpty v-else icon="calendar" title="Событий не найдено" text="Попробуйте изменить запрос, жанр, дату или город.">
+      <UiEmpty v-else icon="calendar" title="Событий не найдено" text="">
         <button
           class="btn-dark"
           @click="
-            q = '';
+            searchQuery = '';
             genre = '';
             period = '';
           "
@@ -154,7 +186,13 @@ watch([genre, period, cityId, q], () => {
       </UiEmpty>
     </section>
 
-    <!-- все события, а не только выборка: по ссылке может прийти событие другого города или даты -->
-    <EventStories v-model="storyId" :events="events" />
+    <EventStories v-model="storyId" :events="cityEvents" />
   </div>
 </template>
+
+<style scoped>
+.events-poster {
+  --lg-tint: rgb(22 19 22 / 0.2);
+  --lg-blur: 8px;
+}
+</style>

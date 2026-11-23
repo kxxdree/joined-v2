@@ -10,22 +10,20 @@ import { UiEmpty, UiIcon, UiPhoto, UiSectionHead } from '@shared/ui'
 import { EventStories } from '@widgets/event-stories'
 
 const route = useRoute()
-const found = getArtist(String(route.params.slug))
-if (!found) throw createError({ statusCode: 404, message: 'Артист не найден', fatal: true })
-const a = found
+const foundArtist = getArtist(String(route.params.slug))
+if (!foundArtist) throw createError({ statusCode: 404, message: 'Артист не найден', fatal: true })
+const artist = foundArtist
 
-useHead({ title: `${a.name} - Joined`, meta: [{ name: 'description', content: a.short }] })
-
-const own = events.filter(e => e.artists.includes(a.slug))
+const artistEvents = events.filter(e => e.artists.includes(artist.slug))
 // концерты по датам, как на странице афиши
-const grouped = (() => {
-  const map = new Map<string, EventItem[]>()
-  for (const e of own.filter(isUpcoming).sort(byDateTime)) map.set(e.date, [...(map.get(e.date) ?? []), e])
-  return [...map.entries()]
+const eventsByDate = (() => {
+  const eventsByDateMap = new Map<string, EventItem[]>()
+  for (const e of artistEvents.filter(isUpcoming).sort(byDateTime)) eventsByDateMap.set(e.date, [...(eventsByDateMap.get(e.date) ?? []), e])
+  return [...eventsByDateMap.entries()]
 })()
-const where = (venueSlug: string) => {
-  const v = getVenue(venueSlug)
-  return v ? `${v.name} · ${cityName(v.city)}` : ''
+const formatVenueLocation = (venueSlug: string) => {
+  const venue = getVenue(venueSlug)
+  return venue ? `${venue.name} · ${cityName(venue.city)}` : ''
 }
 
 // концерт - афиша в историях; с модификаторами (новая вкладка и т.п.) ссылка работает как обычно
@@ -35,6 +33,8 @@ const openStory = (e: MouseEvent, id: string) => {
   e.preventDefault()
   storyId.value = id
 }
+
+useHead({ title: `${artist.name} - Joined`, meta: [{ name: 'description', content: artist.short }] })
 </script>
 
 <template>
@@ -46,11 +46,11 @@ const openStory = (e: MouseEvent, id: string) => {
       <article class="rim relative overflow-hidden rounded-4xl bg-ink">
         <!-- Постер -->
         <div class="relative aspect-4/5 sm:aspect-video lg:aspect-21/9">
-          <UiPhoto :src="a.photo" :alt="a.name" class="absolute inset-0 h-full w-full" />
+          <UiPhoto :src="artist.photo" :alt="artist.name" class="absolute inset-0 h-full w-full" />
           <div class="pointer-events-none absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-ink" />
 
           <div class="absolute inset-0 grid place-items-center px-4">
-            <h1 class="h-display text-center text-[13vw] font-bold lowercase sm:text-8xl lg:text-9xl">{{ a.name }}</h1>
+            <h1 class="h-display text-center text-[13vw] font-bold lowercase sm:text-8xl lg:text-9xl">{{ artist.name }}</h1>
           </div>
         </div>
 
@@ -60,22 +60,22 @@ const openStory = (e: MouseEvent, id: string) => {
             <h2 class="h-display text-3xl font-bold uppercase sm:text-4xl">Об артисте</h2>
             <p class="text-xs leading-relaxed text-muted">
               Город<br />
-              <span class="text-white">{{ cityName(a.city) }}</span>
+              <span class="text-white">{{ cityName(artist.city) }}</span>
             </p>
           </div>
 
           <div>
-            <p class="text-sm leading-relaxed text-soft">{{ a.bio }}</p>
+            <p class="text-sm leading-relaxed text-soft">{{ artist.bio }}</p>
             <p class="mt-4 flex flex-wrap gap-x-3 text-xs font-semibold tracking-wider uppercase">
-              <span v-for="g in a.genres" :key="g">{{ genreName(g) }}</span>
+              <span v-for="genreId in artist.genres" :key="genreId">{{ genreName(genreId) }}</span>
             </p>
 
             <div class="mt-10 flex items-center gap-2">
-              <FavoriteButton kind="artists" :id="a.slug" variant="label" />
-              <a v-if="a.socials?.instagram" :href="a.socials.instagram" target="_blank" rel="noopener" class="btn-icon size-12" aria-label="Instagram">
+              <FavoriteButton kind="artists" :id="artist.slug" variant="label" />
+              <a v-if="artist.socials?.instagram" :href="artist.socials.instagram" target="_blank" rel="noopener" class="btn-icon size-12" aria-label="Instagram">
                 <UiIcon name="instagram" :size="20" />
               </a>
-              <a v-if="a.socials?.telegram" :href="a.socials.telegram" target="_blank" rel="noopener" class="btn-icon size-12" aria-label="Telegram">
+              <a v-if="artist.socials?.telegram" :href="artist.socials.telegram" target="_blank" rel="noopener" class="btn-icon size-12" aria-label="Telegram">
                 <UiIcon name="telegram" :size="20" />
               </a>
             </div>
@@ -88,24 +88,24 @@ const openStory = (e: MouseEvent, id: string) => {
     <section class="container-x mt-24">
       <UiSectionHead eyebrow="Туры" title="Ближайшие выступления" />
       <!-- В стиле афиши: крупная дата слева, концерты дня справа -->
-      <div v-if="grouped.length" class="card p-5 sm:p-10">
+      <div v-if="eventsByDate.length" class="card p-5 sm:p-10">
         <div class="mb-6 flex items-start justify-between gap-4 text-xs tracking-widest uppercase sm:mb-8">
-          <span class="text-soft">Концерты<br />{{ a.name }}</span>
+          <span class="text-soft">Концерты<br />{{ artist.name }}</span>
         </div>
 
-        <div v-for="[date, items] in grouped" :key="date" class="grid gap-4 border-t border-line py-5 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-8">
-          <h2 class="h-display text-[16vw] leading-[0.85] uppercase sm:text-8xl lg:text-9xl" :class="isWeekend(date) ? 'text-sand' : ''">
+        <div v-for="[date, dayEvents] in eventsByDate" :key="date" class="grid gap-4 border-t border-line py-5 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-8">
+          <h2 class="h-display text-[16vw] leading-[0.85] uppercase sm:text-8xl md:text-7xl lg:text-9xl" :class="isWeekend(date) ? 'text-sand' : ''">
             {{ monthShort(date) }} {{ dayNumber(date) }}
           </h2>
 
           <div class="space-y-4 md:pt-2">
             <p class="text-xs tracking-widest uppercase" :class="isWeekend(date) ? 'text-accent-text' : 'text-muted'">{{ formatWeekdayLong(date) }}</p>
-            <a v-for="e in items" :key="e.id" :href="`/events?event=${e.id}`" class="group flex items-baseline justify-between gap-4" @click="openStory($event, e.id)">
+            <a v-for="eventItem in dayEvents" :key="eventItem.id" :href="`/events?event=${eventItem.id}`" class="group flex items-baseline justify-between gap-4" @click="openStory($event, eventItem.id)">
               <div class="min-w-0">
-                <p class="font-medium uppercase transition-colors group-hover:text-sand">{{ e.title }}</p>
-                <p class="mt-0.5 text-xs tracking-wider text-muted uppercase">{{ where(e.venue) }} · {{ e.time }}</p>
+                <p class="font-medium uppercase transition-colors group-hover:text-sand">{{ eventItem.title }}</p>
+                <p class="mt-0.5 text-xs tracking-wider text-muted uppercase">{{ formatVenueLocation(eventItem.venue) }} · {{ eventItem.time }}</p>
               </div>
-              <span class="shrink-0 text-sm tabular-nums">от {{ formatPrice(minPrice(e)) }}</span>
+              <span class="shrink-0 text-sm tabular-nums">от {{ formatPrice(minPrice(eventItem)) }}</span>
             </a>
           </div>
         </div>
@@ -113,6 +113,6 @@ const openStory = (e: MouseEvent, id: string) => {
       <UiEmpty v-else icon="calendar" title="Концертов пока нет" text="Новые даты появятся здесь, как только артист их объявит." />
     </section>
 
-    <EventStories v-model="storyId" :events="own" />
+    <EventStories v-model="storyId" :events="artistEvents" />
   </div>
 </template>

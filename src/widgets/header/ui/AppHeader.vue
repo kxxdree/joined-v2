@@ -11,15 +11,8 @@ const links = [
   { to: '/', label: 'Главная' },
   { to: '/venues', label: 'Места' },
   { to: '/events', label: 'Афиша' },
-  { to: '/artists', label: 'Артисты' },
+  // { to: '/artists', label: 'Артисты' }, // раздел артистов временно скрыт
 ]
-
-const cabinet = computed(() => {
-  if (!user.value) return null
-  if (user.value.role === 'admin') return { to: '/admin', label: 'Админ-панель' }
-  if (user.value.role === 'venue' || user.value.role === 'artist') return { to: '/partner', label: 'Профиль партнёра' }
-  return null
-})
 
 const isActive = (to: string) => (to === '/' ? route.path === '/' : route.path.startsWith(to))
 
@@ -46,11 +39,11 @@ watch(open, (v) => {
       :class="scrolled ? 'bg-ink/60 backdrop-blur-xl' : ''"
     >
       <!-- Название без иконки, обычными буквами - как «Joined©» на главной -->
-      <NuxtLink to="/" class="text-xl font-medium tracking-[-0.04em] transition-opacity duration-300 hover:opacity-70" aria-label="Joined - на главную">Joined</NuxtLink>
+      <NuxtLink to="/" class="text-2xl font-medium tracking-[-0.04em] transition-opacity duration-300 hover:opacity-70" aria-label="Joined - на главную">Joined</NuxtLink>
 
-      <nav class="hidden items-center gap-7 text-sm md:flex" aria-label="Основная навигация">
+      <nav class="hidden items-center gap-7 text-base md:flex" aria-label="Основная навигация">
         <NuxtLink
-          v-for="l in [...links, ...(cabinet ? [cabinet] : [])]"
+          v-for="l in links"
           :key="l.to"
           :to="l.to"
           class="transition-colors"
@@ -58,12 +51,17 @@ watch(open, (v) => {
         >
           {{ l.label }}
         </NuxtLink>
+        <template v-if="user">
+          <NuxtLink to="/profile" class="transition-colors" :class="isActive('/profile') ? 'text-white' : 'text-white/70 hover:text-white'">Профиль</NuxtLink>
+          <button class="text-white/70 transition-colors hover:text-white" @click="logout()">Выйти</button>
+        </template>
         <NuxtLink
-          :to="user ? '/account' : '/login'"
+          v-else
+          to="/login"
           class="transition-colors"
-          :class="isActive(user ? '/account' : '/login') ? 'text-white' : 'text-white/70 hover:text-white'"
+          :class="isActive('/login') ? 'text-white' : 'text-white/70 hover:text-white'"
         >
-          {{ user ? 'Профиль' : 'Войти' }}
+          Войти
         </NuxtLink>
       </nav>
 
@@ -87,7 +85,7 @@ watch(open, (v) => {
       <div v-if="open" class="glass-strong fixed inset-x-3 top-[5.25rem] max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-[2rem] p-3 md:hidden">
         <nav class="flex flex-col">
           <NuxtLink
-            v-for="l in [...links, ...(cabinet ? [cabinet] : [])]"
+            v-for="l in links"
             :key="l.to"
             :to="l.to"
             class="flex items-center rounded-lg px-4 py-3.5 text-xl font-medium tracking-tight transition-colors"
@@ -98,7 +96,7 @@ watch(open, (v) => {
 
           <div class="mt-6 flex flex-col gap-2 px-1 pb-1">
             <template v-if="user">
-              <NuxtLink to="/account" class="btn-primary py-4">Профиль</NuxtLink>
+              <NuxtLink to="/profile" class="btn-primary py-4">Профиль</NuxtLink>
               <button class="btn-dark py-4" @click="logout()">Выйти</button>
             </template>
             <template v-else>

@@ -1,74 +1,54 @@
-<script setup lang="ts">
-import { artists } from "@entities/artist";
-import { events } from "@entities/event";
-import { venues } from "@entities/venue";
+﻿<script setup lang="ts">
+import { useCurrentCity } from "@entities/city";
 import { CitySelect } from "@features/select-city";
-import { type GenreId, genres } from "@shared/config";
-import { UiBackdrop, UiIcon, UiSelect } from "@shared/ui";
+import backgroundArtists from "@shared/assets/images/background-welcome.jpg";
+import backgroundTexture from "@shared/assets/images/background-texture.jpg";
 
-useHead({ title: "JOINED" });
+const { city } = useCurrentCity();
 
-const genre = ref<GenreId | "">("");
-
-const search = () => navigateTo({ path: "/venues", query: { genre: genre.value || undefined } });
-
-// кнопки-триггеры селектов превращаются в подчёркнутые слова фразы: шрифт, размер и регистр - от фразы, без иконок и отступов;
-// overflow-visible у текста внутри - иначе обрезка (truncate) срезает подчёркивание
-// (модалки выбора телепортированы в body, на них [&_svg]:hidden не действует)
-const phraseWord =
-  "[&>button]:h-auto [&>button]:gap-0 [&>button]:p-0 [&>button]:text-[length:inherit] [&>button]:text-white [&>button]:uppercase [&_span]:overflow-visible [&>button]:underline [&>button]:decoration-white/40 [&>button]:underline-offset-[5px] [&>button:hover]:decoration-white [&_svg]:hidden";
-
-const stats = [
-  { value: venues.length * 37, label: "баров и площадок" },
-  { value: events.length * 61, label: "событий в месяц" },
-  { value: artists.length * 54, label: "музыкантов и групп" },
-];
+useHead({ title: "Joined" });
 </script>
 
 <template>
-  <div>
-    <!-- HERO: на всю высоту вьюпорта, заезжает под sticky-хедер (h-16 + pt-3 / sm:pt-4) -->
-    <section class="relative isolate -mt-19 flex min-h-dvh flex-col pt-19 sm:-mt-20 sm:pt-20">
-      <UiBackdrop />
-      <!-- Минималистичный логотип-подпись по центру фото: название + мелкая моноширинная подпись в две строки -->
-      <div class="container-x my-auto flex flex-col items-center py-14">
-        <h1 class="flex items-center gap-4 sm:gap-6">
-          <span class="text-4xl font-medium tracking-[-0.04em] sm:text-6xl">Joined</span>
-          <span class="font-mono text-[10px] leading-snug tracking-[0.14em] text-white/85 uppercase sm:text-xs">Места и музыка<br />твоего города</span>
-        </h1>
+  <section class="relative isolate -mt-19 flex min-h-svh flex-col bg-[#141315] pt-19 sm:-mt-20 sm:pt-20" aria-labelledby="home-title">
+    <div class="absolute inset-y-0 right-[43%] left-0 -z-1 isolate hidden overflow-hidden md:block" aria-hidden="true">
+      <img :src="backgroundTexture" alt="" decoding="async" class="absolute inset-0 h-full w-full object-cover" />
+    </div>
+    <div class="absolute inset-0 -z-1 isolate overflow-hidden after:absolute after:inset-0 after:bg-[linear-gradient(180deg,rgb(20_19_21/0.2),rgb(20_19_21/0.65))] md:left-[57%] md:after:hidden" aria-hidden="true">
+      <img :src="backgroundArtists" alt="" fetchpriority="high" decoding="async" class="absolute inset-0 h-full w-full object-cover object-[15%_center] md:object-center" />
+    </div>
 
-        <!-- Поиск-фраза тем же моноширинным шрифтом: «Ищу [жанр] в городе [город] →».
-             Жанр и город - подчёркнутые слова, выбор в стеклянных модалках; стрелка ведёт на «Бары и сцены» -->
-        <form class="mt-8 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-2 font-mono text-[11px] tracking-[0.14em] text-white/80 uppercase [text-shadow:0_1px_12px_rgb(0_0_0/0.7)] sm:text-xs" @submit.prevent="search">
-          <span>Ищу</span>
-          <UiSelect v-model="genre" :options="genres" all-label="Любой жанр" label="Жанр" inline modal :class="[phraseWord, '[&>button]:w-auto']" />
-          <span>в городе</span>
-          <CitySelect inline modal :class="phraseWord" />
-          <button type="submit" class="ml-1 grid size-8 place-items-center rounded-full bg-white text-ink transition-colors hover:bg-white/85" aria-label="Найти места">
-            <UiIcon name="arrow-right" :size="16" />
-          </button>
-        </form>
+    <div class="mx-auto my-auto w-full max-w-[100rem] px-[clamp(1.5rem,4.5vw,5rem)] pt-20 pb-12 md:pt-[clamp(5rem,14vh,10rem)] md:pb-16">
+      <div>
+        <h1 id="home-title" class="font-display text-[clamp(2.4rem,9.8vw,4.6rem)] leading-[1.05] font-bold tracking-[-0.065em] uppercase md:text-[clamp(2rem,6.4vw,6.6rem)] md:text-center">JOINED</h1>
       </div>
 
-      <!-- Большого футера на главной нет - обязательное (условия, 18+) тонкой строкой внизу первого экрана -->
-      <footer class="container-x flex flex-wrap items-center justify-between gap-x-6 gap-y-2 pb-5 text-xs text-white/60 sm:pb-6">
-        <span>© {{ new Date().getFullYear() }} Joined. Места и музыка</span>
-        <nav class="flex flex-wrap items-center gap-x-5 gap-y-2">
-          <NuxtLink to="/rules" class="transition-colors hover:text-sand">Условия сервиса</NuxtLink>
-          <NuxtLink to="/rules#privacy" class="transition-colors hover:text-sand">Конфиденциальность</NuxtLink>
-          <span>18+</span>
-        </nav>
-      </footer>
-    </section>
-
-    <!-- СТАТИСТИКА (временно скрыта) -->
-    <section v-if="false" class="container-x mt-28">
-      <div class="glass grid grid-cols-3 divide-x divide-line rounded-4xl">
-        <div v-for="s in stats" :key="s.label" class="p-4 text-center sm:p-10">
-          <div class="h-display text-3xl sm:text-7xl">{{ s.value }}+</div>
-          <div class="mt-2 text-xs text-white/70 sm:text-sm">{{ s.label }}</div>
+      <div class="mt-8 grid grid-cols-1 items-end gap-12 md:mt-[clamp(2rem,4.5vh,3rem)] md:grid-cols-[57fr_43fr] md:gap-0">
+        <div class="max-w-lg md:pr-8">
+          <div class="text-[clamp(0.875rem,4.5vw,1.5rem)] leading-[1.6] whitespace-nowrap text-white/72 md:text-[clamp(1.1rem,1.8vw,1.5rem)]">
+            Места и музыка
+            <CitySelect inline modal class="inline-block align-baseline [&>button]:h-auto [&>button]:p-0 [&>button]:text-[length:inherit] [&>button]:leading-[inherit] [&>button]:text-inherit [&>button]:underline [&>button]:decoration-white/45 [&>button]:underline-offset-[0.2em] [&>button:hover]:text-sand [&>button:hover]:decoration-current">твоего города</CitySelect>
+          </div>
+          <p class="mt-2 font-display text-[clamp(1.5rem,3vw,2.5rem)] leading-[1.2] wrap:anywhere" aria-live="polite">{{ city.name }}</p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <NuxtLink to="/venues" class="btn-primary min-h-14 min-w-36 px-7 py-3.5 text-base">
+              Начать
+            </NuxtLink>
+            <NuxtLink to="/events" class="btn-dark min-h-14 min-w-36 px-7 py-3.5 text-base bg-[#222225] hover:bg-[#303033]">
+              Афиша
+            </NuxtLink>
+          </div>
         </div>
       </div>
-    </section>
-  </div>
+    </div>
+
+    <footer class="mx-auto flex w-full max-w-[100rem] flex-wrap justify-between gap-x-8 gap-y-4 px-[clamp(1.5rem,4.5vw,5rem)] py-6 text-xs text-white/55 [&_a]:transition-colors [&_a]:duration-180 [&_a:hover]:text-sand">
+      <span>© {{ new Date().getFullYear() }} Joined</span>
+      <nav class="flex flex-wrap items-center gap-x-5 gap-y-2" aria-label="Правовая информация">
+        <NuxtLink to="/rules">Условия сервиса</NuxtLink>
+        <NuxtLink to="/rules#privacy">Конфиденциальность</NuxtLink>
+        <span>18+</span>
+      </nav>
+    </footer>
+  </section>
 </template>

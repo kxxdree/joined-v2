@@ -11,23 +11,22 @@ const { requireAuth } = useSession();
 const { add } = useBookings();
 const { push } = useToast();
 
-const slots = ["18:00", "19:00", "20:00", "21:00", "22:00", "23:00"];
+const bookingTimes = ["18:00", "19:00", "20:00", "21:00", "22:00", "23:00"];
 const form = reactive({ date: todayISO(), time: "20:00", guests: 2, comment: "" });
 const deposit = computed(() => form.guests * props.venue.booking.deposit);
-const payOpen = ref(false);
+const isPaymentOpen = ref(false);
 
-const start = () => {
-  if (requireAuth()) payOpen.value = true;
+const startBooking = () => {
+  if (requireAuth()) isPaymentOpen.value = true;
 };
 const onPaid = () => {
   add({ venue: props.venue.slug, date: form.date, time: form.time, guests: form.guests, deposit: deposit.value, comment: form.comment });
-  push("Столик забронирован! Детали - в личном кабинете");
-  navigateTo("/account?tab=bookings");
+  push("Столик забронирован!");
 };
 </script>
 
 <template>
-  <form class="card p-6 sm:p-8" @submit.prevent="start">
+  <form class="card p-6 sm:p-8" @submit.prevent="startBooking">
     <h2 class="mb-6 text-2xl font-medium">Забронировать столик</h2>
     <div class="grid gap-5">
       <label>
@@ -37,8 +36,8 @@ const onPaid = () => {
       <div>
         <span class="label">Время</span>
         <div class="grid grid-cols-3 gap-2 sm:grid-cols-6">
-          <button v-for="s in slots" :key="s" type="button" class="pill justify-center" :class="{ 'pill-active': form.time === s }" @click="form.time = s">
-            {{ s }}
+          <button v-for="bookingTime in bookingTimes" :key="bookingTime" type="button" class="pill justify-center" :class="{ 'pill-active': form.time === bookingTime }" @click="form.time = bookingTime">
+            {{ bookingTime }}
           </button>
         </div>
       </div>
@@ -71,7 +70,7 @@ const onPaid = () => {
     </div>
 
     <UiPaymentSheet
-      v-model="payOpen"
+      v-model="isPaymentOpen"
       :amount="deposit"
       :title="`Депозит · ${venue.name}`"
       :lines="[

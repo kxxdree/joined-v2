@@ -1,4 +1,5 @@
 import { ph } from '@shared/lib'
+import { cities } from '@entities/city'
 import type { Venue } from '../model/types'
 
 const weekHours = (weekday: string, weekend: string) => [
@@ -11,11 +12,11 @@ const weekHours = (weekday: string, weekend: string) => [
   { day: 'Вс', time: weekday },
 ]
 
-// Меню - фото страниц (вертикальные, как лист меню); в демо - заглушки
-const menuPage = (keywords: string, lock: number) => ph(keywords, lock, 700, 990)
+// Меню - фото страниц (вертикальные, как лист меню). Первая страница - настоящее меню из public/menu, дальше - заглушки
+const menuPage = (keywords: string, photoSeed: number) => ph(keywords, photoSeed, 700, 990)
 const menuPhotos = (seed: number) => ({
-  bar: [menuPage('cocktail', seed), menuPage('wine', seed + 1), menuPage('beer', seed + 2)],
-  kitchen: [menuPage('candle', seed + 3), menuPage('whiskey', seed + 4)],
+  bar: ['/menu/bar.jpg', menuPage('cocktail', seed), menuPage('wine', seed + 1), menuPage('beer', seed + 2)],
+  kitchen: ['/menu/kitchen.jpg', menuPage('candle', seed + 3), menuPage('whiskey', seed + 4)],
 })
 
 const baseRules = [
@@ -402,5 +403,180 @@ export const venues: Venue[] = [
     rules: [...baseRules, 'Вход до 22:00 свободный, после 22:00 - 500 ₽'],
   },
 ]
+
+// Дополнительные вымышленные площадки для проверки каталога и порционной выдачи.
+// Общие поля берём из пяти московских демопрофилей разных форматов.
+const moscowTemplates = venues.filter(v => v.city === 'moscow')
+const moscowDemoNames = [
+  { slug: 'medny-svet', name: 'Медный свет' },
+  { slug: 'perron-live', name: 'Перрон Live' },
+  { slug: 'vyshe-goroda', name: 'Выше города' },
+  { slug: 'stary-yakor', name: 'Старый якорь' },
+  { slug: 'tihaya-nota', name: 'Тихая нота' },
+  { slug: 'poluton', name: 'Полутон' },
+  { slug: 'tok-hall', name: 'Ток Hall' },
+  { slug: 'amber-room', name: 'Amber Room' },
+  { slug: 'severny-pab', name: 'Северный паб' },
+  { slug: 'vinyl-salon', name: 'Виниловый салон' },
+  { slug: 'posle-vosmi', name: 'После восьми' },
+  { slug: 'ceh-sound', name: 'Цех Sound' },
+  { slug: 'oblaka-lounge', name: 'Облака Lounge' },
+  { slug: 'dub-i-hmel', name: 'Дуб и хмель' },
+  { slug: 'komnata-royalya', name: 'Комната рояля' },
+  { slug: 'barhatny-vecher', name: 'Бархатный вечер' },
+  { slug: 'signal-stage', name: 'Сигнал Stage' },
+  { slug: 'panorama-nochi', name: 'Панорама ночи' },
+  { slug: 'trety-tost', name: 'Третий тост' },
+  { slug: 'belye-klavishi', name: 'Белые клавиши' },
+  { slug: 'iskra-bar', name: 'Искра Бар' },
+  { slug: 'ritm-hall', name: 'Ритм Hall' },
+  { slug: 'myagky-svet', name: 'Мягкий свет' },
+  { slug: 'hmel-i-med', name: 'Хмель и мёд' },
+  { slug: 'notny-dvor', name: 'Нотный двор' },
+  { slug: 'siniy-chas', name: 'Синий час' },
+  { slug: 'volna-live', name: 'Волна Live' },
+  { slug: 'teply-vozduh', name: 'Тёплый воздух' },
+  { slug: 'penny-lane-pub', name: 'Penny Lane Pub' },
+  { slug: 'lampa-i-vino', name: 'Лампа и вино' },
+  { slug: 'nochnaya-smena', name: 'Ночная смена' },
+]
+
+venues.push(...moscowDemoNames.map(({ slug, name }, i): Venue => {
+  const template = moscowTemplates[i % moscowTemplates.length]!
+  const seed = 300 + i * 12
+  return {
+    ...template,
+    slug,
+    name,
+    description: `Демонстрационная площадка «${name}». ${template.description}`,
+    popularity: 180 + (i * 73) % 1000,
+    photo: ph(['bar,interior', 'concert,stage', 'lounge,neon', 'pub,beer', 'jazz,piano'][i % 5]!, i + 30),
+    gallery: gallery(seed),
+    menu: menuPhotos(seed),
+  }
+}))
+
+// Вымышленные региональные площадки: по десять новых профилей в каждом городе.
+type RegionalVenue = [slug: string, name: string, address: string]
+const regionalVenues: Record<string, { phoneCode: string; places: RegionalVenue[] }> = {
+  spb: { phoneCode: '812', places: [
+    ['belye-nochi', 'Белые ночи', 'ул. Рубинштейна, 18'],
+    ['neva-stage', 'Neva Stage', 'Лиговский пр., 74'],
+    ['nad-fontankoy', 'Над Фонтанкой', 'наб. реки Фонтанки, 56'],
+    ['baltic-pub', 'Baltic Pub', 'Большой пр. П.С., 32'],
+    ['tok-nevy', 'Ток Невы', 'ул. Думская, 9'],
+    ['chernilnitsa', 'Чернильница', 'ул. Некрасова, 22'],
+    ['port-live', 'Порт Live', 'Кожевенная линия, 34'],
+    ['sever-room', 'Sever Room', 'ул. Марата, 28'],
+    ['medny-kot', 'Медный кот', 'ул. Маяковского, 15'],
+    ['polarnaya-noch', 'Полярная ночь', 'ул. Гороховая, 47'],
+  ] },
+  kazan: { phoneCode: '843', places: [
+    ['tatarskiy-vinil', 'Татарский винил', 'ул. Пушкина, 28'],
+    ['volga-hall', 'Volga Hall', 'ул. Петербургская, 42'],
+    ['nad-kazankoy', 'Над Казанкой', 'ул. Сибгата Хакима, 35'],
+    ['khmel-baumana', 'Хмель на Баумана', 'ул. Баумана, 62'],
+    ['ritm-kazan', 'Ритм Казани', 'ул. Профсоюзная, 16'],
+    ['yantar-kazan', 'Янтарь', 'ул. Щапова, 14'],
+    ['smena-stage', 'Смена Stage', 'ул. Габдуллы Тукая, 58'],
+    ['silk-lounge', 'Silk Lounge', 'ул. Карла Маркса, 39'],
+    ['dobryy-solod', 'Добрый солод', 'ул. Островского, 25'],
+    ['pulse-kazan', 'Pulse', 'ул. Московская, 31'],
+  ] },
+  ekb: { phoneCode: '343', places: [
+    ['malahit-bar', 'Малахит', 'ул. Вайнера, 18'],
+    ['zavod-live', 'Завод Live', 'ул. 8 Марта, 46'],
+    ['ural-sky', 'Ural Sky', 'ул. Бориса Ельцина, 8'],
+    ['sedoy-shakhter', 'Седой шахтёр', 'ул. Малышева, 72'],
+    ['tok-ural', 'Ток Урала', 'ул. Мамина-Сибиряка, 105'],
+    ['kasli-bar', 'Касли', 'ул. Радищева, 24'],
+    ['plotinka-stage', 'Плотинка Stage', 'пр. Ленина, 36'],
+    ['vecherniy-iset', 'Вечерняя Исеть', 'ул. Горького, 19'],
+    ['copper-pub', 'Copper Pub', 'ул. Куйбышева, 41'],
+    ['grani-club', 'Грани', 'ул. Луначарского, 83'],
+  ] },
+  nsk: { phoneCode: '383', places: [
+    ['tayga-bar', 'Тайга', 'ул. Ленина, 17'],
+    ['ob-stage', 'Обь Stage', 'ул. Советская, 32'],
+    ['siberian-sunset', 'Siberian Sunset', 'ул. Большевистская, 43'],
+    ['kedr-i-khmel', 'Кедр и хмель', 'ул. Депутатская, 12'],
+    ['impuls-nsk', 'Импульс', 'ул. Каменская, 26'],
+    ['snezhnyy-vinil', 'Снежный винил', 'Красный пр., 49'],
+    ['depo-live-nsk', 'Депо Live', 'ул. Фабричная, 21'],
+    ['aurora-room', 'Aurora Room', 'ул. Серебренниковская, 28'],
+    ['borovoy-pub', 'Боровой паб', 'ул. Чаплыгина, 45'],
+    ['minus-tridtsat', 'Минус тридцать', 'ул. Фрунзе, 19'],
+  ] },
+  voronezh: { phoneCode: '473', places: [
+    ['chernozem-bar', 'Чернозём Бар', 'ул. Карла Маркса, 44'],
+    ['don-hall', 'Don Hall', 'ул. Плехановская, 29'],
+    ['nad-vodoy', 'Над водой', 'ул. Софьи Перовской, 12'],
+    ['staryy-bobr', 'Старый бобр', 'ул. Фридриха Энгельса, 36'],
+    ['chastota-vrn', 'Частота', 'ул. Куколкина, 18'],
+    ['kniga-i-vino', 'Книга и вино', 'ул. Никитинская, 24'],
+    ['bereg-live', 'Берег Live', 'ул. Степана Разина, 38'],
+    ['south-room', 'South Room', 'пр. Революции, 48'],
+    ['dubovaya-bochka', 'Дубовая бочка', 'ул. Пушкинская, 17'],
+    ['orbita-vrn', 'Орбита', 'ул. Средне-Московская, 31'],
+  ] },
+  lipetsk: { phoneCode: '4742', places: [
+    ['lipa-bar', 'Липа', 'ул. Ленина, 18'],
+    ['splav-hall', 'Сплав Hall', 'ул. Советская, 48'],
+    ['petrovskiy-lounge', 'Петровский Lounge', 'ул. Петра Великого, 6'],
+    ['stalnoy-solod', 'Стальной солод', 'ул. Первомайская, 35'],
+    ['magnit-club', 'Магнит', 'ул. Зегеля, 23'],
+    ['teplyy-vinil', 'Тёплый винил', 'ул. Плеханова, 14'],
+    ['sokol-stage', 'Сокол Stage', 'ул. Гагарина, 52'],
+    ['river-room-lipetsk', 'River Room', 'ул. Карла Маркса, 9'],
+    ['dobryy-lis', 'Добрый лис', 'ул. Ворошилова, 21'],
+    ['kontur-lipetsk', 'Контур', 'ул. Интернациональная, 27'],
+  ] },
+}
+
+const regionalProfiles: (Pick<Venue, 'format' | 'genres' | 'drinks' | 'short' | 'description'> & { image: string; deposit: number })[] = [
+  { format: 'bar', genres: ['jazz', 'blues', 'live'], drinks: ['cocktails', 'wine', 'snacks'], image: 'cocktail,bar', deposit: 1000,
+    short: 'Коктейльный бар с джазом и виниловыми вечерами',
+    description: 'Камерный зал с мягким светом, авторские коктейли и коллекция винила. По средам играют джазовые трио, по выходным проходят блюзовые джемы.' },
+  { format: 'concert', genres: ['rock', 'indie', 'live'], drinks: ['craft', 'kitchen', 'snacks'], image: 'concert,stage', deposit: 800,
+    short: 'Живая сцена для рок-концертов и инди-фестивалей',
+    description: 'Просторный зал со сценой и отдельной барной зоной. В программе выступления местных групп, презентации альбомов и небольшие фестивали; на кухне готовят бургеры и горячие закуски.' },
+  { format: 'lounge', genres: ['electronic', 'pop', 'classical'], drinks: ['cocktails', 'wine', 'kitchen'], image: 'lounge,interior', deposit: 1800,
+    short: 'Лаунж с ужинами, фортепиано и вечерними DJ-сетами',
+    description: 'Мягкие диваны, сезонное меню и большая винная карта. В будни звучит фортепиано, а по пятницам и субботам резиденты играют спокойную электронику и диско.' },
+  { format: 'pub', genres: ['rock', 'blues', 'open'], drinks: ['craft', 'kitchen', 'snacks'], image: 'pub,beer', deposit: 600,
+    short: 'Крафтовый паб с рок-кавер-сетами и открытым микрофоном',
+    description: 'Деревянная стойка, краны с локальным крафтом и сытная кухня. По четвергам собираются участники открытого микрофона, по выходным выступают кавер-группы.' },
+  { format: 'club', genres: ['electronic', 'hiphop', 'pop'], drinks: ['cocktails', 'craft', 'snacks'], image: 'nightclub,dj', deposit: 1200,
+    short: 'Ночной клуб с электроникой и хип-хоп-вечеринками',
+    description: 'Танцпол с мощной звуковой системой, световыми инсталляциями и отдельной зоной отдыха. Локальные диджеи играют хаус, хип-хоп и танцевальные хиты до утра.' },
+]
+
+for (const [cityId, { phoneCode, places }] of Object.entries(regionalVenues)) {
+  const city = cities.find(c => c.id === cityId)!
+  const cityIndex = cities.indexOf(city)
+  venues.push(...places.map(([localSlug, name, address], i): Venue => {
+    const { image, deposit, ...profile } = regionalProfiles[i % regionalProfiles.length]!
+    const slug = `${cityId}-${localSlug}`
+    const seed = 1000 + cityIndex * 200 + i * 12
+    return {
+      ...profile,
+      slug, name, city: cityId, address,
+      directions: `Адрес: ${address}. Вход со стороны улицы, ориентир — вывеска «${name}».`,
+      lat: city.lat + ((i % 5) - 2) * 0.004,
+      lng: city.lng + (Math.floor(i / 5) * 2 - 1) * 0.008,
+      popularity: 150 + (cityIndex * 97 + i * 73) % 850,
+      description: `«${name}» ${city.where}. ${profile.description}`,
+      phone: `+7 (${phoneCode}) 555-${String(10 + cityIndex).padStart(2, '0')}-${String(10 + i).padStart(2, '0')}`,
+      instagram: `@${slug.replaceAll('-', '.')}`,
+      telegram: `@${slug.replaceAll('-', '_')}`,
+      hours: profile.format === 'club' ? weekHours('20:00 - 02:00', '22:00 - 06:00') : weekHours('16:00 - 00:00', '16:00 - 03:00'),
+      photo: ph(image, seed),
+      gallery: gallery(seed),
+      menu: menuPhotos(seed),
+      booking: baseBooking(deposit + Math.floor(i / 5) * 200),
+      rules: baseRules,
+    }
+  }))
+}
 
 export const getVenue = (slug: string) => venues.find(v => v.slug === slug)

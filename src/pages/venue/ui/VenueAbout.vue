@@ -4,7 +4,7 @@ import { weekdayIndex } from '@shared/lib'
 import { UiIcon, UiYandexMap } from '@shared/ui'
 
 defineProps<{ venue: Venue }>()
-const todayIdx = weekdayIndex()
+const todayWeekdayIndex = weekdayIndex()
 </script>
 
 <template>
@@ -38,10 +38,10 @@ const todayIdx = weekdayIndex()
         </div>
         <dl>
           <div v-for="(h, i) in venue.hours" :key="h.day" class="flex items-center justify-between gap-4 border-t border-line py-2.5">
-            <dt class="h-display text-4xl leading-[0.85] uppercase" :class="i === todayIdx ? 'text-sand' : ''">{{ h.day }}</dt>
+            <dt class="h-display text-4xl leading-[0.85] uppercase" :class="i === todayWeekdayIndex ? 'text-sand' : ''">{{ h.day }}</dt>
             <dd class="text-right">
-              <span v-if="i === todayIdx" class="block text-xs tracking-widest text-accent-text uppercase">сегодня</span>
-              <span class="text-sm tracking-wider uppercase tabular-nums" :class="i === todayIdx ? '' : 'text-soft'">{{ h.time }}</span>
+              <span v-if="i === todayWeekdayIndex" class="block text-xs tracking-widest text-accent-text uppercase">сегодня</span>
+              <span class="text-sm tracking-wider uppercase tabular-nums" :class="i === todayWeekdayIndex ? '' : 'text-soft'">{{ h.time }}</span>
             </dd>
           </div>
         </dl>
