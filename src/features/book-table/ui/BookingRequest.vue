@@ -5,8 +5,9 @@ import { UiModal, UiRussianPhoneInput } from '@shared/ui'
 import { isRussianPhone } from '@shared/lib'
 
 defineProps<{ venue: Venue; hideTrigger?: boolean }>()
-const { user } = useSession()
 const open = defineModel<boolean>('open', { default: false })
+
+const { user } = useSession()
 const error = ref('')
 const nameInput = ref<HTMLInputElement>()
 const form = reactive({ name: '', phone: '' })
@@ -41,9 +42,6 @@ const onKeydown = (event: KeyboardEvent) => {
     first?.focus()
   }
 }
-onMounted(() => window.addEventListener('keydown', onKeydown))
-onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
-
 const submit = () => {
   error.value = ''
   const name = form.name.trim()
@@ -58,6 +56,9 @@ const submit = () => {
   }
   open.value = false
 }
+
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 </script>
 
 <template>

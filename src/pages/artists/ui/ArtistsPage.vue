@@ -4,8 +4,6 @@ import { cities, cityName } from '@entities/city'
 import { type GenreId, genres } from '@shared/config'
 import { UiEmpty, UiIcon, UiPills, UiSelect } from '@shared/ui'
 
-useHead({ title: 'Артисты и группы - Joined' })
-
 const genre = ref<GenreId | ''>('')
 const city = ref('')
 const q = ref('')
@@ -17,6 +15,8 @@ const list = computed(() =>
     .filter(a => !q.value.trim() || a.name.toLowerCase().includes(q.value.trim().toLowerCase()))
     .sort((a, b) => b.followers - a.followers),
 )
+
+useHead({ title: 'Артисты и группы - Joined' })
 </script>
 
 <template>

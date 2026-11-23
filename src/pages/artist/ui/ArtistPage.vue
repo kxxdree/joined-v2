@@ -14,8 +14,6 @@ const found = getArtist(String(route.params.slug))
 if (!found) throw createError({ statusCode: 404, message: 'Артист не найден', fatal: true })
 const a = found
 
-useHead({ title: `${a.name} - Joined`, meta: [{ name: 'description', content: a.short }] })
-
 const own = events.filter(e => e.artists.includes(a.slug))
 // концерты по датам, как на странице афиши
 const grouped = (() => {
@@ -35,6 +33,8 @@ const openStory = (e: MouseEvent, id: string) => {
   e.preventDefault()
   storyId.value = id
 }
+
+useHead({ title: `${a.name} - Joined`, meta: [{ name: 'description', content: a.short }] })
 </script>
 
 <template>

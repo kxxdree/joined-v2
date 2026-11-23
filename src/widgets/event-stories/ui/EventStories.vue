@@ -9,6 +9,7 @@ import { UiIcon } from '@shared/ui'
 
 const props = defineProps<{ events: EventItem[] }>()
 const openId = defineModel<string | null>({ required: true })
+
 const orderedEvents = computed(() => [...props.events].sort(byDateTime))
 const eventIndex = computed(() => orderedEvents.value.findIndex(event => event.id === openId.value))
 const event = computed(() => orderedEvents.value[eventIndex.value])
@@ -17,18 +18,20 @@ const images = computed(() => event.value?.posters?.length ? event.value.posters
 const photoIndex = ref(0)
 const photoTrack = ref<HTMLElement>()
 const failedPosters = ref<Record<string, boolean>>({})
-const onImageError = (e: Event) => {
-  const src = (e.target as HTMLImageElement).getAttribute('src')
-  if (src) failedPosters.value[src] = true
-}
 const artistNames = computed(() => (event.value?.artists ?? []).map(id => getArtist(id)?.name).filter((name): name is string => !!name))
 const { push } = useToast()
 const dialog = ref<HTMLElement>()
 const closeButton = ref<HTMLButtonElement>()
 const details = ref<HTMLElement>()
-const close = () => { openId.value = null }
 const bookingVenue = shallowRef<Venue>()
 const bookingOpen = ref(false)
+let gesture: { id: number; x: number; y: number } | undefined
+
+const onImageError = (e: Event) => {
+  const src = (e.target as HTMLImageElement).getAttribute('src')
+  if (src) failedPosters.value[src] = true
+}
+const close = () => { openId.value = null }
 const openBooking = async () => {
   if (!venue.value) return
   bookingVenue.value = venue.value
@@ -75,7 +78,6 @@ watch(() => event.value?.id, () => {
   if (details.value) details.value.scrollTop = 0
 }, { flush: 'sync' })
 
-let gesture: { id: number; x: number; y: number } | undefined
 const onPointerDown = (e: PointerEvent) => {
   if (!e.isPrimary || e.button !== 0 || (e.target as HTMLElement).closest('button, a')) return
   gesture = { id: e.pointerId, x: e.clientX, y: e.clientY }

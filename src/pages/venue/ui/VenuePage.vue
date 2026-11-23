@@ -19,8 +19,6 @@ const found = getVenue(String(route.params.slug));
 if (!found) throw createError({ statusCode: 404, message: "Заведение не найдено", fatal: true });
 const v = found;
 
-useHead({ title: `${v.name} - Joined`, meta: [{ name: "description", content: v.short }] });
-
 const tabs = [
   { id: "schedule", name: "Афиша" },
   { id: "about", name: "О заведении" },
@@ -77,6 +75,8 @@ const openBooking = async () => {
 const venueEvents = events.filter((e) => e.venue === v.slug && isUpcoming(e));
 const storyId = ref<string | null>(null); // выступление из календаря, открытое в историях
 const todayIdx = weekdayIndex();
+
+useHead({ title: `${v.name} - Joined`, meta: [{ name: "description", content: v.short }] });
 </script>
 
 <template>

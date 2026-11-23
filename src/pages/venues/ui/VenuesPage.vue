@@ -8,8 +8,6 @@ import { type GenreId, genres } from "@shared/config";
 import { plural } from "@shared/lib";
 import { UiEmpty, UiIcon, UiModal, UiPills, UiSelect } from "@shared/ui";
 
-useHead({ title: "Бары и площадки - Joined" });
-
 const route = useRoute();
 const { cityId } = useCurrentCity();
 
@@ -29,6 +27,19 @@ const filterContext = useState("venues-filter-context", () => ({
   city: cityId.value,
   query: JSON.stringify([route.query.q ?? "", route.query.genre ?? ""]),
 }));
+
+const results = computed(() => {
+  const filtered = applyVenueFilters(
+    venues.filter((v) => v.city === cityId.value),
+    filters.value,
+  );
+  return sort.value === "name"
+    ? filtered.sort((a, b) => a.name.localeCompare(b.name, "ru") || a.slug.localeCompare(b.slug))
+    : filtered;
+});
+const visibleResults = computed(() => results.value.slice(0, visibleCount.value));
+const hasMore = computed(() => visibleResults.value.length < results.value.length);
+const extraCount = computed(() => countExtra(filters.value));
 
 // Состояние переживает переход в карточку. Новые параметры URL и город начинают выдачу заново.
 watch(
@@ -53,22 +64,10 @@ watch(
 
 watch([filters, sort], () => { visibleCount.value = pageSize; }, { deep: true, flush: "sync" });
 
-const results = computed(() => {
-  const filtered = applyVenueFilters(
-    venues.filter((v) => v.city === cityId.value),
-    filters.value,
-  );
-  return sort.value === "name"
-    ? filtered.sort((a, b) => a.name.localeCompare(b.name, "ru") || a.slug.localeCompare(b.slug))
-    : filtered;
-});
-const visibleResults = computed(() => results.value.slice(0, visibleCount.value));
-const hasMore = computed(() => visibleResults.value.length < results.value.length);
 const showMore = () => { visibleCount.value = Math.min(visibleCount.value + pageSize, results.value.length); };
-const extraCount = computed(() => countExtra(filters.value));
-
 const panelOpen = ref(false);
 const sheetOpen = ref(false);
+
 const toggleFilters = () => {
   if (window.matchMedia("(min-width: 768px)").matches) panelOpen.value = !panelOpen.value;
   else sheetOpen.value = true;
@@ -81,6 +80,8 @@ const reset = () => {
   panelOpen.value = false;
   sheetOpen.value = false;
 };
+
+useHead({ title: "Бары и площадки - Joined" });
 </script>
 
 <template>

@@ -6,21 +6,6 @@ import { UiEmpty, UiIcon, UiPills } from '@shared/ui'
 
 const props = defineProps<{ events: EventItem[] }>()
 const emit = defineEmits<{ open: [id: string] }>()
-const failedPosters = ref<Record<string, boolean>>({})
-const photoIndexes = ref<Record<string, number>>({})
-const posters = (event: EventItem) => event.posters?.length ? event.posters : ['']
-let gesture: { x: number; y: number; moved: boolean } | undefined
-const onPointerDown = (pointer: PointerEvent) => {
-  gesture = { x: pointer.clientX, y: pointer.clientY, moved: false }
-}
-const onPointerMove = (pointer: PointerEvent) => {
-  if (gesture && Math.hypot(pointer.clientX - gesture.x, pointer.clientY - gesture.y) > 10) gesture.moved = true
-}
-const onScroll = (scroll: Event, id: string) => {
-  const track = scroll.currentTarget as HTMLElement
-  if (gesture) gesture.moved = true
-  photoIndexes.value[id] = Math.round(track.scrollLeft / Math.max(1, track.clientWidth))
-}
 
 const periods = [
   { id: 'week', name: 'Неделя' },
@@ -32,6 +17,23 @@ const visibleEvents = computed(() => {
   const until = period.value === 'week' ? addDays(today, 7) : period.value === 'month' ? addDays(today, 31) : ''
   return props.events.filter(event => !until || event.date <= until).sort(byDateTime)
 })
+
+const failedPosters = ref<Record<string, boolean>>({})
+const photoIndexes = ref<Record<string, number>>({})
+let gesture: { x: number; y: number; moved: boolean } | undefined
+
+const posters = (event: EventItem) => event.posters?.length ? event.posters : ['']
+const onPointerDown = (pointer: PointerEvent) => {
+  gesture = { x: pointer.clientX, y: pointer.clientY, moved: false }
+}
+const onPointerMove = (pointer: PointerEvent) => {
+  if (gesture && Math.hypot(pointer.clientX - gesture.x, pointer.clientY - gesture.y) > 10) gesture.moved = true
+}
+const onScroll = (scroll: Event, id: string) => {
+  const track = scroll.currentTarget as HTMLElement
+  if (gesture) gesture.moved = true
+  photoIndexes.value[id] = Math.round(track.scrollLeft / Math.max(1, track.clientWidth))
+}
 
 const artistNames = (event: EventItem) =>
   event.artists.map(id => getArtist(id)?.name).filter((name): name is string => !!name)

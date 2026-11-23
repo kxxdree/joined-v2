@@ -18,6 +18,8 @@ const method = ref("card");
 const card = reactive({ number: "", exp: "", cvc: "" });
 const processing = ref(false);
 
+const valid = computed(() => method.value !== "card" || (card.number.replace(/\s/g, "").length === 16 && card.exp.length === 5 && card.cvc.length === 3));
+
 const fmtNumber = (e: Event) => {
   const v = (e.target as HTMLInputElement).value.replace(/\D/g, "").slice(0, 16);
   card.number = v.replace(/(.{4})/g, "$1 ").trim();
@@ -26,8 +28,6 @@ const fmtExp = (e: Event) => {
   const v = (e.target as HTMLInputElement).value.replace(/\D/g, "").slice(0, 4);
   card.exp = v.length > 2 ? `${v.slice(0, 2)}/${v.slice(2)}` : v;
 };
-
-const valid = computed(() => method.value !== "card" || (card.number.replace(/\s/g, "").length === 16 && card.exp.length === 5 && card.cvc.length === 3));
 
 const pay = async () => {
   processing.value = true;

@@ -9,13 +9,8 @@ import { addDays, dayNumber, formatPrice, formatWeekdayLong, isWeekend, monthSho
 import { UiEmpty, UiIcon, UiPills } from "@shared/ui";
 import { EventStories } from "@widgets/event-stories";
 
-useHead({ title: "Афиша - Joined" });
-
 const route = useRoute();
 const { cityId, city } = useCurrentCity();
-const genre = ref<GenreId | "">((route.query.genre as GenreId) ?? "");
-const q = ref("");
-
 // Общие события заведений: один список для афиши и просмотра фотографий.
 const cityEvents = computed(() => events
   .filter((e) => isUpcoming(e) && getVenue(e.venue)?.city === cityId.value)
@@ -47,9 +42,8 @@ const openEvent = (event: MouseEvent, id: string) => {
   storyId.value = id;
 };
 
-// поиск по названию события, заведению и артистам лайнапа
-const matches = (e: EventItem, needle: string) =>
-  [e.title, getVenue(e.venue)?.name ?? "", ...e.artists.map((a) => getArtist(a)?.name ?? "")].some((s) => s.toLowerCase().includes(needle));
+const genre = ref<GenreId | "">((route.query.genre as GenreId) ?? "");
+const q = ref("");
 
 const periods = [
   { id: "today", name: "Сегодня" },
@@ -60,6 +54,10 @@ const periods = [
 ] as const;
 type Period = (typeof periods)[number]["id"];
 const period = ref<Period | "">("");
+
+// поиск по названию события, заведению и артистам лайнапа
+const matches = (e: EventItem, needle: string) =>
+  [e.title, getVenue(e.venue)?.name ?? "", ...e.artists.map((a) => getArtist(a)?.name ?? "")].some((s) => s.toLowerCase().includes(needle));
 
 const inPeriod = (date: string) => {
   const today = todayISO();
@@ -101,6 +99,8 @@ watch([genre, period, cityId, q], () => {
   daysShown.value = DAYS_STEP;
   expanded.value = new Set();
 });
+
+useHead({ title: "Афиша - Joined" });
 </script>
 
 <template>

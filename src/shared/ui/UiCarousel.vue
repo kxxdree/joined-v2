@@ -6,6 +6,8 @@ const track = ref<HTMLElement>()
 const canPrev = ref(false)
 const canNext = ref(false)
 
+let ro: ResizeObserver | undefined
+
 const update = () => {
   const el = track.value
   if (!el) return
@@ -15,7 +17,6 @@ const update = () => {
 // листаем на ширину видимой части
 const go = (d: number) => track.value?.scrollBy({ left: d * track.value.clientWidth, behavior: 'smooth' })
 
-let ro: ResizeObserver | undefined
 onMounted(() => {
   ro = new ResizeObserver(update)
   ro.observe(track.value!)

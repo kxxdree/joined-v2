@@ -9,13 +9,6 @@ import { UiEmpty, UiPills } from '@shared/ui'
 const props = defineProps<{ events: EventItem[]; title?: string }>()
 const emit = defineEmits<{ open: [id: string] }>()
 
-// с модификаторами (новая вкладка и т.п.) ссылка работает как обычно
-const onClick = (e: MouseEvent, id: string) => {
-  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
-  e.preventDefault()
-  emit('open', id)
-}
-
 const periods = [
   { id: 'week', name: 'Неделя' },
   { id: 'month', name: 'Месяц' },
@@ -32,6 +25,13 @@ const grouped = computed(() => {
   }
   return [...map.entries()]
 })
+
+// с модификаторами (новая вкладка и т.п.) ссылка работает как обычно
+const onClick = (e: MouseEvent, id: string) => {
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+  e.preventDefault()
+  emit('open', id)
+}
 
 const artistNames = (e: EventItem) =>
   e.artists.map(a => getArtist(a)?.name).filter(Boolean).join(', ') || 'Резиденты заведения'

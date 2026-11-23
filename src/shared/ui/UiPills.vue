@@ -6,6 +6,9 @@ const props = withDefaults(
 )
 const model = defineModel<T | '' | T[]>({ required: true })
 
+// для текстового варианта «Все» - обычный пункт списка
+const items = computed(() => (props.allLabel === false ? props.options : [{ id: '' as T | '', name: props.allLabel }, ...props.options]))
+
 const isActive = (id: T | '') => {
   if (props.multiple) {
     const list = (model.value as T[]) ?? []
@@ -13,9 +16,6 @@ const isActive = (id: T | '') => {
   }
   return model.value === id
 }
-
-// для текстового варианта «Все» - обычный пункт списка
-const items = computed(() => (props.allLabel === false ? props.options : [{ id: '' as T | '', name: props.allLabel }, ...props.options]))
 
 const select = (id: T | '') => {
   if (!props.multiple) return (model.value = id)
