@@ -13,7 +13,7 @@ const weekHours = (weekday: string, weekend: string) => [
 ]
 
 // Меню - фото страниц (вертикальные, как лист меню). Первая страница - настоящее меню из public/menu, дальше - заглушки
-const menuPage = (keywords: string, lock: number) => ph(keywords, lock, 700, 990)
+const menuPage = (keywords: string, photoSeed: number) => ph(keywords, photoSeed, 700, 990)
 const menuPhotos = (seed: number) => ({
   bar: ['/menu/bar.jpg', menuPage('cocktail', seed), menuPage('wine', seed + 1), menuPage('beer', seed + 2)],
   kitchen: ['/menu/kitchen.jpg', menuPage('candle', seed + 3), menuPage('whiskey', seed + 4)],

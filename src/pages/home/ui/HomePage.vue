@@ -4,8 +4,9 @@ import { CitySelect } from "@features/select-city";
 import backgroundArtists from "@shared/assets/images/background-welcome.jpg";
 import backgroundTexture from "@shared/assets/images/background-texture.jpg";
 
-useHead({ title: "Joined" });
 const { city } = useCurrentCity();
+
+useHead({ title: "Joined" });
 </script>
 
 <template>

@@ -6,6 +6,6 @@
 export default defineNuxtPlugin(() => {
   const brands = (navigator as Navigator & { userAgentData?: { brands: { brand: string }[] } }).userAgentData?.brands ?? []
   const isChromium = brands.some(b => /Chromium|Google Chrome|Microsoft Edge/.test(b.brand))
-  const reduced = window.matchMedia('(prefers-reduced-transparency: reduce)').matches
-  if (isChromium && !reduced) document.documentElement.classList.add('lg-refraction')
+  const prefersReducedTransparency = window.matchMedia('(prefers-reduced-transparency: reduce)').matches
+  if (isChromium && !prefersReducedTransparency) document.documentElement.classList.add('lg-refraction')
 })

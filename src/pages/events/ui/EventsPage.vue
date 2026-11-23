@@ -9,13 +9,8 @@ import { addDays, dayNumber, formatPrice, formatWeekdayLong, isWeekend, monthSho
 import { UiEmpty, UiIcon, UiPills } from "@shared/ui";
 import { EventStories } from "@widgets/event-stories";
 
-useHead({ title: "Афиша - Joined" });
-
 const route = useRoute();
 const { cityId, city } = useCurrentCity();
-const genre = ref<GenreId | "">((route.query.genre as GenreId) ?? "");
-const q = ref("");
-
 // Общие события заведений: один список для афиши и просмотра фотографий.
 const cityEvents = computed(() => events
   .filter((e) => isUpcoming(e) && getVenue(e.venue)?.city === cityId.value)
@@ -47,9 +42,8 @@ const openEvent = (event: MouseEvent, id: string) => {
   storyId.value = id;
 };
 
-// поиск по названию события, заведению и артистам лайнапа
-const matches = (e: EventItem, needle: string) =>
-  [e.title, getVenue(e.venue)?.name ?? "", ...e.artists.map((a) => getArtist(a)?.name ?? "")].some((s) => s.toLowerCase().includes(needle));
+const genre = ref<GenreId | "">((route.query.genre as GenreId) ?? "");
+const searchQuery = ref("");
 
 const periods = [
   { id: "today", name: "Сегодня" },
@@ -58,10 +52,14 @@ const periods = [
   { id: "week", name: "Неделя" },
   { id: "month", name: "Месяц" },
 ] as const;
-type Period = (typeof periods)[number]["id"];
-const period = ref<Period | "">("");
+type EventPeriodId = (typeof periods)[number]["id"];
+const period = ref<EventPeriodId | "">("");
 
-const inPeriod = (date: string) => {
+// поиск по названию события, заведению и артистам лайнапа
+const matchesSearchQuery = (e: EventItem, normalizedSearchQuery: string) =>
+  [e.title, getVenue(e.venue)?.name ?? "", ...e.artists.map((a) => getArtist(a)?.name ?? "")].some((s) => s.toLowerCase().includes(normalizedSearchQuery));
+
+const isInSelectedPeriod = (date: string) => {
   const today = todayISO();
   switch (period.value) {
     case "today":
@@ -79,28 +77,30 @@ const inPeriod = (date: string) => {
   }
 };
 
-const grouped = computed(() => {
-  const needle = q.value.trim().toLowerCase();
-  const list = cityEvents.value
+const eventsByDate = computed(() => {
+  const normalizedSearchQuery = searchQuery.value.trim().toLowerCase();
+  const filteredEvents = cityEvents.value
     .filter((e) => !genre.value || e.genres.includes(genre.value))
-    .filter((e) => inPeriod(e.date))
-    .filter((e) => !needle || matches(e, needle));
-  const map = new Map<string, EventItem[]>();
-  for (const e of list) map.set(e.date, [...(map.get(e.date) ?? []), e]);
-  return [...map.entries()];
+    .filter((e) => isInSelectedPeriod(e.date))
+    .filter((e) => !normalizedSearchQuery || matchesSearchQuery(e, normalizedSearchQuery));
+  const eventsByDateMap = new Map<string, EventItem[]>();
+  for (const e of filteredEvents) eventsByDateMap.set(e.date, [...(eventsByDateMap.get(e.date) ?? []), e]);
+  return [...eventsByDateMap.entries()];
 });
 
 // Длинная афиша: дни подгружаются порциями, а длинный день свёрнут до первых событий
 const DAYS_STEP = 7;
 const PER_DAY = 5;
 const daysShown = ref(DAYS_STEP);
-const expanded = ref(new Set<string>());
-const visible = computed(() => grouped.value.slice(0, daysShown.value));
-const expand = (date: string) => (expanded.value = new Set(expanded.value).add(date));
-watch([genre, period, cityId, q], () => {
+const expandedDates = ref(new Set<string>());
+const visibleEventDays = computed(() => eventsByDate.value.slice(0, daysShown.value));
+const expandDate = (date: string) => (expandedDates.value = new Set(expandedDates.value).add(date));
+watch([genre, period, cityId, searchQuery], () => {
   daysShown.value = DAYS_STEP;
-  expanded.value = new Set();
+  expandedDates.value = new Set();
 });
+
+useHead({ title: "Афиша - Joined" });
 </script>
 
 <template>
@@ -117,7 +117,7 @@ watch([genre, period, cityId, q], () => {
         <label class="flex min-w-0 flex-1 items-center gap-3 px-3">
           <UiIcon name="search" class="shrink-0 text-white/60" :size="18" />
           <input
-            v-model="q"
+            v-model="searchQuery"
             type="search"
             placeholder="Событие, артист или заведение"
             class="w-full bg-transparent py-2.5 text-sm placeholder:text-white/50"
@@ -137,12 +137,12 @@ watch([genre, period, cityId, q], () => {
 
     <section class="container-x">
       <!-- Афиша-постер: крупная дата слева, события дня справа -->
-      <div v-if="grouped.length" class="events-poster card p-5 sm:p-10">
+      <div v-if="eventsByDate.length" class="events-poster card p-5 sm:p-10">
         <div class="mb-6 flex items-start justify-between gap-4 text-xs tracking-widest uppercase sm:mb-8">
           <span class="text-soft">Афиша<br />{{ city.name }}</span>
         </div>
 
-        <div v-for="[date, items] in visible" :key="date" class="grid gap-4 border-t border-line py-5 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-8">
+        <div v-for="[date, dayEvents] in visibleEventDays" :key="date" class="grid gap-4 border-t border-line py-5 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-8">
           <h2 class="h-display text-[13vw] leading-[0.85] uppercase max-sm:whitespace-nowrap sm:text-8xl md:text-7xl lg:text-9xl" :class="isWeekend(date) ? 'text-sand' : ''">
             {{ monthShort(date) }} {{ dayNumber(date) }}
           </h2>
@@ -150,25 +150,25 @@ watch([genre, period, cityId, q], () => {
           <div class="space-y-4 md:pt-2">
             <p class="text-xs tracking-widest uppercase" :class="isWeekend(date) ? 'text-accent-text' : 'text-muted'">{{ formatWeekdayLong(date) }}</p>
             <a
-              v-for="e in expanded.has(date) ? items : items.slice(0, PER_DAY)"
-              :key="e.id"
-              :href="`/events?event=${encodeURIComponent(e.id)}`"
+              v-for="eventItem in expandedDates.has(date) ? dayEvents : dayEvents.slice(0, PER_DAY)"
+              :key="eventItem.id"
+              :href="`/events?event=${encodeURIComponent(eventItem.id)}`"
               class="group flex items-baseline justify-between gap-4"
-              @click="openEvent($event, e.id)"
+              @click="openEvent($event, eventItem.id)"
             >
               <div class="min-w-0">
-                <p class="font-medium uppercase transition-colors group-hover:text-sand">{{ e.title }}</p>
-                <p class="mt-0.5 text-xs tracking-wider text-muted uppercase">{{ getVenue(e.venue)?.name }} · {{ e.time }}</p>
+                <p class="font-medium uppercase transition-colors group-hover:text-sand">{{ eventItem.title }}</p>
+                <p class="mt-0.5 text-xs tracking-wider text-muted uppercase">{{ getVenue(eventItem.venue)?.name }} · {{ eventItem.time }}</p>
               </div>
-              <span class="shrink-0 text-sm tabular-nums">от {{ formatPrice(minPrice(e)) }}</span>
+              <span class="shrink-0 text-sm tabular-nums">от {{ formatPrice(minPrice(eventItem)) }}</span>
             </a>
-            <button v-if="!expanded.has(date) && items.length > PER_DAY" class="text-xs tracking-widest text-accent-text uppercase transition-colors hover:text-sand" @click="expand(date)">
-              Ещё {{ items.length - PER_DAY }} {{ plural(items.length - PER_DAY, ["событие", "события", "событий"]) }}
+            <button v-if="!expandedDates.has(date) && dayEvents.length > PER_DAY" class="text-xs tracking-widest text-accent-text uppercase transition-colors hover:text-sand" @click="expandDate(date)">
+              Ещё {{ dayEvents.length - PER_DAY }} {{ plural(dayEvents.length - PER_DAY, ["событие", "события", "событий"]) }}
             </button>
           </div>
         </div>
 
-        <div v-if="daysShown < grouped.length" class="border-t border-line pt-6 text-center">
+        <div v-if="daysShown < eventsByDate.length" class="border-t border-line pt-6 text-center">
           <button type="button" class="btn-dark btn-load-more" @click="daysShown += DAYS_STEP">Показать ещё</button>
         </div>
       </div>
@@ -176,7 +176,7 @@ watch([genre, period, cityId, q], () => {
         <button
           class="btn-dark"
           @click="
-            q = '';
+            searchQuery = '';
             genre = '';
             period = '';
           "

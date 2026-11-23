@@ -6,12 +6,11 @@ import { FavoriteButton, useFavorites } from "@features/favorites";
 import { isEmail, isRussianPhone } from "@shared/lib";
 import { UiEmpty, UiRussianPhoneInput } from "@shared/ui";
 
-useHead({ title: "Профиль - Joined" });
-
 const { user } = useSession();
 const { favs } = useFavorites();
 const favoriteVenues = computed(() => favs.value.venues.map(getVenue).filter((venue): venue is Venue => !!venue));
 
+const formElement = ref<HTMLFormElement>();
 const form = reactive({ name: user.value?.name ?? "", phone: user.value?.phone ?? "", email: user.value?.email ?? "" });
 const errors = reactive({ name: "", phone: "", email: "" });
 const saved = ref(false);
@@ -28,7 +27,6 @@ watch(form, () => {
   saved.value = false;
 });
 
-const formElement = ref<HTMLFormElement>();
 const save = async () => {
   if (!user.value) return;
   errors.name = form.name.trim().length < 2 ? "Введите имя — не менее двух символов." : "";
@@ -44,6 +42,8 @@ const save = async () => {
   await nextTick();
   saved.value = true;
 };
+
+useHead({ title: "Профиль - Joined" });
 </script>
 
 <template>

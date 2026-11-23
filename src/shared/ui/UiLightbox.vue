@@ -13,22 +13,22 @@ const track = ref<HTMLElement>()
 
 // Индекс по позиции прокрутки: листается свайпом/тачпадом, стрелками и клавиатурой
 const onScroll = () => {
-  const el = track.value
-  if (el && current.value !== null) current.value = Math.round(el.scrollLeft / el.clientWidth)
+  const trackElement = track.value
+  if (trackElement && current.value !== null) current.value = Math.round(trackElement.scrollLeft / trackElement.clientWidth)
 }
-const go = (i: number) => {
-  const el = track.value
-  if (!el) return
-  const to = Math.min(Math.max(i, 0), props.photos.length - 1)
-  el.scrollTo({ left: to * el.clientWidth, behavior: 'smooth' })
+const scrollToPhoto = (i: number) => {
+  const trackElement = track.value
+  if (!trackElement) return
+  const targetPhotoIndex = Math.min(Math.max(i, 0), props.photos.length - 1)
+  trackElement.scrollTo({ left: targetPhotoIndex * trackElement.clientWidth, behavior: 'smooth' })
 }
 const close = () => { current.value = null }
 
 const onKey = (e: KeyboardEvent) => {
   if (current.value === null) return
   if (e.key === 'Escape') close()
-  else if (e.key === 'ArrowLeft') go(current.value - 1)
-  else if (e.key === 'ArrowRight') go(current.value + 1)
+  else if (e.key === 'ArrowLeft') scrollToPhoto(current.value - 1)
+  else if (e.key === 'ArrowRight') scrollToPhoto(current.value + 1)
 }
 
 const unlock = () => {
@@ -75,7 +75,7 @@ onBeforeUnmount(() => { if (import.meta.client && current.value !== null) unlock
             type="button"
             class="absolute top-1/2 left-3 grid size-7 -translate-y-1/2 place-items-center rounded-full bg-white/80 text-black shadow transition-colors hover:bg-white max-sm:hidden"
             aria-label="Предыдущее фото"
-            @click="go(current - 1)"
+            @click="scrollToPhoto(current - 1)"
           >
             <UiIcon name="chevron-left" :size="16" />
           </button>
@@ -84,7 +84,7 @@ onBeforeUnmount(() => { if (import.meta.client && current.value !== null) unlock
             type="button"
             class="absolute top-1/2 right-3 grid size-7 -translate-y-1/2 place-items-center rounded-full bg-white/80 text-black shadow transition-colors hover:bg-white max-sm:hidden"
             aria-label="Следующее фото"
-            @click="go(current + 1)"
+            @click="scrollToPhoto(current + 1)"
           >
             <UiIcon name="chevron-right" :size="16" />
           </button>
