@@ -20,6 +20,7 @@ const isNew = computed(() => props.slug === "new");
 const activeSection = ref<EditorSection>("overview");
 const formContent = ref<VenueContent>();
 const savedSnapshot = ref("");
+const savedVenueName = ref("");
 const issues = ref<ContentIssue[]>([]);
 const saveError = ref("");
 const editorBody = ref<HTMLElement>();
@@ -57,6 +58,7 @@ const initialize = () => {
   if (!venue) return;
   const content = { venue: cloneContent(venue), events: cloneContent(events.value.filter((event) => event.venue === venue.slug)) };
   savedSnapshot.value = JSON.stringify(content);
+  savedVenueName.value = content.venue.name;
   formContent.value = content;
 };
 watch(
@@ -92,6 +94,7 @@ const saveChanges = async () => {
   try {
     save(content);
     savedSnapshot.value = JSON.stringify(content);
+    savedVenueName.value = content.venue.name;
     formContent.value = content;
     push("Изменения сохранены. Страница заведения обновлена.");
     if (isNew.value) await navigateTo(`/partner/${content.venue.slug}`, { replace: true });
@@ -115,7 +118,7 @@ onBeforeUnmount(() => {
   window.removeEventListener("beforeunload", beforeUnload);
 });
 
-useHead({ title: computed(() => `${formContent.value?.venue.name || "Новое заведение"} · Кабинет — Joined`) });
+useHead({ title: computed(() => `${savedVenueName.value || "Новое заведение"} · Кабинет — Joined`) });
 </script>
 
 <template>
@@ -133,11 +136,9 @@ useHead({ title: computed(() => `${formContent.value?.venue.name || "Новое 
       <header class="mt-6 mb-8 flex flex-wrap items-end justify-between gap-5">
         <div class="min-w-0">
           <p class="mb-3 text-sm text-accent-text">Кабинет заведения</p>
-          <h1 class="h-display text-4xl wrap-break-word sm:text-5xl">{{ formContent.venue.name || "Новое место" }}</h1>
+          <h1 class="h-display text-4xl wrap-break-word sm:text-5xl">{{ savedVenueName || "Новое место" }}</h1>
         </div>
-        <NuxtLink v-if="!isNew" :to="`/venues/${slug}`" target="_blank" class="btn-dark gap-2 px-5 py-3 text-sm"
-          ><UiIcon name="eye" :size="18" /> Открыть страницу</NuxtLink
-        >
+        <NuxtLink v-if="!isNew" :to="`/venues/${slug}`" target="_blank" class="pill bg-[#4a4a4a] px-4 py-2.5 font-semibold hover:bg-[#555555]">Открыть страницу</NuxtLink>
       </header>
       <p v-if="storageError" role="alert" class="mb-5 text-sm text-accent-text">{{ storageError }}</p>
       <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-8">
@@ -237,7 +238,9 @@ useHead({ title: computed(() => `${formContent.value?.venue.name || "Новое 
               <p class="text-sm text-muted">Возрастные ограничения, дресс-код, посещение с детьми или питомцами — всё, что гостю полезно знать заранее</p>
               <EditorList v-model="formContent.venue.rules" label="Правило" placeholder="Например, вход на мероприятия с 18 лет" />
             </div>
-            <button type="submit" class="btn-primary mt-8 px-5 py-3 text-sm" :disabled="(!dirty && !isNew) || !!pendingUploads">Сохранить</button>
+            <div class="mt-8 flex justify-end">
+              <button type="submit" class="btn-primary px-5 py-3 text-sm" :disabled="(!dirty && !isNew) || !!pendingUploads">Сохранить</button>
+            </div>
             <p v-if="pendingUploads" role="status" class="mt-3 text-sm text-muted">Обрабатываем фотографии…</p>
           </form>
         </div>
