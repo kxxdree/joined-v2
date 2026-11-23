@@ -4,3 +4,4 @@ export { byDateTime, isUpcoming, minPrice } from './lib/event'
 export { default as EventCard } from './ui/EventCard.vue'
 
 export { default as EventTextPoster } from './ui/EventTextPoster.vue'
+export { useEventCatalog } from './model/catalog'

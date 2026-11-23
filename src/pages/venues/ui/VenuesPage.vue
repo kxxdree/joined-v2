@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useCurrentCity } from "@entities/city";
-import { VenueCard, venues } from "@entities/venue";
+import { VenueCard, useVenueCatalog } from "@entities/venue";
 import { FavoriteButton } from "@features/favorites";
 import { applyVenueFilters, countExtra, emptyFilters, VenueFilters, type VenueFilterState } from "@features/filter-venues";
 import { CitySelect } from "@features/select-city";
@@ -8,6 +8,7 @@ import { type GenreId, genres } from "@shared/config";
 import { plural } from "@shared/lib";
 import { UiEmpty, UiIcon, UiModal, UiPills, UiSelect } from "@shared/ui";
 
+const { venues } = useVenueCatalog();
 const route = useRoute();
 const { cityId } = useCurrentCity();
 
@@ -30,7 +31,7 @@ const filterContext = useState("venues-filter-context", () => ({
 
 const filteredVenues = computed(() => {
   const matchingVenues = applyVenueFilters(
-    venues.filter((venue) => venue.city === cityId.value),
+    venues.value.filter((venue) => venue.city === cityId.value),
     filters.value,
   );
   return sort.value === "name"

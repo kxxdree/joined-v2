@@ -5,6 +5,10 @@ import { UiIcon, UiYandexMap } from '@shared/ui'
 
 defineProps<{ venue: Venue }>()
 const todayWeekdayIndex = weekdayIndex()
+const socialUrl = (account: string, platform: 'telegram' | 'instagram') => {
+  const base = platform === 'telegram' ? 'https://t.me/' : 'https://www.instagram.com/'
+  return /^https?:\/\//i.test(account) ? account : `${base}${encodeURIComponent(account.replace(/^@/, ''))}`
+}
 </script>
 
 <template>
@@ -50,8 +54,8 @@ const todayWeekdayIndex = weekdayIndex()
         <h3 class="mb-4 font-medium">Контакты</h3>
         <ul class="space-y-3 text-sm">
           <li><a :href="`tel:${venue.phone.replace(/[^\d+]/g, '')}`" class="flex items-center gap-3 hover:text-sand"><span class="btn-icon size-9"><UiIcon name="phone" :size="16" /></span>{{ venue.phone }}</a></li>
-          <li><a href="#" class="flex items-center gap-3 hover:text-sand"><span class="btn-icon size-9"><UiIcon name="instagram" :size="16" /></span>{{ venue.instagram }}</a></li>
-          <li><a href="#" class="flex items-center gap-3 hover:text-sand"><span class="btn-icon size-9"><UiIcon name="telegram" :size="16" /></span>{{ venue.telegram }}</a></li>
+          <li v-if="venue.instagram"><a :href="socialUrl(venue.instagram, 'instagram')" target="_blank" rel="noopener" class="flex items-center gap-3 hover:text-sand"><span class="btn-icon size-9"><UiIcon name="instagram" :size="16" /></span>{{ venue.instagram }}</a></li>
+          <li v-if="venue.telegram"><a :href="socialUrl(venue.telegram, 'telegram')" target="_blank" rel="noopener" class="flex items-center gap-3 hover:text-sand"><span class="btn-icon size-9"><UiIcon name="telegram" :size="16" /></span>{{ venue.telegram }}</a></li>
         </ul>
       </div>
     </div>

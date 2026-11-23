@@ -52,6 +52,7 @@ watch(open, (v) => {
           {{ l.label }}
         </NuxtLink>
         <template v-if="user">
+          <NuxtLink v-if="user.role === 'venue' || user.role === 'admin'" to="/partner" class="transition-colors" :class="isActive('/partner') ? 'text-white' : 'text-white/70 hover:text-white'">Кабинет заведения</NuxtLink>
           <NuxtLink to="/profile" class="transition-colors" :class="isActive('/profile') ? 'text-white' : 'text-white/70 hover:text-white'">Профиль</NuxtLink>
           <button class="text-white/70 transition-colors hover:text-white" @click="logout()">Выйти</button>
         </template>
@@ -96,6 +97,7 @@ watch(open, (v) => {
 
           <div class="mt-6 flex flex-col gap-2 px-1 pb-1">
             <template v-if="user">
+              <NuxtLink v-if="user.role === 'venue' || user.role === 'admin'" to="/partner" class="btn-dark py-4">Кабинет заведения</NuxtLink>
               <NuxtLink to="/profile" class="btn-primary py-4">Профиль</NuxtLink>
               <button class="btn-dark py-4" @click="logout()">Выйти</button>
             </template>

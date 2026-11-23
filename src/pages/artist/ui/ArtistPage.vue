@@ -1,26 +1,28 @@
 <script setup lang="ts">
 import { getArtist } from '@entities/artist'
 import { cityName } from '@entities/city'
-import { byDateTime, type EventItem, events, isUpcoming, minPrice } from '@entities/event'
-import { getVenue } from '@entities/venue'
+import { byDateTime, type EventItem, useEventCatalog, isUpcoming, minPrice } from '@entities/event'
+import { useVenueCatalog } from '@entities/venue'
 import { FavoriteButton } from '@features/favorites'
 import { genreName } from '@shared/config'
 import { dayNumber, formatPrice, formatWeekdayLong, isWeekend, monthShort } from '@shared/lib'
 import { UiEmpty, UiIcon, UiPhoto, UiSectionHead } from '@shared/ui'
 import { EventStories } from '@widgets/event-stories'
 
+const { getVenue } = useVenueCatalog()
+const { events } = useEventCatalog()
 const route = useRoute()
 const foundArtist = getArtist(String(route.params.slug))
 if (!foundArtist) throw createError({ statusCode: 404, message: 'Артист не найден', fatal: true })
 const artist = foundArtist
 
-const artistEvents = events.filter(e => e.artists.includes(artist.slug))
+const artistEvents = computed(() => events.value.filter(e => e.artists.includes(artist.slug)))
 // концерты по датам, как на странице афиши
-const eventsByDate = (() => {
+const eventsByDate = computed(() => {
   const eventsByDateMap = new Map<string, EventItem[]>()
-  for (const e of artistEvents.filter(isUpcoming).sort(byDateTime)) eventsByDateMap.set(e.date, [...(eventsByDateMap.get(e.date) ?? []), e])
+  for (const e of artistEvents.value.filter(isUpcoming).sort(byDateTime)) eventsByDateMap.set(e.date, [...(eventsByDateMap.get(e.date) ?? []), e])
   return [...eventsByDateMap.entries()]
-})()
+})
 const formatVenueLocation = (venueSlug: string) => {
   const venue = getVenue(venueSlug)
   return venue ? `${venue.name} · ${cityName(venue.city)}` : ''

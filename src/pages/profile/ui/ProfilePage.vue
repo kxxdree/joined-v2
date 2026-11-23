@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { cityName } from "@entities/city";
 import { useSession } from "@entities/session";
-import { getVenue, VenueCard, type Venue } from "@entities/venue";
+import { useVenueCatalog, VenueCard, type Venue } from "@entities/venue";
 import { FavoriteButton, useFavorites } from "@features/favorites";
 import { isEmail, isRussianPhone } from "@shared/lib";
 import { UiEmpty, UiRussianPhoneInput } from "@shared/ui";
 
+const { getVenue } = useVenueCatalog();
 const { user } = useSession();
 const { favs } = useFavorites();
 const favoriteVenues = computed(() => favs.value.venues.map(getVenue).filter((venue): venue is Venue => !!venue));

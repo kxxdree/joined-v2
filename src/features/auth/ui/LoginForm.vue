@@ -3,12 +3,12 @@ import { type Role, useSession } from '@entities/session'
 import { isEmail } from '@shared/lib'
 
 const route = useRoute()
-const { login } = useSession()
+const { login, user } = useSession()
 const form = reactive({ email: '', password: '' })
 const error = ref('')
 
-// после входа - на главную; если на вход отправила закрытая страница (?redirect=) - обратно на неё
-const navigateAfterLogin = () => navigateTo(route.query.redirect ? String(route.query.redirect) : '/')
+// После входа возвращаемся на запрошенную страницу; владельца ведём в кабинет.
+const navigateAfterLogin = () => navigateTo(route.query.redirect ? String(route.query.redirect) : ['venue', 'admin'].includes(user.value?.role ?? '') ? '/partner' : '/')
 
 const submit = () => {
   if (!isEmail(form.email)) return (error.value = 'Введите корректный email')

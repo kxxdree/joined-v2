@@ -3,10 +3,12 @@ import { useToast } from '../lib/toast'
 import UiIcon from './UiIcon.vue'
 
 const { toasts } = useToast()
+const route = useRoute()
 </script>
 
 <template>
-  <div class="pointer-events-none fixed inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-[200] flex flex-col items-center gap-2 px-4" aria-live="polite">
+  <div class="pointer-events-none fixed inset-x-0 z-[200] flex flex-col items-center gap-2 px-4"
+    :class="route.path.startsWith('/partner/') ? 'bottom-[calc(10rem+env(safe-area-inset-bottom))] sm:bottom-[calc(6rem+env(safe-area-inset-bottom))]' : 'bottom-[max(1rem,env(safe-area-inset-bottom))]'" aria-live="polite">
     <TransitionGroup
       enter-active-class="transition duration-300 ease-[var(--ease-liquid)]"
       enter-from-class="opacity-0 translate-y-3 scale-95"

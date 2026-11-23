@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { getArtist } from '@entities/artist'
 import { byDateTime, EventTextPoster, minPrice, type EventItem } from '@entities/event'
-import { getVenue, type Venue } from '@entities/venue'
+import { useVenueCatalog, type Venue } from '@entities/venue'
 import { BookingRequest } from '@features/book-table'
 import { genreName } from '@shared/config'
 import { formatDate, formatPrice, useToast } from '@shared/lib'
 import { UiIcon } from '@shared/ui'
 
+const { getVenue } = useVenueCatalog()
 const props = defineProps<{ events: EventItem[] }>()
 const openId = defineModel<string | null>({ required: true })
 

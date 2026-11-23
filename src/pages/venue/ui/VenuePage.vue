@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { cityName } from "@entities/city";
-import { events, isUpcoming } from "@entities/event";
-import { formatName, getVenue } from "@entities/venue";
+import { useEventCatalog, isUpcoming } from "@entities/event";
+import { formatName, useVenueCatalog } from "@entities/venue";
 import { FavoriteButton } from "@features/favorites";
 import { BookingRequest } from "@features/book-table";
 import { ShareButton } from "@features/share";
@@ -14,10 +14,14 @@ import VenueAbout from "./VenueAbout.vue";
 import VenueGallery from "./VenueGallery.vue";
 import VenueMenu from "./VenueMenu.vue";
 
+const { getVenue } = useVenueCatalog();
+const { events } = useEventCatalog();
 const route = useRoute();
-const foundVenue = getVenue(String(route.params.slug));
-if (!foundVenue) throw createError({ statusCode: 404, message: "Заведение не найдено", fatal: true });
-const venue = foundVenue;
+const venue = computed(() => getVenue(String(route.params.slug)));
+const isCatalogReady = useState('venue-workspace-ready', () => false);
+watch([isCatalogReady, venue], ([ready, currentVenue]) => {
+  if (ready && !currentVenue) showError({ statusCode: 404, message: "Заведение не найдено", fatal: true });
+}, { immediate: true });
 
 const tabs = [
   { id: "schedule", name: "Афиша" },
@@ -72,15 +76,15 @@ const openBooking = async () => {
   bookingBlock.value?.scrollIntoView({ behavior: "smooth", block: "start" });
 };
 
-const venueEvents = events.filter((e) => e.venue === venue.slug && isUpcoming(e));
+const venueEvents = computed(() => events.value.filter((e) => e.venue === venue.value?.slug && isUpcoming(e)));
 const storyId = ref<string | null>(null); // выступление из календаря, открытое в историях
 const todayWeekdayIndex = weekdayIndex();
 
-useHead({ title: `${venue.name} - Joined`, meta: [{ name: "description", content: venue.short }] });
+useHead(() => ({ title: venue.value ? `${venue.value.name} - Joined` : "Заведение — Joined", meta: [{ name: "description", content: venue.value?.short ?? "" }] }));
 </script>
 
 <template>
-  <div>
+  <div v-if="venue">
     <section class="container-x pt-6">
       <NuxtLink to="/venues" class="btn-dark mb-5 bg-[#222225] pl-3 hover:bg-[#303033]"><UiIcon name="chevron-left" :size="16" /> Все заведения</NuxtLink>
 
@@ -192,4 +196,5 @@ useHead({ title: `${venue.name} - Joined`, meta: [{ name: "description", content
 
     <EventStories v-model="storyId" :events="venueEvents" />
   </div>
+  <div v-else class="container-x py-16" role="status">Загружаем страницу заведения…</div>
 </template>

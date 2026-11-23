@@ -28,7 +28,7 @@ const submit = () => {
   if (form.password.length < 6) return (error.value = 'Пароль - минимум 6 символов')
   if (!form.agree) return (error.value = 'Нужно согласиться с условиями сервиса')
   login({ email: form.email, name: form.name.trim(), role: form.role })
-  navigateTo('/') // после регистрации - на главную
+  navigateTo(form.role === 'venue' ? '/partner' : '/') // после регистрации - на главную
 }
 </script>
 

@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { getArtist } from "@entities/artist";
 import { useCurrentCity } from "@entities/city";
-import { byDateTime, type EventItem, events, getEvent, isUpcoming, minPrice } from "@entities/event";
-import { getVenue } from "@entities/venue";
+import { byDateTime, type EventItem, useEventCatalog, isUpcoming, minPrice } from "@entities/event";
+import { useVenueCatalog } from "@entities/venue";
 import { CitySelect } from "@features/select-city";
 import { type GenreId, genres } from "@shared/config";
 import { addDays, dayNumber, formatPrice, formatWeekdayLong, isWeekend, monthShort, plural, todayISO } from "@shared/lib";
 import { UiEmpty, UiIcon, UiPills } from "@shared/ui";
 import { EventStories } from "@widgets/event-stories";
 
+const { getVenue } = useVenueCatalog();
+const { events, getEvent } = useEventCatalog();
 const route = useRoute();
 const { cityId, city } = useCurrentCity();
 // Общие события заведений: один список для афиши и просмотра фотографий.
-const cityEvents = computed(() => events
+const cityEvents = computed(() => events.value
   .filter((e) => isUpcoming(e) && getVenue(e.venue)?.city === cityId.value)
   .sort(byDateTime));
 
