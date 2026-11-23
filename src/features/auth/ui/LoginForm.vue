@@ -8,7 +8,7 @@ const form = reactive({ email: '', password: '' })
 const error = ref('')
 
 // после входа - на главную; если на вход отправила закрытая страница (?redirect=) - обратно на неё
-const go = () => navigateTo(route.query.redirect ? String(route.query.redirect) : '/')
+const navigateAfterLogin = () => navigateTo(route.query.redirect ? String(route.query.redirect) : '/')
 
 const submit = () => {
   if (!isEmail(form.email)) return (error.value = 'Введите корректный email')
@@ -16,7 +16,7 @@ const submit = () => {
   // демо: роль угадываем по началу email
   const role: Role = form.email.startsWith('admin') ? 'admin' : form.email.startsWith('bar') ? 'venue' : form.email.startsWith('band') ? 'artist' : 'user'
   login({ email: form.email, role })
-  go()
+  navigateAfterLogin()
 }
 
 </script>

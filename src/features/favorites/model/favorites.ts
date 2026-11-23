@@ -16,9 +16,9 @@ export const useFavorites = () => {
 
   const toggle = (kind: FavoriteKind, id: string) => {
     if (!requireAuth()) return
-    const list = favs.value[kind]
-    const added = !list.includes(id)
-    favs.value = { ...favs.value, [kind]: added ? [...list, id] : list.filter(x => x !== id) }
+    const favoriteIds = favs.value[kind]
+    const shouldAdd = !favoriteIds.includes(id)
+    favs.value = { ...favs.value, [kind]: shouldAdd ? [...favoriteIds, id] : favoriteIds.filter(x => x !== id) }
   }
 
   return { favs, has, toggle }

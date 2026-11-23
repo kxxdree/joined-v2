@@ -28,8 +28,8 @@ const bookingOpen = ref(false)
 let gesture: { id: number; x: number; y: number } | undefined
 
 const onImageError = (e: Event) => {
-  const src = (e.target as HTMLImageElement).getAttribute('src')
-  if (src) failedPosters.value[src] = true
+  const imageSrc = (e.target as HTMLImageElement).getAttribute('src')
+  if (imageSrc) failedPosters.value[imageSrc] = true
 }
 const close = () => { openId.value = null }
 const openBooking = async () => {
@@ -42,15 +42,15 @@ const openBooking = async () => {
 }
 
 const goEvent = (direction: number) => {
-  const next = orderedEvents.value[eventIndex.value + direction]
-  if (next) openId.value = next.id
+  const nextEvent = orderedEvents.value[eventIndex.value + direction]
+  if (nextEvent) openId.value = nextEvent.id
 }
 const goPhoto = (index: number) => {
   const track = photoTrack.value
   if (!track) return
-  const next = Math.max(0, Math.min(index, images.value.length - 1))
+  const targetPhotoIndex = Math.max(0, Math.min(index, images.value.length - 1))
   track.scrollTo({
-    left: next * track.clientWidth,
+    left: targetPhotoIndex * track.clientWidth,
     behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
   })
 }
@@ -68,8 +68,8 @@ watch(photoTrack, (track, _previous, onCleanup) => {
 }, { flush: 'post' })
 // На границе карусели клавиши переходят к соседнему мероприятию.
 const step = (direction: number) => {
-  const next = photoIndex.value + direction
-  if (next >= 0 && next < images.value.length) goPhoto(next)
+  const nextPhotoIndex = photoIndex.value + direction
+  if (nextPhotoIndex >= 0 && nextPhotoIndex < images.value.length) goPhoto(nextPhotoIndex)
   else goEvent(direction)
 }
 watch(() => event.value?.id, () => {
@@ -84,11 +84,11 @@ const onPointerDown = (e: PointerEvent) => {
   ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
 }
 const onPointerUp = (e: PointerEvent) => {
-  const start = gesture
+  const pointerStart = gesture
   gesture = undefined
-  if (!start || start.id !== e.pointerId) return
-  const dx = e.clientX - start.x
-  const dy = e.clientY - start.y
+  if (!pointerStart || pointerStart.id !== e.pointerId) return
+  const dx = e.clientX - pointerStart.x
+  const dy = e.clientY - pointerStart.y
   if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy) * 1.4) return
   const direction = dx < 0 ? 1 : -1
   goEvent(direction)
@@ -109,13 +109,13 @@ const share = async () => {
   }
 }
 
-const focusable = () => Array.from(dialog.value?.querySelectorAll<HTMLElement>('a[href], button:not(:disabled), [tabindex="0"]') ?? []).filter(el => el.getClientRects().length)
+const getFocusableElements = () => Array.from(dialog.value?.querySelectorAll<HTMLElement>('a[href], button:not(:disabled), [tabindex="0"]') ?? []).filter(el => el.getClientRects().length)
 const onKey = (e: KeyboardEvent) => {
   if (e.key === 'Escape') { e.preventDefault(); close(); return }
   if (e.key === 'Tab') {
-    const items = focusable()
-    const first = items[0]
-    const last = items.at(-1)
+    const focusableElements = getFocusableElements()
+    const first = focusableElements[0]
+    const last = focusableElements.at(-1)
     if (e.shiftKey && (document.activeElement === first || document.activeElement === dialog.value)) { e.preventDefault(); last?.focus() }
     else if (!e.shiftKey && (document.activeElement === last || !dialog.value?.contains(document.activeElement))) { e.preventDefault(); first?.focus() }
     return
@@ -129,8 +129,8 @@ const onKey = (e: KeyboardEvent) => {
   }
 }
 
-let release: (() => void) | undefined
-const unlock = () => { release?.(); release = undefined }
+let releaseDialogEffects: (() => void) | undefined
+const unlock = () => { releaseDialogEffects?.(); releaseDialogEffects = undefined }
 watch(() => !!event.value, async (isOpen) => {
   if (!import.meta.client) return
   if (!isOpen) { unlock(); return }
@@ -140,7 +140,7 @@ watch(() => !!event.value, async (isOpen) => {
   if (!stableGutter) document.body.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`
   document.body.style.overflow = 'hidden'
   window.addEventListener('keydown', onKey)
-  release = () => {
+  releaseDialogEffects = () => {
     document.body.style.overflow = overflow
     document.body.style.paddingRight = paddingRight
     window.removeEventListener('keydown', onKey)
@@ -175,11 +175,11 @@ onBeforeUnmount(() => { if (import.meta.client) unlock() })
               class="absolute inset-0 flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               @scroll.passive="onPhotoScroll"
             >
-              <div v-for="(src, index) in images" :key="index" class="relative h-full w-full shrink-0 snap-center snap-always overflow-hidden">
-                <EventTextPoster v-if="!src || failedPosters[src]" :event="event" :artist-names="artistNames" expanded />
+              <div v-for="(imageSrc, index) in images" :key="index" class="relative h-full w-full shrink-0 snap-center snap-always overflow-hidden">
+                <EventTextPoster v-if="!imageSrc || failedPosters[imageSrc]" :event="event" :artist-names="artistNames" expanded />
                 <template v-else>
-                  <img :src="src" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full scale-110 object-cover opacity-35 blur-2xl" draggable="false" loading="lazy">
-                  <img :src="src" :alt="`${event.title} — фото ${index + 1} из ${images.length}`" class="relative h-full w-full object-contain" draggable="false" loading="lazy" @error="onImageError">
+                  <img :src="imageSrc" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full scale-110 object-cover opacity-35 blur-2xl" draggable="false" loading="lazy">
+                  <img :src="imageSrc" :alt="`${event.title} — фото ${index + 1} из ${images.length}`" class="relative h-full w-full object-contain" draggable="false" loading="lazy" @error="onImageError">
                 </template>
               </div>
             </div>

@@ -1,22 +1,22 @@
 const toDate = (iso: string) => new Date(`${iso}T12:00:00`)
 
-const toISO = (d: Date) =>
-  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+const toISO = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 
 /** Дата относительно сегодняшнего дня, YYYY-MM-DD */
 export const isoDay = (offset = 0) => {
-  const d = new Date()
-  d.setHours(12, 0, 0, 0)
-  d.setDate(d.getDate() + offset)
-  return toISO(d)
+  const date = new Date()
+  date.setHours(12, 0, 0, 0)
+  date.setDate(date.getDate() + offset)
+  return toISO(date)
 }
 
 export const todayISO = () => isoDay(0)
 
-export const addDays = (iso: string, n: number) => {
-  const d = toDate(iso)
-  d.setDate(d.getDate() + n)
-  return toISO(d)
+export const addDays = (iso: string, daysToAdd: number) => {
+  const date = toDate(iso)
+  date.setDate(date.getDate() + daysToAdd)
+  return toISO(date)
 }
 
 /** Пятница, суббота, воскресенье */
@@ -45,13 +45,13 @@ export const monthShort = (iso: string) =>
 
 /** Сетка месяца (пн - первый день); null - пустые ячейки до 1-го числа */
 export const monthGrid = (iso: string, offset = 0) => {
-  const base = toDate(iso)
-  base.setDate(1)
-  base.setMonth(base.getMonth() + offset)
-  const first = toISO(base)
-  const lead = weekdayIndex(base)
-  const days = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate()
-  const cells: (string | null)[] = Array(lead).fill(null)
-  for (let i = 0; i < days; i++) cells.push(addDays(first, i))
-  return { title: base.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' }), cells }
+  const monthDate = toDate(iso)
+  monthDate.setDate(1)
+  monthDate.setMonth(monthDate.getMonth() + offset)
+  const firstDayISO = toISO(monthDate)
+  const leadingEmptyDays = weekdayIndex(monthDate)
+  const daysInMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate()
+  const cells: (string | null)[] = Array(leadingEmptyDays).fill(null)
+  for (let i = 0; i < daysInMonth; i++) cells.push(addDays(firstDayISO, i))
+  return { title: monthDate.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' }), cells }
 }

@@ -14,15 +14,15 @@ const periods = [
 const period = ref<typeof periods[number]['id'] | ''>('')
 const visibleEvents = computed(() => {
   const today = todayISO()
-  const until = period.value === 'week' ? addDays(today, 7) : period.value === 'month' ? addDays(today, 31) : ''
-  return props.events.filter(event => !until || event.date <= until).sort(byDateTime)
+  const periodEndDate = period.value === 'week' ? addDays(today, 7) : period.value === 'month' ? addDays(today, 31) : ''
+  return props.events.filter(event => !periodEndDate || event.date <= periodEndDate).sort(byDateTime)
 })
 
 const failedPosters = ref<Record<string, boolean>>({})
 const photoIndexes = ref<Record<string, number>>({})
 let gesture: { x: number; y: number; moved: boolean } | undefined
 
-const posters = (event: EventItem) => event.posters?.length ? event.posters : ['']
+const getEventPosters = (event: EventItem) => event.posters?.length ? event.posters : ['']
 const onPointerDown = (pointer: PointerEvent) => {
   gesture = { x: pointer.clientX, y: pointer.clientY, moved: false }
 }
@@ -70,11 +70,11 @@ const openEvent = (mouse: MouseEvent, id: string) => {
           @scroll.passive="onScroll($event, event.id)"
           @dragstart.prevent
         >
-          <div v-for="(src, index) in posters(event)" :key="index" class="poster-slide">
+          <div v-for="(src, index) in getEventPosters(event)" :key="index" class="poster-slide">
             <img
               v-if="src && !failedPosters[src]"
               :src="src"
-              :alt="`Афиша: ${event.title} — фото ${index + 1} из ${posters(event).length}`"
+              :alt="`Афиша: ${event.title} — фото ${index + 1} из ${getEventPosters(event).length}`"
               loading="lazy"
               decoding="async"
               draggable="false"

@@ -13,18 +13,18 @@ export const emptyFilters = (): VenueFilterState => ({
 })
 
 /** Сколько «доп.» фильтров включено (без поиска и жанров - они всегда на виду) */
-export const countExtra = (f: VenueFilterState) =>
-  f.formats.length + f.drinks.length
+export const countExtra = (filters: VenueFilterState) =>
+  filters.formats.length + filters.drinks.length
 
-export const applyVenueFilters = (list: Venue[], f: VenueFilterState) => {
-  const needle = f.q.trim().toLowerCase()
+export const applyVenueFilters = (venues: Venue[], filters: VenueFilterState) => {
+  const normalizedSearchQuery = filters.q.trim().toLowerCase()
 
-  return list
-    .filter(v =>
-      (!needle || [v.name, v.short, v.address, v.metro ?? ''].some(s => s.toLowerCase().includes(needle)))
-      && (!f.genres.length || f.genres.some(g => v.genres.includes(g)))
-      && (!f.formats.length || f.formats.includes(v.format))
-      && (!f.drinks.length || f.drinks.every(d => v.drinks.includes(d))))
+  return venues
+    .filter(venue =>
+      (!normalizedSearchQuery || [venue.name, venue.short, venue.address, venue.metro ?? ''].some(s => s.toLowerCase().includes(normalizedSearchQuery)))
+      && (!filters.genres.length || filters.genres.some(g => venue.genres.includes(g)))
+      && (!filters.formats.length || filters.formats.includes(venue.format))
+      && (!filters.drinks.length || filters.drinks.every(d => venue.drinks.includes(d))))
     // сначала популярные
     .sort((a, b) => b.popularity - a.popularity)
 }

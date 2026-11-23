@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 
-const r = (path: string) => fileURLToPath(new URL(path, import.meta.url))
+const resolveProjectPath = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 
 /**
  * Архитектура - Feature-Sliced Design.
@@ -14,11 +14,11 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
 
   alias: {
-    '@pages': r('./src/pages'),
-    '@widgets': r('./src/widgets'),
-    '@features': r('./src/features'),
-    '@entities': r('./src/entities'),
-    '@shared': r('./src/shared'),
+    '@pages': resolveProjectPath('./src/pages'),
+    '@widgets': resolveProjectPath('./src/widgets'),
+    '@features': resolveProjectPath('./src/features'),
+    '@entities': resolveProjectPath('./src/entities'),
+    '@shared': resolveProjectPath('./src/shared'),
   },
 
   // В FSD зависимости явные: автоимпорт своих компонентов и composables выключен,

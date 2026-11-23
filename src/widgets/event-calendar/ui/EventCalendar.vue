@@ -15,15 +15,15 @@ const periods = [
 ] as const
 const period = ref<typeof periods[number]['id'] | ''>('')
 
-const grouped = computed(() => {
+const eventsByDate = computed(() => {
   const today = todayISO()
-  const until = period.value === 'week' ? addDays(today, 7) : period.value === 'month' ? addDays(today, 31) : ''
-  const map = new Map<string, EventItem[]>()
+  const periodEndDate = period.value === 'week' ? addDays(today, 7) : period.value === 'month' ? addDays(today, 31) : ''
+  const eventsByDateMap = new Map<string, EventItem[]>()
   for (const e of [...props.events].sort(byDateTime)) {
-    if (until && e.date > until) continue
-    map.set(e.date, [...(map.get(e.date) ?? []), e])
+    if (periodEndDate && e.date > periodEndDate) continue
+    eventsByDateMap.set(e.date, [...(eventsByDateMap.get(e.date) ?? []), e])
   }
-  return [...map.entries()]
+  return [...eventsByDateMap.entries()]
 })
 
 // с модификаторами (новая вкладка и т.п.) ссылка работает как обычно
@@ -41,13 +41,13 @@ const artistNames = (e: EventItem) =>
   <div>
     <UiPills v-model="period" :options="periods" all-label="Все даты" class="mb-4" />
 
-    <div v-if="grouped.length" class="card p-5 sm:p-10">
+    <div v-if="eventsByDate.length" class="card p-5 sm:p-10">
       <div class="mb-6 flex items-start justify-between gap-4 text-xs tracking-widest uppercase sm:mb-8">
         <span class="text-soft">Афиша<br />{{ title }}</span>
         <!-- <span class="text-sm tracking-normal normal-case">Joined™</span> -->
       </div>
 
-      <div v-for="[date, items] in grouped" :key="date" class="grid gap-4 border-t border-line py-5 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-8">
+      <div v-for="[date, items] in eventsByDate" :key="date" class="grid gap-4 border-t border-line py-5 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-8">
         <h3 class="h-display text-[14vw] leading-[0.85] uppercase sm:text-8xl md:text-7xl lg:text-9xl" :class="isWeekend(date) ? 'text-sand' : ''">
           {{ monthShort(date) }} {{ dayNumber(date) }}
         </h3>

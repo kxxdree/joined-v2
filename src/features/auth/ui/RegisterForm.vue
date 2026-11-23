@@ -2,18 +2,18 @@
 import { type Role, useSession } from '@entities/session'
 import { isEmail } from '@shared/lib'
 
-type PublicRole = Exclude<Role, 'admin'>
+type RegistrationRole = Exclude<Role, 'admin'>
 
 const route = useRoute()
 const { login } = useSession()
 
 // Публично - только регистрация слушателя. Заведение регистрируется по прямой ссылке /register?role=venue
 // (позже - персональная ссылка-приглашение с кодом). Музыканты временно закрыты вместе с разделом артистов
-const linkRoles: PublicRole[] = ['venue']
-const linkRole = linkRoles.find(r => r === route.query.role)
+const allowedLinkRoles: RegistrationRole[] = ['venue']
+const requestedRole = allowedLinkRoles.find(r => r === route.query.role)
 
 const form = reactive({
-  role: (linkRole ?? 'user') as PublicRole,
+  role: (requestedRole ?? 'user') as RegistrationRole,
   name: '',
   email: '',
   password: '',

@@ -11,17 +11,17 @@ const items = computed(() => (props.allLabel === false ? props.options : [{ id: 
 
 const isActive = (id: T | '') => {
   if (props.multiple) {
-    const list = (model.value as T[]) ?? []
-    return id === '' ? list.length === 0 : list.includes(id as T)
+    const selectedIds = (model.value as T[]) ?? []
+    return id === '' ? selectedIds.length === 0 : selectedIds.includes(id as T)
   }
   return model.value === id
 }
 
 const select = (id: T | '') => {
   if (!props.multiple) return (model.value = id)
-  const list = (model.value as T[]) ?? []
+  const selectedIds = (model.value as T[]) ?? []
   if (id === '') return (model.value = [])
-  model.value = list.includes(id as T) ? list.filter(x => x !== id) : [...list, id as T]
+  model.value = selectedIds.includes(id as T) ? selectedIds.filter(x => x !== id) : [...selectedIds, id as T]
 }
 </script>
 
