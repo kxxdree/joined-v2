@@ -1,5 +1,6 @@
 import type { EventItem } from '@entities/event'
 import type { Venue } from '@entities/venue'
+import { isHoursValue } from './hours.ts'
 
 export interface VenueContent {
   venue: Venue
@@ -35,7 +36,7 @@ export const validateContent = (content: VenueContent): ContentIssue[] => {
   if (!venue.city || !venue.address.trim()) add('location', 'Укажите город и адрес.')
   if (!/^\+?[\d\s()−-]{10,25}$/.test(venue.phone) || venue.phone.replace(/\D/g, '').length < 10) add('location', 'Укажите полный номер телефона.')
   if (!Number.isFinite(venue.lat) || Math.abs(venue.lat) > 90 || !Number.isFinite(venue.lng) || Math.abs(venue.lng) > 180) add('location', 'Проверьте координаты: широта от −90 до 90, долгота от −180 до 180.')
-  if (venue.hours.length !== 7 || venue.hours.some(day => !day.day.trim() || !day.time.trim())) add('hours', 'Заполните часы для всех семи дней. Для выходного укажите «Закрыто».')
+  if (venue.hours.length !== 7 || venue.hours.some(day => !day.day.trim() || !isHoursValue(day.time))) add('hours', 'Выберите время открытия и закрытия для всех семи дней или отметьте выходной.')
   if (!venue.photo || !isImageSource(venue.photo)) add('media', 'Добавьте обложку: загрузите фото.')
   if (venue.gallery.some(url => !isImageSource(url))) add('media', 'В галерее есть некорректная ссылка на фотографию.')
   if ([...venue.menu.bar, ...venue.menu.kitchen].some(url => !isImageSource(url))) add('menu', 'Проверьте ссылки на страницы меню.')

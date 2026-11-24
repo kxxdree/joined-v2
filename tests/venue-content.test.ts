@@ -43,6 +43,18 @@ test('coordinates are bounded and seven daily hours must be provided', () => {
   content.venue.hours.pop()
   assert.deepEqual(validateContent(content).map(issue => issue.section), ['location', 'hours'])
 })
+
+test('hours accept overnight ranges and days off, but reject invalid or incomplete times', () => {
+  const content = createContent()
+  for (const time of ['18:00 - 02:00', '09:15–23:45', '00:00—00:00', 'Закрыто']) {
+    content.venue.hours[0]!.time = time
+    assert.deepEqual(validateContent(content), [])
+  }
+  for (const time of ['', '–02:00', '18:00–', '24:00–02:00', '18:60–02:00', 'вечером']) {
+    content.venue.hours[0]!.time = time
+    assert.ok(validateContent(content).some(issue => issue.section === 'hours'))
+  }
+})
 test('a draft is independent of the saved content including nested arrays', () => {
   const saved = createContent()
   const draft = cloneContent(saved)

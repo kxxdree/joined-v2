@@ -5,6 +5,7 @@ import { genres } from "@shared/config";
 import { UiPills, UiSelect, UiYandexMap } from "@shared/ui";
 import type { EditorSection } from "../model/content";
 import EditorField from "./EditorField.vue";
+import EditorDayHours from "./EditorDayHours.vue";
 
 defineProps<{ section: EditorSection }>();
 const venue = defineModel<Venue>({ required: true });
@@ -77,11 +78,7 @@ const venue = defineModel<Venue>({ required: true });
     </div>
   </div>
   <div v-else-if="section === 'hours'" class="space-y-5">
-    <div v-for="day in venue.hours" :key="day.day" class="flex flex-wrap items-center gap-4 border-b border-line py-3">
-      <label class="flex w-full items-center gap-5"
-        ><span class="w-12 shrink-0 font-medium">{{ day.day }}</span
-        ><input v-model="day.time" class="field flex-1" :aria-label="`Часы работы: ${day.day}`" placeholder="18:00–02:00 или Закрыто"
-      /></label>
-    </div>
+    <p class="text-sm text-muted">Выберите время открытия и закрытия. Если закрытие раньше открытия, заведение работает после полуночи.</p>
+    <EditorDayHours v-for="day in venue.hours" :key="day.day" v-model="day.time" :day="day.day" />
   </div>
 </template>
