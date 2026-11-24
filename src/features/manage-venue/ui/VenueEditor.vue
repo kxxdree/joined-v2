@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useEventCatalog } from "@entities/event";
-import { useVenueCatalog, type Venue } from "@entities/venue";
+import { canManageVenue, useSession } from "@entities/session";
+import { useVenueCatalog } from "@entities/venue";
 import { useToast } from "@shared/lib";
-import { UiIcon } from "@shared/ui";
 import { cloneContent, editorSections, validateContent, type ContentIssue, type EditorSection, type VenueContent } from "../model/content";
 import { useVenueWorkspace } from "../model/workspace";
 import EditorField from "./EditorField.vue";
@@ -16,7 +16,7 @@ const { getVenue } = useVenueCatalog();
 const { events } = useEventCatalog();
 const { save, isReady, storageError } = useVenueWorkspace();
 const { push } = useToast();
-const isNew = computed(() => props.slug === "new");
+const { user } = useSession();
 const activeSection = ref<EditorSection>("overview");
 const formContent = ref<VenueContent>();
 const savedSnapshot = ref("");
@@ -28,33 +28,9 @@ const pendingUploads = ref(0);
 provide("venue-editor-upload-count", pendingUploads);
 const dirty = computed(() => !!formContent.value && JSON.stringify(formContent.value) !== savedSnapshot.value);
 const currentSection = computed(() => editorSections.find((section) => section.id === activeSection.value)!);
-const initialVenue = (): Venue => ({
-  slug: "",
-  name: "",
-  city: "moscow",
-  format: "bar",
-  genres: [],
-  drinks: [],
-  address: "",
-  metro: "",
-  directions: "",
-  lat: 55.7558,
-  lng: 37.6173,
-  popularity: 0,
-  short: "",
-  description: "",
-  phone: "",
-  instagram: "",
-  telegram: "",
-  hours: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"].map((day) => ({ day, time: "18:00–02:00" })),
-  photo: "",
-  gallery: [],
-  menu: { bar: [], kitchen: [] },
-  booking: { deposit: 0, minGuests: 1, maxGuests: 10, conditions: [] },
-  rules: [],
-});
 const initialize = () => {
-  const venue = isNew.value ? initialVenue() : getVenue(props.slug);
+  if (!canManageVenue(user.value, props.slug)) return;
+  const venue = getVenue(props.slug);
   if (!venue) return;
   const content = { venue: cloneContent(venue), events: cloneContent(events.value.filter((event) => event.venue === venue.slug)) };
   savedSnapshot.value = JSON.stringify(content);
@@ -76,17 +52,19 @@ const showSection = async (section: EditorSection) => {
 };
 const saveChanges = async () => {
   if (!formContent.value || pendingUploads.value) return;
+  if (!canManageVenue(user.value, props.slug)) {
+    saveError.value = "Доступно управление только своим заведением.";
+    return;
+  }
   saveError.value = "";
   const content = cloneContent(formContent.value);
   content.events.forEach((event) => {
     event.venue = content.venue.slug;
   });
   issues.value = validateContent(content);
-  if (!isNew.value && content.venue.slug !== props.slug) issues.value.unshift({ section: "overview", message: "Адрес существующей страницы нельзя изменить." });
+  if (content.venue.slug !== props.slug) issues.value.unshift({ section: "overview", message: "Адрес существующей страницы нельзя изменить." });
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(formContent.value.venue.slug) || formContent.value.venue.slug === "new")
     issues.value.unshift({ section: "overview", message: "Адрес страницы: используйте латинские буквы, цифры и дефисы; «new» зарезервирован." });
-  if (isNew.value && getVenue(formContent.value.venue.slug))
-    issues.value.unshift({ section: "overview", message: "Этот адрес страницы уже занят. Выберите другой." });
   if (issues.value.length) {
     await showSection(issues.value[0]!.section);
     return;
@@ -97,7 +75,6 @@ const saveChanges = async () => {
     savedVenueName.value = content.venue.name;
     formContent.value = content;
     push("Изменения сохранены. Страница заведения обновлена.");
-    if (isNew.value) await navigateTo(`/partner/${content.venue.slug}`, { replace: true });
   } catch {
     saveError.value =
       "Не удалось сохранить изменения. Возможно, закончилось место в браузере. Уменьшите количество загруженных фото. Ваши правки остаются в форме.";
@@ -118,19 +95,15 @@ onBeforeUnmount(() => {
   window.removeEventListener("beforeunload", beforeUnload);
 });
 
-useHead({ title: computed(() => `${savedVenueName.value || "Новое заведение"} · Кабинет — Joined`) });
+useHead({ title: computed(() => `${savedVenueName.value || "Заведение"} · Кабинет — Joined`) });
 </script>
 
 <template>
   <div class="container-x pt-7 pb-10 sm:pt-10">
-    <NuxtLink to="/partner" class="inline-flex items-center gap-2 py-2 text-sm text-muted hover:text-white"
-      ><UiIcon name="chevron-left" :size="16" /> Все заведения</NuxtLink
-    >
     <div v-if="!isReady" class="card mt-8 p-8" role="status">Загружаем ваши данные…</div>
     <div v-else-if="!formContent" class="card mt-8 p-8">
       <h1 class="text-2xl">Заведение не найдено</h1>
-      <p class="mt-3 text-muted">Вернитесь к списку и выберите заведение или создайте новое</p>
-      <NuxtLink to="/partner" class="btn-dark mt-6 px-5 py-3">К заведениям</NuxtLink>
+      <p class="mt-3 text-muted">Проверьте привязку заведения к вашему аккаунту или обратитесь в поддержку.</p>
     </div>
     <template v-else>
       <header class="mt-6 mb-8 flex flex-wrap items-end justify-between gap-5">
@@ -138,7 +111,7 @@ useHead({ title: computed(() => `${savedVenueName.value || "Новое заве�
           <p class="mb-3 text-sm text-accent-text">Кабинет заведения</p>
           <h1 class="h-display text-4xl wrap-break-word sm:text-5xl">{{ savedVenueName || "Новое место" }}</h1>
         </div>
-        <NuxtLink v-if="!isNew" :to="`/venues/${slug}`" target="_blank" class="pill bg-[#4a4a4a] px-4 py-2.5 font-semibold hover:bg-[#555555]">Открыть страницу</NuxtLink>
+        <NuxtLink :to="`/venues/${slug}`" target="_blank" class="pill bg-[#4a4a4a] px-4 py-2.5 font-semibold hover:bg-[#555555]">Открыть страницу</NuxtLink>
       </header>
       <p v-if="storageError" role="alert" class="mb-5 text-sm text-accent-text">{{ storageError }}</p>
       <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-8">
@@ -182,7 +155,7 @@ useHead({ title: computed(() => `${savedVenueName.value || "Новое заве�
               v-if="['overview', 'location', 'hours'].includes(activeSection)"
               v-model="formContent.venue"
               :section="activeSection"
-              :is-new="isNew"
+              :is-new="false"
             />
             <div v-else-if="activeSection === 'media'" class="space-y-10">
               <div>
@@ -239,7 +212,7 @@ useHead({ title: computed(() => `${savedVenueName.value || "Новое заве�
               <EditorList v-model="formContent.venue.rules" label="Правило" placeholder="Например, вход на мероприятия с 18 лет" />
             </div>
             <div class="mt-8 flex justify-end">
-              <button type="submit" class="btn-primary px-5 py-3 text-sm" :disabled="(!dirty && !isNew) || !!pendingUploads">Сохранить</button>
+              <button type="submit" class="btn-primary px-5 py-3 text-sm" :disabled="!dirty || !!pendingUploads">Сохранить</button>
             </div>
             <p v-if="pendingUploads" role="status" class="mt-3 text-sm text-muted">Обрабатываем фотографии…</p>
           </form>

@@ -8,7 +8,6 @@ import EditorField from "./EditorField.vue";
 
 defineProps<{ section: EditorSection; isNew: boolean }>();
 const venue = defineModel<Venue>({ required: true });
-
 </script>
 
 <template>
@@ -16,24 +15,17 @@ const venue = defineModel<Venue>({ required: true });
     <EditorField label="Название заведения" required
       ><input v-model="venue.name" class="field" maxlength="120" placeholder="Например, Red Velvet"
     /></EditorField>
-    <EditorField label="Адрес страницы" :required="isNew">
+    <EditorField label="Адрес страницы" required>
       <div class="flex items-center gap-2">
         <input v-model="venue.slug" class="field min-w-0" :readonly="!isNew" :class="!isNew ? 'text-muted' : ''" placeholder="red-velvet" />
       </div>
     </EditorField>
-    <EditorField label="Короткое описание" hint="Пара предложений об атмосфере. Появится на обложке страницы и в каталоге" required>
-      <textarea v-model="venue.short" rows="3" maxlength="400" class="field" placeholder="Джаз, авторские коктейли и вечера в хорошей компании." /><span
-        class="mt-1 block text-right text-xs text-muted"
-        >{{ venue.short.length }} / 400</span
-      ></EditorField
-    >
-    <EditorField label="Подробно о заведении" hint="Расскажите об интерьере, музыке, кухне и о том, ради чего к вам приходят" required>
-      <textarea v-model="venue.description" rows="6" class="field" placeholder="Что делает ваше заведение особенным?" />
-    </EditorField>
-    <EditorField label="Формат" required><UiSelect v-model="venue.format" :options="formats" :all-label="false" label="Формат заведения" /></EditorField>
+
+    <EditorField label="Формат" required
+      ><UiSelect v-model="venue.format" :options="formats" :all-label="false" label="Формат заведения"
+    /></EditorField>
     <fieldset class="min-w-0">
       <legend class="mb-3 text-sm font-medium">Музыкальные жанры <span class="text-accent-text">*</span></legend>
-      <p class="mb-3 text-sm text-muted">Можно выбрать несколько. По ним гости найдут вас в каталоге</p>
       <UiPills class="mx-0! flex-wrap! px-0!" v-model="venue.genres" :options="genres" multiple :all-label="false" />
     </fieldset>
     <fieldset class="min-w-0">
@@ -43,7 +35,9 @@ const venue = defineModel<Venue>({ required: true });
   </div>
   <div v-else-if="section === 'location'" class="space-y-7">
     <div class="grid gap-6 sm:grid-cols-2">
-      <EditorField label="Город" required><UiSelect v-model="venue.city" :options="cities" :all-label="false" label="Город заведения" /></EditorField>
+      <EditorField label="Город" required
+        ><UiSelect v-model="venue.city" :options="cities" :all-label="false" label="Город заведения"
+      /></EditorField>
       <EditorField label="Ближайшее метро" hint="Необязательно, если в городе нет метро"
         ><input v-model="venue.metro" class="field" placeholder="Маяковская"
       /></EditorField>
@@ -66,13 +60,12 @@ const venue = defineModel<Venue>({ required: true });
         <UiYandexMap :lat="venue.lat" :lng="venue.lng" :title="venue.name" />
       </div>
     </div>
-    <EditorField label="Телефон для гостей" required><input v-model="venue.phone" type="tel" class="field" placeholder="+7 (999) 123-45-67" /></EditorField>
+    <EditorField label="Телефон для гостей" required
+      ><input v-model="venue.phone" type="tel" class="field" placeholder="+7 (999) 123-45-67"
+    /></EditorField>
     <div class="grid gap-6 sm:grid-cols-2">
-      <EditorField label="Telegram"
-        ><input v-model="venue.telegram" class="field" placeholder="@redvelvet" /></EditorField
-      ><EditorField label="Instagram"
-        ><input v-model="venue.instagram" class="field" placeholder="@redvelvet"
-      /></EditorField>
+      <EditorField label="Telegram"><input v-model="venue.telegram" class="field" placeholder="@redvelvet" /></EditorField
+      ><EditorField label="Instagram"><input v-model="venue.instagram" class="field" placeholder="@redvelvet" /></EditorField>
     </div>
   </div>
   <div v-else-if="section === 'hours'" class="space-y-5">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type Role, useSession } from '@entities/session'
+import { isVenueManager, type Role, useSession } from '@entities/session'
 import { isEmail } from '@shared/lib'
 
 const route = useRoute()
@@ -7,8 +7,8 @@ const { login, user } = useSession()
 const form = reactive({ email: '', password: '' })
 const error = ref('')
 
-// После входа возвращаемся на запрошенную страницу; владельца ведём в кабинет.
-const navigateAfterLogin = () => navigateTo(route.query.redirect ? String(route.query.redirect) : ['venue', 'admin'].includes(user.value?.role ?? '') ? '/partner' : '/')
+// Администратор заведения всегда попадает сразу в свой кабинет.
+const navigateAfterLogin = () => navigateTo(user.value && isVenueManager(user.value.role) ? '/partner' : route.query.redirect ? String(route.query.redirect) : '/')
 
 const submit = () => {
   if (!isEmail(form.email)) return (error.value = 'Введите корректный email')

@@ -1,4 +1,5 @@
 import { usePersisted } from '@shared/lib'
+import { isVenueManager } from './access'
 
 export type Role = 'user' | 'venue' | 'artist' | 'admin'
 
@@ -7,6 +8,7 @@ export interface User {
   email: string
   phone?: string
   role: Role
+  venueSlug?: string
 }
 
 export const roleNames: Record<Role, string> = {
@@ -22,11 +24,14 @@ export const useSession = () => {
   const router = useRouter()
   const isLoggedIn = computed(() => !!user.value)
 
-  const login = (payload: { email: string; name?: string; role?: Role }) => {
+  const login = (payload: { email: string; name?: string; role?: Role; venueSlug?: string }) => {
+    const role = payload.role ?? 'user'
     user.value = {
       email: payload.email,
       name: payload.name || payload.email.split('@')[0] || 'Гость',
-      role: payload.role ?? 'user',
+      role,
+      // Демо-привязка. С бэкендом venueSlug должен приходить из авторизованной сессии.
+      ...(isVenueManager(role) ? { venueSlug: payload.venueSlug ?? 'red-velvet' } : {}),
     }
   }
 
