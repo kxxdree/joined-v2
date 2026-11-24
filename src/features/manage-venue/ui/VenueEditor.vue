@@ -193,7 +193,6 @@ useHead({ title: computed(() => `${savedVenueName.value || "Заведение"}
               /></EditorField>
               <div>
                 <h3 class="mb-2 font-medium">Условия бронирования</h3>
-                <p class="mb-4 text-sm text-muted">Расскажите об отмене, опоздании, предоплате и о том, как подтверждается столик</p>
                 <EditorList
                   v-model="formContent.venue.booking.conditions"
                   label="Условие"
@@ -201,9 +200,8 @@ useHead({ title: computed(() => `${savedVenueName.value || "Заведение"}
                 />
               </div>
             </div>
-            <VenueEventsEditor v-else-if="activeSection === 'events'" v-model="formContent.events" :venue-slug="formContent.venue.slug" :cover="formContent.venue.photo" />
+            <VenueEventsEditor v-else-if="activeSection === 'events'" v-model="formContent.events" :venue-slug="formContent.venue.slug" />
             <div v-else-if="activeSection === 'rules'" class="space-y-5">
-              <p class="text-sm text-muted">Возрастные ограничения, дресс-код, посещение с детьми или питомцами — всё, что гостю полезно знать заранее</p>
               <EditorList v-model="formContent.venue.rules" label="Правило" placeholder="Например, вход на мероприятия с 18 лет" />
             </div>
             <div class="mt-8 flex justify-end">

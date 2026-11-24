@@ -74,6 +74,18 @@ test('image sources accept uploads and URLs but reject script schemes', () => {
   for (const value of ['javascript:alert(1)', '//example.com/image.jpg', 'data:text/html;base64,AAA', 'data:image/svg+xml;base64,AAA']) assert.equal(isImageSource(value), false)
 })
 
+test('events save without a separate photo or posters, but reject invalid poster sources', () => {
+  const content = createContent()
+  const event = content.events[0]!
+  event.photo = ''
+  assert.deepEqual(validateContent(content), [])
+  assert.equal(isVenueContent(content), true)
+  event.posters = ['/poster.jpg']
+  assert.deepEqual(validateContent(content), [])
+  event.posters = ['javascript:alert(1)']
+  assert.ok(validateContent(content).some(issue => issue.section === 'events' && issue.message.includes('афиши')))
+})
+
 test('page addresses accept slugs and reject invalid or reserved values', () => {
   const content = createContent()
   for (const slug of ['', 'new', 'Bar', 'мой-бар', 'bar/name', '-bar', 'bar--name']) {

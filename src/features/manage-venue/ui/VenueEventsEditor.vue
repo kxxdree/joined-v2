@@ -1,24 +1,20 @@
 <script setup lang="ts">
-import type { EventItem, TicketTypeId } from '@entities/event'
+import type { EventItem } from '@entities/event'
 import { genres } from '@shared/config'
 import { todayISO } from '@shared/lib'
 import { UiIcon, UiModal, UiPills } from '@shared/ui'
 import EditorField from './EditorField.vue'
 import EditorMedia from './EditorMedia.vue'
 
-const props = defineProps<{ venueSlug: string; cover: string }>()
+const props = defineProps<{ venueSlug: string }>()
 const events = defineModel<EventItem[]>({ required: true })
 const expandedId = ref<string | null>(null)
 const pendingDeleteId = ref<string | null>(null)
 const deleteOpen = computed({ get: () => pendingDeleteId.value !== null, set: (open) => { if (!open) pendingDeleteId.value = null } })
 const createEvent = () => {
   const id = `custom-${crypto.randomUUID()}`
-  events.value.push({ id, title: '', venue: props.venueSlug, artists: [], genres: [], date: todayISO(), time: '20:00', description: '', photo: props.cover, posters: [], tickets: [{ id: 'standard', name: 'Входной билет', desc: '', price: 0, left: 100 }] })
+  events.value.push({ id, title: '', venue: props.venueSlug, artists: [], genres: [], date: todayISO(), time: '20:00', description: '', photo: '', posters: [], tickets: [{ id: 'standard', name: 'Входной билет', desc: '', price: 0, left: 100 }] })
   expandedId.value = id
-}
-const addTicket = (event: EventItem) => {
-  const id = (['standard', 'vip', 'table'] as TicketTypeId[]).find(id => !event.tickets.some(ticket => ticket.id === id))
-  if (id) event.tickets.push({ id, name: id === 'vip' ? 'VIP' : id === 'table' ? 'Столик' : 'Входной билет', desc: '', price: 0, left: 100 })
 }
 const deleteEvent = () => {
   events.value = events.value.filter(event => event.id !== pendingDeleteId.value)
@@ -42,18 +38,7 @@ const deleteEvent = () => {
         <div class="grid gap-4 sm:grid-cols-2"><EditorField label="Дата" required><input v-model="event.date" type="date" class="field"></EditorField><EditorField label="Начало" required><input v-model="event.time" type="time" class="field"></EditorField></div>
         <EditorField label="Описание" required><textarea v-model="event.description" rows="4" class="field" placeholder="Программа вечера и что ждёт гостей" /></EditorField>
         <fieldset class="min-w-0"><legend class="mb-3 text-sm font-medium">Жанры *</legend><UiPills class="mx-0! flex-wrap! px-0!" v-model="event.genres" :options="genres" multiple :all-label="false" /></fieldset>
-        <div><h4 class="mb-3 text-sm font-medium">Фотография мероприятия *</h4><EditorMedia :model-value="event.photo ? [event.photo] : []" single label="Фотография мероприятия" @update:model-value="event.photo = $event[0] ?? ''" /></div>
         <div><h4 class="mb-2 text-sm font-medium">Афиши и фотографии для историй</h4><p class="mb-3 text-sm text-muted">Гости смогут пролистать изображения. Если не добавлять, появится текстовая афиша</p><EditorMedia :model-value="event.posters ?? []" label="Афиши мероприятия" @update:model-value="event.posters = $event" /></div>
-        <div class="space-y-3">
-          <h4 class="font-medium">Билеты и стоимость</h4><p class="text-sm text-muted">Для бесплатного входа укажите цену 0 ₽. Нужен хотя бы один вариант</p>
-          <div v-for="(ticket, ticketIndex) in event.tickets" :key="ticket.id" class="space-y-4 rounded-xl bg-white/4 p-4">
-            <EditorField label="Название билета"><input v-model="ticket.name" class="field"></EditorField>
-            <div class="grid gap-4 sm:grid-cols-2"><EditorField label="Цена, ₽"><input v-model.number="ticket.price" type="number" min="0" class="field"></EditorField><EditorField label="Осталось билетов"><input v-model.number="ticket.left" type="number" min="0" step="1" class="field"></EditorField></div>
-            <EditorField label="Что входит"><textarea v-model="ticket.desc" rows="2" class="field" /></EditorField>
-            <button type="button" class="btn-ghost px-3 py-2 text-sm text-accent-text" :disabled="event.tickets.length === 1" @click="event.tickets.splice(ticketIndex, 1)">Удалить вариант</button>
-          </div>
-          <button type="button" class="btn-dark px-4 py-3 text-sm" :disabled="event.tickets.length >= 3" @click="addTicket(event)">Добавить вариант билета</button>
-        </div>
       </div>
     </article>
     <UiModal v-model="deleteOpen" title="Удалить мероприятие?">

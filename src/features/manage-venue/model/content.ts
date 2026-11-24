@@ -52,7 +52,7 @@ export const validateContent = (content: VenueContent): ContentIssue[] => {
     eventIds.add(event.id)
     if (!/^\d{4}-\d{2}-\d{2}$/.test(event.date) || Number.isNaN(Date.parse(event.date)) || new Date(event.date).toISOString().slice(0, 10) !== event.date || !/^([01]\d|2[0-3]):[0-5]\d$/.test(event.time)) add('events', `${label}: укажите корректную дату и время.`)
     if (!event.description.trim() || !event.genres.length) add('events', `${label}: заполните описание и выберите жанр.`)
-    if (!event.photo || !isImageSource(event.photo) || event.posters?.some(url => !isImageSource(url))) add('events', `${label}: добавьте фото и проверьте ссылки на афиши.`)
+    if (event.posters?.some(url => !isImageSource(url))) add('events', `${label}: проверьте ссылки на афиши.`)
     if (!event.tickets.length || event.tickets.some(ticket => !ticket.name.trim() || !isNonNegative(ticket.price) || !Number.isInteger(ticket.left) || ticket.left < 0)) add('events', `${label}: добавьте билет с названием, ценой и целым количеством от нуля.`)
   }
   return issues
