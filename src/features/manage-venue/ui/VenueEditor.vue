@@ -21,6 +21,7 @@ const activeSection = ref<EditorSection>("overview");
 const formContent = ref<VenueContent>();
 const savedSnapshot = ref("");
 const savedVenueName = ref("");
+const savedVenueSlug = ref("");
 const issues = ref<ContentIssue[]>([]);
 const saveError = ref("");
 const editorBody = ref<HTMLElement>();
@@ -35,6 +36,7 @@ const initialize = () => {
   const content = { venue: cloneContent(venue), events: cloneContent(events.value.filter((event) => event.venue === venue.slug)) };
   savedSnapshot.value = JSON.stringify(content);
   savedVenueName.value = content.venue.name;
+  savedVenueSlug.value = content.venue.slug;
   formContent.value = content;
 };
 watch(
@@ -62,17 +64,18 @@ const saveChanges = async () => {
     event.venue = content.venue.slug;
   });
   issues.value = validateContent(content);
-  if (content.venue.slug !== props.slug) issues.value.unshift({ section: "overview", message: "Адрес существующей страницы нельзя изменить." });
-  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(formContent.value.venue.slug) || formContent.value.venue.slug === "new")
-    issues.value.unshift({ section: "overview", message: "Адрес страницы: используйте латинские буквы, цифры и дефисы; «new» зарезервирован." });
+  const existingVenue = getVenue(content.venue.slug);
+  if (existingVenue && existingVenue.slug !== savedVenueSlug.value)
+    issues.value.unshift({ section: "overview", message: "Этот адрес страницы уже занят. Выберите другой." });
   if (issues.value.length) {
     await showSection(issues.value[0]!.section);
     return;
   }
   try {
-    save(content);
+    save(content, props.slug);
     savedSnapshot.value = JSON.stringify(content);
     savedVenueName.value = content.venue.name;
+    savedVenueSlug.value = content.venue.slug;
     formContent.value = content;
     push("Изменения сохранены. Страница заведения обновлена.");
   } catch {
@@ -111,7 +114,7 @@ useHead({ title: computed(() => `${savedVenueName.value || "Заведение"}
           <p class="mb-3 text-sm text-accent-text">Кабинет заведения</p>
           <h1 class="h-display text-4xl wrap-break-word sm:text-5xl">{{ savedVenueName || "Новое место" }}</h1>
         </div>
-        <NuxtLink :to="`/venues/${slug}`" target="_blank" class="pill bg-[#4a4a4a] px-4 py-2.5 font-semibold hover:bg-[#555555]">Открыть страницу</NuxtLink>
+        <NuxtLink :to="`/venues/${savedVenueSlug}`" target="_blank" class="pill bg-[#4a4a4a] px-4 py-2.5 font-semibold hover:bg-[#555555]">Открыть страницу</NuxtLink>
       </header>
       <p v-if="storageError" role="alert" class="mb-5 text-sm text-accent-text">{{ storageError }}</p>
       <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-8">
@@ -155,7 +158,6 @@ useHead({ title: computed(() => `${savedVenueName.value || "Заведение"}
               v-if="['overview', 'location', 'hours'].includes(activeSection)"
               v-model="formContent.venue"
               :section="activeSection"
-              :is-new="false"
             />
             <div v-else-if="activeSection === 'media'" class="space-y-10">
               <div>

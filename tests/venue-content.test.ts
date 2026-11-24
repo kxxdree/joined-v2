@@ -61,3 +61,14 @@ test('image sources accept uploads and URLs but reject script schemes', () => {
   for (const value of ['/posters/lineup.jpg', 'https://example.com/image.jpg', 'data:image/jpeg;base64,AAA']) assert.equal(isImageSource(value), true)
   for (const value of ['javascript:alert(1)', '//example.com/image.jpg', 'data:text/html;base64,AAA', 'data:image/svg+xml;base64,AAA']) assert.equal(isImageSource(value), false)
 })
+
+test('page addresses accept slugs and reject invalid or reserved values', () => {
+  const content = createContent()
+  for (const slug of ['', 'new', 'Bar', 'мой-бар', 'bar/name', '-bar', 'bar--name']) {
+    content.venue.slug = slug
+    assert.ok(validateContent(content).some(issue => issue.section === 'overview' && issue.message.startsWith('Адрес страницы:')))
+  }
+  content.venue.slug = 'new-bar-2026'
+  content.events.forEach(event => { event.venue = content.venue.slug })
+  assert.deepEqual(validateContent(content), [])
+})

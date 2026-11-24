@@ -6,7 +6,7 @@ import { UiPills, UiSelect, UiYandexMap } from "@shared/ui";
 import type { EditorSection } from "../model/content";
 import EditorField from "./EditorField.vue";
 
-defineProps<{ section: EditorSection; isNew: boolean }>();
+defineProps<{ section: EditorSection }>();
 const venue = defineModel<Venue>({ required: true });
 </script>
 
@@ -15,9 +15,9 @@ const venue = defineModel<Venue>({ required: true });
     <EditorField label="Название заведения" required
       ><input v-model="venue.name" class="field" maxlength="120" placeholder="Например, Red Velvet"
     /></EditorField>
-    <EditorField label="Адрес страницы" :required="isNew">
+    <EditorField label="Адрес страницы">
       <div class="flex items-center gap-2">
-        <input v-model="venue.slug" class="field min-w-0" :readonly="!isNew" :class="!isNew ? 'text-muted' : ''" placeholder="red-velvet" />
+        <input v-model="venue.slug" class="field min-w-0" placeholder="red-velvet" />
       </div>
     </EditorField>
     <EditorField label="Короткое описание" required>

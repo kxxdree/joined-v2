@@ -26,6 +26,7 @@ export const validateContent = (content: VenueContent): ContentIssue[] => {
   const issues: ContentIssue[] = []
   const add = (section: EditorSection, message: string) => issues.push({ section, message })
   const { venue, events } = content
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(venue.slug) || venue.slug === 'new') add('overview', 'Адрес страницы: используйте латинские буквы, цифры и дефисы; «new» зарезервирован.')
   const isNonNegative = (value: number) => Number.isFinite(value) && value >= 0
   if (!venue.name.trim()) add('overview', 'Укажите название заведения.')
   if (!venue.short.trim()) add('overview', 'Добавьте короткое описание для карточки.')

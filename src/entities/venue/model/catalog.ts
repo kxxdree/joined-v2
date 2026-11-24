@@ -6,9 +6,10 @@ export const useVenueCatalog = () => {
   const overrides = useState<Record<string, Venue>>('venue-catalog-overrides', () => ({}))
   const venues = computed(() => [
     ...initialVenues.map(venue => overrides.value[venue.slug] ?? venue),
-    ...Object.values(overrides.value).filter(venue => !initialVenues.some(initial => initial.slug === venue.slug)),
+    ...Object.entries(overrides.value).filter(([sourceSlug]) => !initialVenues.some(initial => initial.slug === sourceSlug)).map(([, venue]) => venue),
   ])
-  const getVenue = (slug: string) => venues.value.find(venue => venue.slug === slug)
-  const setVenue = (venue: Venue) => { overrides.value = { ...overrides.value, [venue.slug]: venue } }
+  // Исходный адрес остаётся стабильной привязкой аккаунта и ссылкой на переименованное заведение.
+  const getVenue = (slug: string) => overrides.value[slug] ?? venues.value.find(venue => venue.slug === slug)
+  const setVenue = (venue: Venue, sourceSlug = venue.slug) => { overrides.value = { ...overrides.value, [sourceSlug]: venue } }
   return { venues, getVenue, setVenue }
 }
