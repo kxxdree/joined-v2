@@ -15,12 +15,23 @@ const venue = defineModel<Venue>({ required: true });
     <EditorField label="Название заведения" required
       ><input v-model="venue.name" class="field" maxlength="120" placeholder="Например, Red Velvet"
     /></EditorField>
-    <EditorField label="Адрес страницы" required>
+    <EditorField label="Адрес страницы" :required="isNew">
       <div class="flex items-center gap-2">
         <input v-model="venue.slug" class="field min-w-0" :readonly="!isNew" :class="!isNew ? 'text-muted' : ''" placeholder="red-velvet" />
       </div>
     </EditorField>
-
+    <EditorField label="Короткое описание" required>
+      <textarea
+        v-model="venue.short"
+        rows="3"
+        maxlength="400"
+        class="field"
+        placeholder="Джаз, авторские коктейли и вечера в хорошей компании."
+      /><span class="mt-1 block text-right text-xs text-muted">{{ venue.short.length }} / 400</span></EditorField
+    >
+    <EditorField label="Подробно о заведении" required>
+      <textarea v-model="venue.description" rows="6" class="field" placeholder="Что делает ваше заведение особенным?" />
+    </EditorField>
     <EditorField label="Формат" required
       ><UiSelect v-model="venue.format" :options="formats" :all-label="false" label="Формат заведения"
     /></EditorField>
@@ -29,26 +40,23 @@ const venue = defineModel<Venue>({ required: true });
       <UiPills class="mx-0! flex-wrap! px-0!" v-model="venue.genres" :options="genres" multiple :all-label="false" />
     </fieldset>
     <fieldset class="min-w-0">
-      <legend class="mb-3 text-sm font-medium">Бар и кухня</legend>
+      <legend class="mb-3 text-sm font-medium">Бар и кухня <span class="text-accent-text">*</span></legend>
       <UiPills class="mx-0! flex-wrap! px-0!" v-model="venue.drinks" :options="drinks" multiple :all-label="false" />
     </fieldset>
   </div>
   <div v-else-if="section === 'location'" class="space-y-7">
-    <div class="grid gap-6 sm:grid-cols-2">
+    <div>
       <EditorField label="Город" required
         ><UiSelect v-model="venue.city" :options="cities" :all-label="false" label="Город заведения"
       /></EditorField>
-      <EditorField label="Ближайшее метро" hint="Необязательно, если в городе нет метро"
-        ><input v-model="venue.metro" class="field" placeholder="Маяковская"
-      /></EditorField>
     </div>
     <EditorField label="Адрес" required><input v-model="venue.address" class="field" placeholder="Улица, дом, корпус" /></EditorField>
-    <EditorField label="Как добраться" hint="Например: вход со двора, второй этаж, рядом есть парковка">
+    <EditorField label="Как добраться">
       <textarea v-model="venue.directions" rows="3" class="field" />
     </EditorField>
     <div class="rounded-2xl bg-white/4 p-5">
       <h3 class="font-medium">Точка на карте</h3>
-      <p class="mt-2 mb-5 text-sm text-muted">Скопируйте координаты из Яндекс Карт: сначала широта, затем долгота</p>
+      <p class="mt-2 mb-5 text-sm text-muted">Координаты из Яндекс Карт</p>
       <div class="grid gap-4 sm:grid-cols-2">
         <EditorField label="Широта" required
           ><input v-model.number="venue.lat" type="number" step="any" min="-90" max="90" class="field" placeholder="55.7558" /></EditorField

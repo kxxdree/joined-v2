@@ -12,7 +12,6 @@ export interface Venue {
   genres: GenreId[]
   drinks: DrinkId[]
   address: string
-  metro?: string
   directions: string
   lat: number
   lng: number

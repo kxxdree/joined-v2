@@ -189,13 +189,6 @@ useHead({ title: computed(() => `${savedVenueName.value || "Заведение"}
               <EditorField label="Депозит на одного гостя, ₽" hint="Укажите 0, если депозит не требуется" required
                 ><input v-model.number="formContent.venue.booking.deposit" type="number" min="0" class="field"
               /></EditorField>
-              <div class="grid gap-5 sm:grid-cols-2">
-                <EditorField label="Минимум гостей" required
-                  ><input v-model.number="formContent.venue.booking.minGuests" type="number" min="1" step="1" class="field" /></EditorField
-                ><EditorField label="Максимум гостей" required
-                  ><input v-model.number="formContent.venue.booking.maxGuests" type="number" min="1" step="1" class="field"
-                /></EditorField>
-              </div>
               <div>
                 <h3 class="mb-2 font-medium">Условия бронирования</h3>
                 <p class="mb-4 text-sm text-muted">Расскажите об отмене, опоздании, предоплате и о том, как подтверждается столик</p>

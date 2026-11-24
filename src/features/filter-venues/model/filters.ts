@@ -21,7 +21,7 @@ export const applyVenueFilters = (venues: Venue[], filters: VenueFilterState) =>
 
   return venues
     .filter(venue =>
-      (!normalizedSearchQuery || [venue.name, venue.short, venue.address, venue.metro ?? ''].some(s => s.toLowerCase().includes(normalizedSearchQuery)))
+      (!normalizedSearchQuery || [venue.name, venue.short, venue.address].some(s => s.toLowerCase().includes(normalizedSearchQuery)))
       && (!filters.genres.length || filters.genres.some(g => venue.genres.includes(g)))
       && (!filters.formats.length || filters.formats.includes(venue.format))
       && (!filters.drinks.length || filters.drinks.every(d => venue.drinks.includes(d))))
